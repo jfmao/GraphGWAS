@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment
+.env
+*.env
+
+# Data (large files)
+tests/data/*.vcf
+tests/data/*.vcf.gz
+tests/data/*.bed
+tests/data/*.bim
+tests/data/*.fam
+tests/data/yeast/
+docs/*.pdf
+
+# Output
+*.png
+*.pdf
+*.pt
+*.tsv
+results/
+
+# Neo4j
+neo4j-data/
+plugins/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Neo4j database backups
+backups/
+
+# Development tool configuration
+CLAUDE.md
+.claude/
