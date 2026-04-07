@@ -94,17 +94,25 @@
 
 ### Priority 1: Head-to-Head with State-of-Art Tools (2-3 weeks)
 
-**Epistasis — install and compare to:**
-- [ ] FAME (NG 2025 paper) — marginal epistasis test
-- [ ] BOOST — boolean pairwise epistasis
-- [ ] PLINK --epistasis (exhaustive pairwise)
-- [ ] All on same 1KG chr22 S1 simulations (100 replicates)
+**Status: PARTIALLY DONE**
 
-**Fine-mapping — install and compare to:**
-- [ ] SuSiE (R package susieR) — current gold standard
-- [ ] FINEMAP — Bayesian stochastic search
-- [ ] Polyfun+SuSiE — with functional annotations (direct competitor to L1)
-- [ ] All on same 1KG chr22 F1 simulations (100 replicates)
+**Fine-mapping — L1 vs SuSiE (COMPLETED, 20 replicates):**
+- [x] SuSiE installed (R 4.5.3, susieR 0.14.2 via conda)
+- [x] FINEMAP v1.4.2 installed (binary)
+- [x] L1 (basic) vs SuSiE benchmark: SuSiE wins (rank 1.2 vs 13.1, CS 3.8 vs 9.7)
+- [x] Multi-omics annotations loaded (STRING PPI 518 edges, eQTL 48K variants, conservation 1M variants)
+- [x] L1 enhanced with multi-layer functional scoring (eQTL + PPI + conservation + gene/pathway)
+- [ ] **L1 (multi-omics) vs SuSiE re-benchmark — INTERRUPTED, needs to re-run**
+  - Was running when session paused. 20 reps, ~60 min total.
+  - Key question: does multi-omics annotation close the gap with SuSiE?
+- [ ] FINEMAP comparison — output parsing needs fixing (snp file format)
+- [ ] Polyfun+SuSiE comparison — not started
+
+**Epistasis — install and compare to:**
+- [ ] FAME (NG 2025 paper) — marginal epistasis test (not yet installed)
+- [ ] BOOST — boolean pairwise epistasis (not yet installed)
+- [x] PLINK --glm interaction (done — GraphGWAS M1 discovers pairs, PLINK only confirms)
+- [ ] All on same 1KG chr22 S1 simulations (100 replicates)
 
 **Metrics (matching GWFM paper standard):**
 - PIP calibration (TDR vs PIP bins)

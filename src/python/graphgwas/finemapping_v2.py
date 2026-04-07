@@ -209,33 +209,87 @@ def dual_graph_finemap(
         unique_stats = unique_stats / unique_stats.max() * z_stats.max()
     unique_stats = np.maximum(unique_stats, 0)
 
-    # Step 5: Functional annotation score via graph traversal
+    # Step 5: Multi-omics functional annotation score via graph traversal
     z_func = np.zeros(n_var)
 
-    # Query: which variants fall in annotated genes? which genes are in pathways?
+    # Batch query: get all annotation layers for locus variants at once
+    vids = [v["variantId"] for v in variants]
+
+    # Layer 1: Gene + Pathway (graph traversal)
+    gene_scores = {}
+    result = conn.execute_read("""
+        UNWIND $vids AS vid
+        MATCH (v:Variant {variantId: vid})-[:HAS_CONSEQUENCE]->(g:Gene)
+        OPTIONAL MATCH (g)-[:IN_PATHWAY]->(p:Pathway)
+        OPTIONAL MATCH (g)-[:INTERACTS_WITH]-(g2:Gene)
+        RETURN vid, g.symbol AS gene, collect(DISTINCT p.name) AS pathways,
+               count(DISTINCT g2) AS ppi_partners
+    """, {"vids": vids})
+    for rec in result:
+        vid = rec["vid"]
+        gene_scores.setdefault(vid, {"genes": [], "pathways": [], "ppi": 0})
+        if rec["gene"]:
+            gene_scores[vid]["genes"].append(rec["gene"])
+            gene_scores[vid]["ppi"] = max(gene_scores[vid]["ppi"], rec["ppi_partners"])
+        for pw in rec.get("pathways", []):
+            if pw:
+                gene_scores[vid]["pathways"].append(pw)
+
+    # Layer 2: eQTL score (from variant properties)
+    eqtl_scores = {}
+    result = conn.execute_read("""
+        UNWIND $vids AS vid
+        MATCH (v:Variant {variantId: vid})
+        WHERE v.eqtl_score IS NOT NULL
+        RETURN vid, v.eqtl_score AS eqtl, v.eqtl_gene AS eqtl_gene
+    """, {"vids": vids})
+    for rec in result:
+        eqtl_scores[rec["vid"]] = {"score": rec["eqtl"], "gene": rec.get("eqtl_gene", "")}
+
+    # Layer 3: Conservation score (from variant properties)
+    cons_scores = {}
+    result = conn.execute_read("""
+        UNWIND $vids AS vid
+        MATCH (v:Variant {variantId: vid})
+        WHERE v.conservation_score IS NOT NULL
+        RETURN vid, v.conservation_score AS cons
+    """, {"vids": vids})
+    for rec in result:
+        cons_scores[rec["vid"]] = rec["cons"]
+
+    # Compute combined functional score per variant
     for i, v in enumerate(variants):
         vid = v["variantId"]
-        result = conn.execute_read("""
-            MATCH (v:Variant {variantId: $vid})-[:HAS_CONSEQUENCE]->(g:Gene)
-            OPTIONAL MATCH (g)-[:IN_PATHWAY]->(p:Pathway)
-            RETURN g.symbol AS gene, collect(DISTINCT p.name) AS pathways
-        """, {"vid": vid})
-
         annotations = []
         score = 0.0
-        for rec in result:
-            gene = rec.get("gene")
-            pathways = rec.get("pathways", [])
-            if gene:
-                score += 1.0  # in a gene
-                annotations.append(f"gene:{gene}")
-            if pathways:
-                score += len(pathways) * 0.5  # in pathway(s)
-                for pw in pathways:
-                    if pw:
-                        annotations.append(f"pathway:{pw}")
 
-        z_func[i] = np.log1p(score)  # log(1 + score) for diminishing returns
+        # Gene/Pathway layer (weight: 1.0 per gene, 0.5 per pathway)
+        gs = gene_scores.get(vid, {"genes": [], "pathways": [], "ppi": 0})
+        if gs["genes"]:
+            score += 1.0
+            annotations.extend(f"gene:{g}" for g in gs["genes"])
+        if gs["pathways"]:
+            score += len(set(gs["pathways"])) * 0.5
+            annotations.extend(f"pathway:{p}" for p in set(gs["pathways"]))
+
+        # PPI layer (weight: 0.3 per interaction partner, capped at 3.0)
+        if gs["ppi"] > 0:
+            score += min(gs["ppi"] * 0.3, 3.0)
+            annotations.append(f"ppi_partners:{gs['ppi']}")
+
+        # eQTL layer (weight: 2.0 × eqtl_score — strong signal)
+        eq = eqtl_scores.get(vid)
+        if eq:
+            score += 2.0 * eq["score"]
+            annotations.append(f"eqtl:{eq['gene']}({eq['score']:.1f})")
+
+        # Conservation layer (weight: 1.5 × conservation_score)
+        cons = cons_scores.get(vid, 0)
+        if cons > 0.5:  # only count if moderately conserved
+            score += 1.5 * cons
+            annotations.append(f"conservation:{cons:.2f}")
+
+        z_func[i] = np.log1p(score)
         v["_annotations"] = annotations
 
     # Normalize functional scores
