@@ -80,27 +80,142 @@
 - [x] PLINK2 benchmark → r(-log10p)=1.0000 on 82K shared variants
 - [x] Human chr1 GWAS (5.76M variants, 3202 samples) → 9/9 simulated causal recovered
 - [x] Full 1KG import (70.7M variants, 3202 samples, 22 chromosomes)
-- [x] Batch genotype loading (cursor pagination) → 3× speedup (4200→5965 variants/sec)
-- [ ] Full-genome human GWAS (in progress, ~26M of 70M done, estimated ~1.5 hr remaining)
+- [x] Full-genome human GWAS (70.7M variants, 3.5 hours, 14/21 causal GW-sig)
+- [x] Epistasis v2: M1-M4 implemented, benchmarked, M1 rank #1 on all replicates
+- [x] Fine-mapping v2: L1/L4 implemented, L1 CS=4.4, L4 multi-signal
+- [x] 10 comprehensive benchmarks completed
+- [x] PLINK interaction comparison (42,000× search reduction demonstrated)
+- [x] v1 vs v2 comparison (L1 beats v1 centrality, M1 220× more precise than v1 epistasis)
+- [x] Git commit + push to github.com/jfmao/GraphGWAS
 
-### Validation Gaps — MUST PLAN BEFORE RUNNING (see bottom of file)
-- [ ] **Task B: Epistasis ground truth benchmark** (HIGHEST PRIORITY)
-- [ ] **Task A: Rare variant power benchmark**
-- [ ] **Task C: Pathway architecture benchmark**
-- [ ] **Task D: Fine-mapping benchmark vs SuSiE**
-- [ ] **Task E: Fix spectral heritability formula**
-- [ ] **Meta: Integrated pipeline showcase** (after B, C, D pass)
+---
 
-### Engineering
-- [ ] Git commit (still zero commits — CRITICAL)
-- [ ] VEP/SnpEff functional annotations for yeast and human (improve max-flow specificity)
-- [ ] GPU-accelerated batch linear regression (test many variants simultaneously)
-- [ ] LD pruning implementation (needed for epistasis benchmark)
+## NEXT PHASE: Preparing for Nature Genetics Submission
+
+### Priority 1: Head-to-Head with State-of-Art Tools (2-3 weeks)
+
+**Epistasis — install and compare to:**
+- [ ] FAME (NG 2025 paper) — marginal epistasis test
+- [ ] BOOST — boolean pairwise epistasis
+- [ ] PLINK --epistasis (exhaustive pairwise)
+- [ ] All on same 1KG chr22 S1 simulations (100 replicates)
+
+**Fine-mapping — install and compare to:**
+- [ ] SuSiE (R package susieR) — current gold standard
+- [ ] FINEMAP — Bayesian stochastic search
+- [ ] Polyfun+SuSiE — with functional annotations (direct competitor to L1)
+- [ ] All on same 1KG chr22 F1 simulations (100 replicates)
+
+**Metrics (matching GWFM paper standard):**
+- PIP calibration (TDR vs PIP bins)
+- Credible set size at same coverage
+- Power at same FPR
+- Null simulation FPR (1000 null replicates)
+- Runtime comparison
+
+### Priority 2: Mathematical Theory (3-4 weeks)
+
+**For M1 (epistasis):**
+- [ ] Theorem: LD pruning reduces search space from M to S ≤ M/k(τ)
+- [ ] Theorem: interaction test on LD-pruned variants has controlled FPR at level α
+- [ ] Power formula: P(detect | β_int, MAF_A, MAF_B, N, τ)
+- [ ] Proof that 42,000× reduction has mathematical foundation
+
+**For L1 (fine-mapping):**
+- [ ] Theorem: if causal has z_func > 0 and proxies have z_func = 0, causal ranks #1
+- [ ] Credible set coverage proof under dual-graph model
+- [ ] Connection to SuSiE framework (show L1 = SuSiE + specific prior)
+
+**For M4 (dark matter):**
+- [ ] Theorem: Poisson test for depleted co-occurrence has type I error ≤ α
+- [ ] Power: minimum N to detect depletion of magnitude δ
+
+### Priority 3: Multi-Omics Integration for L1 (3-4 weeks)
+
+**Load public multi-omics annotations into Neo4j:**
+- [ ] GTEx eQTL data (~2M eQTLs across 49 tissues)
+- [ ] ENCODE regulatory elements (enhancers, promoters)
+- [ ] STRING protein-protein interactions (~600K edges in human)
+- [ ] OpenTargets drug targets
+- [ ] PhyloP/GERP conservation scores
+
+**Enhance L1 fine-mapping:**
+- [ ] Multi-layer functional scoring via graph traversal depth
+- [ ] Tissue-specific traversal weighting
+- [ ] Benchmark L1-multiomics vs SuSiE vs SBayesRC on same simulations
+- [ ] **Show L1 improves specifically when annotations are rich** (key result)
+
+### Priority 4: Rigorous Simulations (2 weeks)
+
+- [ ] Expand to 100 replicates per scenario (from current 3-5)
+- [ ] PIP calibration plots (TDR vs PIP, matching GWFM paper Fig. 2)
+- [ ] Power vs coverage curves (matching GWFM paper Fig. 3)
+- [ ] Null simulation FPR (1000 null replicates)
+- [ ] Vary sample sizes: N = 1K, 5K, 10K, 50K, 100K
+- [ ] Multiple genetic architectures (sparse, large-effects, LDMS)
+
+### Priority 5: Code Polish + Documentation (1-2 weeks)
+
+- [ ] pip-installable package
+- [ ] README with quick-start guide
+- [ ] Reproducible benchmark scripts in repo
+- [ ] Integration tests for v2 methods
+
+---
+
+## UK Biobank Preparation (start application NOW, ~4-6 weeks approval)
+
+### Hybrid Architecture for UKB Scale
+
+GraphGWAS cannot store 500K-sample genotypes in Neo4j (1.6TB gt_packed).
+**Solution: hybrid file + graph architecture.**
+
+**Neo4j stores (small, fast):**
+- GWAS summary statistics (imported from PLINK2/regenie)
+- Multi-omics annotations (eQTL, chromatin, Hi-C, PPI, drug targets)
+- Gene / Pathway / GO / RegulatoryElement nodes and relationships
+- LD structure for candidate loci (precomputed)
+
+**External files store (large, streamed on demand):**
+- Genotypes in .bgen/.bed format
+- Loaded per-locus for M1-M4 epistasis and L1/L4 fine-mapping
+- Never stored in Neo4j
+
+**Implementation needed:**
+- [ ] `graphgwas/bgen_reader.py` — load genotypes from .bgen files per-locus
+- [ ] Add `genotype_source` parameter to M1, M3, M4, L1, L4 (default "neo4j", option "bgen")
+- [ ] `graphgwas/summary_import.py` — import PLINK2/regenie summary stats into Neo4j
+- [ ] Test hybrid pipeline on 1KG .bgen files before UKB access
+
+**Hardware requirements:**
+- Current machine (64GB): works for candidate-region analyses
+- Cloud/HPC (256GB): recommended for full-scale UKB analysis
+- Storage: 2TB NVMe SSD for UKB .bgen files
+
+### What To Do Before UKB Access
+1. [ ] Load GTEx eQTL data into Neo4j (~2M eQTL across 49 tissues)
+2. [ ] Load ENCODE regulatory elements (enhancers/promoters)
+3. [ ] Load STRING protein-protein interactions (~600K edges)
+4. [ ] Enhance L1 multi-layer functional scoring via graph traversal
+5. [ ] Benchmark L1-multiomics vs SuSiE vs SBayesRC on 1KG simulations
+6. [ ] Show that L1 improves specifically when annotations are rich
+7. [ ] Implement bgen_reader.py module for hybrid architecture
+8. [ ] Test hybrid pipeline on 1KG .bgen files
+
+### When UKB Access Arrives
+- [ ] Run PLINK2/regenie GWAS on 48 traits (external, fast)
+- [ ] Import summary stats into Neo4j
+- [ ] Run M1 epistasis on significant loci → discover novel interactions
+- [ ] Run L1-multiomics fine-mapping → find causal variants missed by SuSiE
+- [ ] Replicate findings in independent UKB subsample
+- [ ] Write paper
 
 ### Pending from Earlier Phases
 - [ ] GNN training on yeast data (requires PyTorch Geometric + CUDA)
 - [ ] Agent interactive testing (requires ANTHROPIC_API_KEY)
 - [ ] API server integration test
+- [ ] Implement remaining epistasis methods: M5 (random walk), M6 (GNN), M7 (topological)
+- [ ] Implement remaining fine-mapping methods: L2 (spectral), L3 (haplotype)
 - [ ] MCP server integration test
 
 ---
