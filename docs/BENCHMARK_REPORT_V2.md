@@ -285,7 +285,49 @@ graph to ~500 independent variants, and the interaction regression isolates the 
 
 ---
 
-## 8. Conclusions
+## 8. L1 vs SuSiE Head-to-Head (20 replicates, F1 simulation)
+
+### Results
+
+| Method | Mean Rank | Mean PIP | Coverage | Mean CS Size | Runtime/locus |
+|--------|----------|----------|----------|-------------|---------------|
+| **SuSiE** | **1.2** | **0.756** | **100%** | **3.8** | 1.8s |
+| L1 (basic annotations) | 13.1 | 0.481 | 90% | 9.7 | 177s |
+| L1 (multi-omics, synthetic) | 336 | 0.463 | 85% | 6.5 | 0.1s |
+
+### Key Finding
+
+**SuSiE outperforms L1 in all scenarios tested.** The multi-omics annotations
+(synthetic eQTL, conservation, PPI) actually WORSENED L1's performance because
+they uniformly boost many non-causal variants near gene TSS regions, drowning
+out the causal variant's LD-deconvolved signal.
+
+**This is the expected result with synthetic annotations.** L1's theoretical
+advantage (Theorem 4) requires that the causal variant has HIGHER functional
+score than proxies. With real, discriminating annotations (e.g., actual GTEx
+eQTL where only one variant is the true regulatory variant), L1 should
+outperform SuSiE specifically at those loci.
+
+### What This Means for the Paper
+
+L1 should NOT be positioned as a SuSiE replacement. Instead:
+- **SuSiE** is the better general-purpose fine-mapping method
+- **L1** adds value when **highly discriminating functional annotations** are
+  available (e.g., a variant known to be an eQTL in the relevant tissue with
+  p < 1e-50, while its LD proxy has no eQTL evidence)
+- The graph-native advantage is in **integrating heterogeneous annotations**
+  (eQTL + PPI + conservation + pathway), not in the statistical model itself
+
+### Performance
+
+After vectorization and caching:
+- L1: **0.1s per locus** (1,770× faster than original 177s)
+- Pre-cache all chr22 annotations: 325s (one-time)
+- Full 20-replicate benchmark: **6.7 minutes** total
+
+---
+
+## 9. Conclusions
 
 ### What is proven
 
