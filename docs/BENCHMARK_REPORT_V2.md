@@ -308,22 +308,35 @@ score than proxies. With real, discriminating annotations (e.g., actual GTEx
 eQTL where only one variant is the true regulatory variant), L1 should
 outperform SuSiE specifically at those loci.
 
+### L1 with Real GTEx v8 eQTL (20 replicates)
+
+| L1 Version | Mean Rank | Rank #1 | Coverage | Mean CS |
+|-----------|-----------|---------|----------|---------|
+| L1 basic (no annotations) | 13.1 | 7/20 | 90% | 9.7 |
+| L1 synthetic annotations | 336 | 0/20 | 85% | 6.5 |
+| **L1 real GTEx eQTL** | **6.0** | **7/20** | 75% | 7.6 |
+| SuSiE (reference) | 1.2 | 17/20 | 100% | 3.8 |
+
+**Stratified by whether causal variant is an eQTL:**
+- Causal IS eQTL (8 loci): **L1 rank=3.2**, SuSiE rank=1.4
+- Causal NOT eQTL (12 loci): L1 rank=7.8, SuSiE rank=1.1
+
 ### What This Means for the Paper
 
-L1 should NOT be positioned as a SuSiE replacement. Instead:
-- **SuSiE** is the better general-purpose fine-mapping method
-- **L1** adds value when **highly discriminating functional annotations** are
-  available (e.g., a variant known to be an eQTL in the relevant tissue with
-  p < 1e-50, while its LD proxy has no eQTL evidence)
-- The graph-native advantage is in **integrating heterogeneous annotations**
-  (eQTL + PPI + conservation + pathway), not in the statistical model itself
+1. **Synthetic annotations HURT** (rank 13→336) — uniform scores boost non-causal variants
+2. **Real GTEx eQTL HELP** (rank 336→6) — discriminating p-values concentrate weight correctly
+3. **L1 approaches SuSiE at annotated loci** (rank 3.2 vs 1.4 when causal IS an eQTL)
+4. **SuSiE still wins overall** — L1 needs even richer annotations to surpass SuSiE
+
+L1 should be positioned as **complementary to SuSiE**: use SuSiE for general fine-mapping,
+use L1 when rich multi-omics annotations are available to further resolve ambiguous loci.
 
 ### Performance
 
-After vectorization and caching:
+After vectorization and file-based caching:
 - L1: **0.1s per locus** (1,770× faster than original 177s)
-- Pre-cache all chr22 annotations: 325s (one-time)
-- Full 20-replicate benchmark: **6.7 minutes** total
+- File-based GTEx cache loading: 7.6s (vs 5+ min for Neo4j queries)
+- Full 20-replicate benchmark: **79 seconds** total
 
 ---
 
