@@ -425,3 +425,18 @@ The strongest paper contribution would be:
 2. **L1 dual-graph fine-mapping** (credible set of 4.4 variants with functional context)
 3. **M4 dark matter** as a novel signal type (depleted co-occurrence for synthetic lethality)
 4. **Real-data application** on yeast copper resistance or ethanol tolerance
+
+### 79-Replicate Confirmation (Weak Signal h²=0.01, Paper-Ready)
+
+| Metric | **L1 Bayesian** | **SuSiE** |
+|--------|----------------|----------|
+| **Mean rank** | **1.65** | 2.84 |
+| **Rank #1 rate** | **77%** (61/79) | 57% (45/79) |
+| **Wins** | **27 (34%)** | 2 (3%) |
+| Ties | 50 (63%) | |
+| Win ratio | **13.5 : 1** | |
+| Runtime | 303s (79 reps) | |
+
+**This is the paper-ready result.** On 79 independent loci with tissue-specific
+eQTL causal variants at h²=0.01, L1 with Bayesian annotation prior wins 13.5×
+more often than SuSiE and achieves rank #1 in 77% of replicates (vs 57%).
