@@ -614,9 +614,131 @@ EPISTASIS_SCENARIOS = {
     "S5": simulate_S5_multiway,
 }
 
+def simulate_F6_multi_locus_pathway(
+    conn: GraphGWASConnection,
+    chr: str,
+    n_pathway_loci: int = 5,
+    n_null_loci: int = 5,
+    beta: float = 0.3,
+    h2_target: float = 0.10,
+    af_range: tuple[float, float] = (0.05, 0.5),
+    seed: int = 42,
+) -> SimulationResult:
+    """F6: Multiple causal loci, some sharing a biological pathway.
+
+    Selects causal variants in genes of a shared pathway (n_pathway_loci)
+    plus causal variants NOT in any pathway (n_null_loci). Used to benchmark
+    cross-locus fine-mapping (CLGF) which shares evidence via pathways.
+    """
+    rng = np.random.default_rng(seed)
+    all_idx = get_all_indices(conn)
+    n = len(all_idx)
+
+    # Find genes in a pathway with many genes
+    pathway_genes = conn.execute_read("""
+        MATCH (g:Gene)-[:IN_PATHWAY]->(p:Pathway)
+        WHERE g.symbol IS NOT NULL
+        WITH p.name AS pathway, collect(DISTINCT g.symbol) AS genes
+        WHERE size(genes) >= $min_genes
+        RETURN pathway, genes
+        ORDER BY size(genes) DESC
+        LIMIT 5
+    """, {"min_genes": n_pathway_loci})
+
+    pathway_data = [(r["pathway"], r["genes"]) for r in pathway_genes]
+    if not pathway_data:
+        raise ValueError("No pathway with enough genes found")
+
+    # Pick the largest pathway
+    pw_name, pw_genes = pathway_data[0]
+    rng.shuffle(pw_genes)
+    selected_genes = pw_genes[:n_pathway_loci]
+
+    # For each selected gene, find a variant with HAS_CONSEQUENCE in AF range
+    causal_variants = []
+    genetic = np.zeros(n)
+
+    for gene in selected_genes:
+        result = conn.execute_read("""
+            MATCH (v:Variant)-[:HAS_CONSEQUENCE]->(g:Gene {symbol: $gene})
+            WHERE v.af_total >= $af_min AND v.af_total <= $af_max
+                  AND v.gt_packed IS NOT NULL
+            RETURN v.variantId AS vid, v.pos AS pos, v.chr AS chr,
+                   v.af_total AS af, v.gt_packed AS gtp
+            ORDER BY abs(v.af_total - 0.2) ASC
+            LIMIT 5
+        """, {"gene": gene, "af_min": af_range[0], "af_max": af_range[1]})
+
+        candidates = list(result)
+        if not candidates:
+            continue
+
+        pick = candidates[rng.integers(len(candidates))]
+        dosage = build_dosage(pick["gtp"], all_idx, _cfg.N_SAMPLES)
+        dosage = np.where(np.isnan(dosage), np.nanmean(dosage), dosage)
+        genetic += beta * dosage
+
+        causal_variants.append(CausalVariant(
+            variant_id=pick["vid"], chr=pick["chr"], pos=pick["pos"],
+            af=pick["af"], beta=beta, gene=gene, pathway=pw_name,
+        ))
+
+    # Add null-pathway causal variants (far from annotated genes)
+    null_variants = conn.execute_read("""
+        MATCH (v:Variant)
+        WHERE v.chr = $chr
+              AND v.af_total >= $af_min AND v.af_total <= $af_max
+              AND v.gt_packed IS NOT NULL
+              AND NOT (v)-[:HAS_CONSEQUENCE]->(:Gene)
+        RETURN v.variantId AS vid, v.pos AS pos, v.chr AS chr,
+               v.af_total AS af, v.gt_packed AS gtp
+        ORDER BY rand()
+        LIMIT $n
+    """, {"chr": chr, "af_min": af_range[0], "af_max": af_range[1],
+          "n": n_null_loci * 3})
+
+    null_picks = list(null_variants)
+    rng.shuffle(null_picks)
+    for pick in null_picks[:n_null_loci]:
+        dosage = build_dosage(pick["gtp"], all_idx, _cfg.N_SAMPLES)
+        dosage = np.where(np.isnan(dosage), np.nanmean(dosage), dosage)
+        genetic += beta * dosage
+
+        causal_variants.append(CausalVariant(
+            variant_id=pick["vid"], chr=pick["chr"], pos=pick["pos"],
+            af=pick["af"], beta=beta, gene=None, pathway=None,
+        ))
+
+    if len(causal_variants) == 0:
+        raise ValueError("No causal variants could be selected")
+
+    var_g = np.var(genetic)
+    if var_g < 1e-10:
+        raise ValueError("No genetic variance")
+    var_e = var_g * (1 / h2_target - 1)
+    noise = rng.normal(0, np.sqrt(var_e), n)
+    phenotype = genetic + noise
+
+    return SimulationResult(
+        phenotype=phenotype,
+        sample_ids=all_idx,
+        scenario="F6_multi_locus_pathway",
+        realized_h2=var_g / np.var(phenotype),
+        causal_variants=causal_variants,
+        noise_variance=var_e,
+        config={
+            "chr": chr, "n_pathway_loci": n_pathway_loci,
+            "n_null_loci": n_null_loci, "beta": beta,
+            "h2_target": h2_target, "pathway": pw_name,
+            "pathway_genes": selected_genes,
+        },
+    )
+
+
 FINEMAPPING_SCENARIOS = {
     "F1": simulate_F1_single_causal_in_ld,
     "F2": simulate_F2_two_independent_causal,
+    "F6": simulate_F6_multi_locus_pathway,
 }
 
 

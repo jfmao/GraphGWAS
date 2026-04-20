@@ -12,9 +12,11 @@ This module implements L1 and L4 first.
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 import numpy as np
 from scipy import stats as sp_stats
-from scipy.linalg import eigh
+from scipy.linalg import eigh, cho_factor, cho_solve
+import scipy.sparse as sp_sparse
 
 from . import config as _cfg
 from .db import GraphGWASConnection
@@ -577,6 +579,710 @@ def recombination_embedding_finemap(
             print(f"  {c.variant_id:<50s} {c.z_stat:>7.2f} {c.pip:>6.4f} {cluster:>7s} {cs_mark:>3s}")
 
     return candidates
+
+
+# ===================================================================
+# Shared helpers (v3 methods)
+# ===================================================================
+
+def _compute_ld_correlation(variants: list[dict]) -> np.ndarray:
+    """Compute signed LD correlation matrix (Pearson r, not r²)."""
+    n = len(variants)
+    D = np.array([v["dosage"] for v in variants], dtype=np.float64)
+    row_means = np.nanmean(D, axis=1, keepdims=True)
+    D = np.where(np.isnan(D), row_means, D)
+    stds = D.std(axis=1, keepdims=True)
+    stds = np.where(stds < 1e-10, 1.0, stds)
+    D = (D - D.mean(axis=1, keepdims=True)) / stds
+    R = (D @ D.T) / D.shape[1]
+    np.fill_diagonal(R, 1.0)
+    return R
+
+
+def _compute_z_scores(
+    variants: list[dict], phenotype: np.ndarray,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Compute z-scores (t-statistics = beta/se) per variant.
+
+    Returns (z_scores, betas, se) arrays of length n_var.
+    """
+    n_var = len(variants)
+    D = np.array([v["dosage"] for v in variants], dtype=np.float64)
+    y = phenotype.copy()
+    valid = ~np.isnan(y)
+    y_clean = np.where(np.isnan(y), 0, y)
+    D_clean = np.where(np.isnan(D), 0, D)
+    if valid.sum() < 20:
+        return np.zeros(n_var), np.zeros(n_var), np.ones(n_var)
+    D_v = D_clean[:, valid]
+    y_v = y_clean[valid]
+    n = int(valid.sum())
+    y_c = y_v - y_v.mean()
+    D_c = D_v - D_v.mean(axis=1, keepdims=True)
+    var_g = np.var(D_v, axis=1)
+    safe_var = np.where(var_g > 1e-10, var_g, 1.0)
+    beta = (D_c @ y_c) / n / safe_var
+    predicted = D_c * beta[:, np.newaxis]
+    residuals = y_c[np.newaxis, :] - predicted
+    mse = np.sum(residuals**2, axis=1) / (n - 2)
+    se = np.sqrt(mse / (n * safe_var))
+    safe_se = np.where(se > 1e-10, se, 1.0)
+    t_stats = np.where(var_g > 1e-10, beta / safe_se, 0.0)
+    return t_stats, beta, se
+
+
+def _ld_deconvolve(
+    z_stats: np.ndarray, R_sq: np.ndarray, r2_threshold: float = 0.3,
+) -> tuple[np.ndarray, np.ndarray]:
+    """LD deconvolution: unique contribution after removing neighbor signal.
+
+    Returns (unique_stats, n_neighbors).
+    """
+    n = len(z_stats)
+    unique = np.zeros(n)
+    n_nb = np.zeros(n, dtype=int)
+    for i in range(n):
+        nb = np.where(R_sq[i] > r2_threshold)[0]
+        nb = nb[nb != i]
+        n_nb[i] = len(nb)
+        if len(nb) > 0:
+            unique[i] = z_stats[i] - np.sum(R_sq[i, nb] * z_stats[nb]) / len(nb)
+        else:
+            unique[i] = z_stats[i]
+    if unique.max() > 0:
+        unique = unique / unique.max() * z_stats.max()
+    unique = np.maximum(unique, 0)
+    return unique, n_nb
+
+
+def _softmax(scores: np.ndarray) -> np.ndarray:
+    """Numerically stable softmax → PIP."""
+    s = scores - scores.max()
+    e = np.exp(s)
+    return e / e.sum()
+
+
+def _build_credible_set(
+    pip: np.ndarray, coverage: float = 0.95,
+) -> np.ndarray:
+    """Build credible set from PIPs. Returns boolean mask."""
+    order = np.argsort(-pip)
+    cumsum = np.cumsum(pip[order])
+    in_cs = np.zeros(len(pip), dtype=bool)
+    for k, idx in enumerate(order):
+        in_cs[idx] = True
+        if cumsum[k] >= coverage:
+            break
+    return in_cs
+
+
+def _load_eqtl_cache(
+    path: str = "/mnt/data/GraphGWAS/data/annotations/gtex_chr22_enhanced_cache.json",
+) -> dict:
+    """Load eQTL annotation cache from file."""
+    with open(path) as f:
+        return json.load(f)
+
+
+def _soft_threshold(v: np.ndarray, kappa: float) -> np.ndarray:
+    """Soft-thresholding (proximal operator for L1 norm)."""
+    return np.sign(v) * np.maximum(np.abs(v) - kappa, 0)
+
+
+def _build_candidates(
+    variants: list[dict],
+    pip: np.ndarray,
+    z_stats: np.ndarray,
+    z_func: np.ndarray,
+    unique_stats: np.ndarray,
+    combined: np.ndarray,
+    n_neighbors: np.ndarray,
+    chr_name: str,
+    credible_set_coverage: float = 0.95,
+    annotations_map: dict | None = None,
+) -> list[FinemapCandidate]:
+    """Build sorted FinemapCandidate list from arrays."""
+    in_cs = _build_credible_set(pip, credible_set_coverage)
+    candidates = []
+    for i in range(len(variants)):
+        candidates.append(FinemapCandidate(
+            variant_id=variants[i]["variantId"],
+            chr=chr_name,
+            pos=variants[i]["pos"],
+            ref=variants[i].get("ref", ""),
+            alt=variants[i].get("alt", ""),
+            af=variants[i].get("af_total", 0),
+            z_stat=float(z_stats[i]),
+            z_functional=float(z_func[i]),
+            unique_stat=float(unique_stats[i]),
+            combined_score=float(combined[i]),
+            pip=float(pip[i]),
+            in_credible_set=bool(in_cs[i]),
+            annotations=(annotations_map or {}).get(variants[i]["variantId"], []),
+            n_ld_neighbors=int(n_neighbors[i]),
+        ))
+    candidates.sort(key=lambda c: -c.combined_score)
+    return candidates
+
+
+# ===================================================================
+# Design C: Graph-Regularized Sparse Deconvolution (GRSD)
+# ===================================================================
+
+def graph_regularized_sparse_finemap(
+    conn: "GraphGWASConnection",
+    chr: str,
+    lead_pos: int,
+    window: int = 500_000,
+    lambda_ridge: float = 0.1,
+    lambda_graph: float = 0.5,
+    r2_edge_threshold: float = 0.1,
+    prior_var: float = 0.04,
+    credible_set_coverage: float = 0.95,
+    verbose: bool = True,
+) -> list[FinemapCandidate]:
+    """GRSD: Graph-Regularized Sparse Deconvolution.
+
+    Solves: β* = argmin ||z - R·β||² + λ_r·||β||² + λ_g·β^T·L·β
+    where L is the LD graph Laplacian (encourages different betas for
+    LD-connected variants = anti-smoothing / sharpening).
+
+    This has a closed-form solution: β* = (R^T R + λ_r I + λ_g L)^{-1} R^T z
+    PIPs computed via Wakefield approximate Bayes factors on deconvolved betas.
+    """
+    all_idx = get_all_indices(conn)
+    pheno = get_phenotype_values(conn, all_idx)
+
+    if verbose:
+        print(f"GRSD Fine-Mapping: {chr}:{lead_pos} ±{window // 1000}kb")
+
+    variants = _load_locus_variants(conn, chr, lead_pos, window, all_idx)
+    n_var = len(variants)
+    if n_var < 3:
+        return []
+
+    R = _compute_ld_correlation(variants)
+    z, beta_marginal, se_marginal = _compute_z_scores(variants, pheno)
+    R_sq = R ** 2
+    n_samples = int((~np.isnan(pheno)).sum())
+
+    if verbose:
+        print(f"  {n_var} variants, max |z|={np.max(np.abs(z)):.1f}")
+
+    # Build LD graph Laplacian
+    # Adjacency: A[i,j] = r²(i,j) if > threshold, else 0
+    A = np.where(R_sq > r2_edge_threshold, R_sq, 0)
+    np.fill_diagonal(A, 0)
+    D_diag = A.sum(axis=1)
+    L = np.diag(D_diag) - A  # graph Laplacian
+
+    n_edges = int((A > 0).sum() // 2)
+    if verbose:
+        print(f"  {n_edges} LD edges, λ_r={lambda_ridge}, λ_g={lambda_graph}")
+
+    # Closed-form solution: β* = (R^T R + λ_r I + λ_g L)^{-1} R^T z
+    RtR = R.T @ R
+    Q = RtR + lambda_ridge * np.eye(n_var) + lambda_graph * L
+    Rtz = R.T @ z
+
+    try:
+        Q_factor = cho_factor(Q)
+        beta_deconv = cho_solve(Q_factor, Rtz)
+    except np.linalg.LinAlgError:
+        Q = Q + 0.1 * np.eye(n_var)
+        Q_factor = cho_factor(Q)
+        beta_deconv = cho_solve(Q_factor, Rtz)
+
+    # Wakefield approximate Bayes factors for PIPs
+    safe_se = np.where(se_marginal > 1e-10, se_marginal, 1.0)
+    se2 = safe_se ** 2
+    W = prior_var
+    z_deconv = beta_deconv / safe_se
+    ratio = W / (se2 + W)
+    log_bf = 0.5 * np.log(se2 / (se2 + W)) + 0.5 * z_deconv**2 * ratio
+    pip = _softmax(log_bf)
+
+    # -log10(p) for z_stat field
+    p_vals = 2 * sp_stats.t.sf(np.abs(z), n_samples - 2)
+    z_stat_log = -np.log10(np.maximum(p_vals, 1e-300))
+
+    n_nb = np.array([(R_sq[i] > r2_edge_threshold).sum() - 1 for i in range(n_var)])
+
+    return _build_candidates(
+        variants, pip, z_stat_log, np.zeros(n_var), np.abs(beta_deconv),
+        log_bf, n_nb, chr, credible_set_coverage)
+
+
+# ===================================================================
+# Design B: Hierarchical Belief Propagation (HBP)
+# ===================================================================
+
+def hierarchical_bp_finemap(
+    conn: "GraphGWASConnection",
+    chr: str,
+    lead_pos: int,
+    window: int = 500_000,
+    n_rounds: int = 5,
+    alpha: float = 0.6,
+    damping: float = 0.5,
+    r2_smooth: float = 0.3,
+    credible_set_coverage: float = 0.95,
+    eqtl_cache: dict | None = None,
+    verbose: bool = True,
+) -> list[FinemapCandidate]:
+    """HBP: Hierarchical Belief Propagation fine-mapping.
+
+    Models variant–gene–pathway as a 3-layer factor graph.
+    Messages propagate upward (evidence aggregation) then downward
+    (prior refinement) through the biological hierarchy.
+    """
+    all_idx = get_all_indices(conn)
+    pheno = get_phenotype_values(conn, all_idx)
+
+    if verbose:
+        print(f"HBP Fine-Mapping: {chr}:{lead_pos} ±{window // 1000}kb")
+
+    variants = _load_locus_variants(conn, chr, lead_pos, window, all_idx)
+    n_var = len(variants)
+    if n_var < 3:
+        return []
+
+    z_stats = _compute_association_stats(variants, pheno)
+    R_sq = _compute_ld_matrix(variants)
+    unique_stats, n_nb = _ld_deconvolve(z_stats, R_sq, r2_smooth)
+
+    # --- Build bipartite matrices from Neo4j ---
+    vids = [v["variantId"] for v in variants]
+    vid_idx = {vid: i for i, vid in enumerate(vids)}
+
+    result = conn.execute_read("""
+        UNWIND $vids AS vid
+        MATCH (v:Variant {variantId: vid})-[:HAS_CONSEQUENCE]->(g:Gene)
+        OPTIONAL MATCH (g)-[:IN_PATHWAY]->(p:Pathway)
+        OPTIONAL MATCH (g)-[:INTERACTS_WITH]-(g2:Gene)
+        RETURN vid, g.symbol AS gene,
+               collect(DISTINCT p.name) AS pathways,
+               collect(DISTINCT g2.symbol) AS ppi_neighbors
+    """, {"vids": vids})
+
+    # Collect genes and pathways
+    gene_set = set()
+    pathway_set = set()
+    vid_genes = {}  # vid -> [(gene, [pathways], [ppi])]
+    for rec in result:
+        vid = rec["vid"]
+        gene = rec["gene"]
+        if not gene:
+            continue
+        gene_set.add(gene)
+        pathways = [p for p in rec.get("pathways", []) if p]
+        pathway_set.update(pathways)
+        ppi = [g for g in rec.get("ppi_neighbors", []) if g]
+        vid_genes.setdefault(vid, []).append((gene, pathways, ppi))
+
+    genes = sorted(gene_set)
+    pathways = sorted(pathway_set)
+    n_genes = len(genes)
+    n_pathways = len(pathways)
+    gene_idx = {g: i for i, g in enumerate(genes)}
+    pw_idx = {p: i for i, p in enumerate(pathways)}
+
+    if verbose:
+        print(f"  {n_var} variants, {n_genes} genes, {n_pathways} pathways")
+
+    if n_genes == 0:
+        # No gene annotations — fall back to L1-style
+        pip = _softmax(unique_stats)
+        return _build_candidates(
+            variants, pip, z_stats, np.zeros(n_var), unique_stats,
+            unique_stats, n_nb, chr, credible_set_coverage)
+
+    # B_vg: variant-gene matrix (weighted by eQTL if available)
+    B_vg = np.zeros((n_var, n_genes))
+    for vid, entries in vid_genes.items():
+        i = vid_idx.get(vid)
+        if i is None:
+            continue
+        eqtl_weight = 1.0
+        if eqtl_cache:
+            eq = eqtl_cache.get(vid)
+            if eq:
+                eqtl_weight = 1.0 + np.log1p(eq.get("composite", 0))
+        for gene, _, _ in entries:
+            j = gene_idx[gene]
+            B_vg[i, j] = max(B_vg[i, j], eqtl_weight)
+
+    # B_gp: gene-pathway matrix
+    B_gp = np.zeros((n_genes, n_pathways))
+    for vid, entries in vid_genes.items():
+        for gene, pws, _ in entries:
+            gi = gene_idx[gene]
+            for pw in pws:
+                pi = pw_idx[pw]
+                B_gp[gi, pi] = 1.0
+
+    # W_gg: gene-gene PPI adjacency (within locus genes only)
+    W_gg = np.zeros((n_genes, n_genes))
+    for vid, entries in vid_genes.items():
+        for gene, _, ppis in entries:
+            gi = gene_idx[gene]
+            for ppi_gene in ppis:
+                if ppi_gene in gene_idx:
+                    gj = gene_idx[ppi_gene]
+                    W_gg[gi, gj] = 1.0
+                    W_gg[gj, gi] = 1.0
+
+    # --- Message passing ---
+    variant_belief = _softmax(unique_stats)
+
+    for rnd in range(n_rounds):
+        # UPWARD: variant → gene → pathway
+        gene_score = B_vg.T @ variant_belief
+        # PPI diffusion (one step)
+        if W_gg.any():
+            row_sum = W_gg.sum(axis=1)
+            row_sum = np.where(row_sum > 0, row_sum, 1.0)
+            W_norm = W_gg / row_sum[:, np.newaxis]
+            gene_score = 0.7 * gene_score + 0.3 * (W_norm @ gene_score)
+        pathway_score = B_gp.T @ gene_score
+
+        # DOWNWARD: pathway → gene → variant
+        gene_prior = B_gp @ pathway_score
+        variant_prior = B_vg @ gene_prior
+
+        # Normalize
+        vp_sum = variant_prior.sum()
+        if vp_sum > 0:
+            variant_prior = variant_prior / vp_sum
+
+        # Combine with statistical evidence
+        new_belief = alpha * _softmax(unique_stats) + (1 - alpha) * variant_prior
+        new_belief = new_belief / new_belief.sum()
+
+        # Damping
+        variant_belief = damping * variant_belief + (1 - damping) * new_belief
+        variant_belief = variant_belief / variant_belief.sum()
+
+    pip = variant_belief
+
+    # z_functional = variant_prior contribution (for reporting)
+    z_func = variant_prior * z_stats.max() if variant_prior.max() > 0 else np.zeros(n_var)
+
+    return _build_candidates(
+        variants, pip, z_stats, z_func, unique_stats,
+        alpha * unique_stats + (1 - alpha) * z_func,
+        n_nb, chr, credible_set_coverage)
+
+
+def _cache_chr_graph_structure(conn, chr_name: str) -> dict:
+    """Pre-cache variant→gene→pathway graph for an entire chromosome.
+
+    Returns dict: vid -> {"genes": [str], "pathways": [str], "ppi": [str]}
+    Query runs once (~30s on 70M-node DB), then all HBP calls use the cache.
+    """
+    result = conn.execute_read("""
+        MATCH (v:Variant)-[:HAS_CONSEQUENCE]->(g:Gene)
+        WHERE v.chr = $chr
+        OPTIONAL MATCH (g)-[:IN_PATHWAY]->(p:Pathway)
+        OPTIONAL MATCH (g)-[:INTERACTS_WITH]-(g2:Gene)
+        RETURN v.variantId AS vid, g.symbol AS gene,
+               collect(DISTINCT p.name) AS pathways,
+               collect(DISTINCT g2.symbol) AS ppi
+    """, {"chr": chr_name})
+
+    cache = {}
+    for rec in result:
+        vid = rec["vid"]
+        gene = rec["gene"]
+        if not gene:
+            continue
+        entry = cache.setdefault(vid, {"genes": [], "pathways": [], "ppi": []})
+        if gene not in entry["genes"]:
+            entry["genes"].append(gene)
+        for p in rec.get("pathways", []):
+            if p and p not in entry["pathways"]:
+                entry["pathways"].append(p)
+        for g in rec.get("ppi", []):
+            if g and g not in entry["ppi"]:
+                entry["ppi"].append(g)
+    return cache
+
+
+def fast_hbp_finemap(
+    variants: list[dict],
+    phenotype: np.ndarray,
+    graph_cache: dict,
+    n_rounds: int = 5,
+    alpha: float = 0.6,
+    damping: float = 0.5,
+    r2_smooth: float = 0.3,
+    credible_set_coverage: float = 0.95,
+    eqtl_cache: dict | None = None,
+    chr_name: str = "chr22",
+) -> list[FinemapCandidate]:
+    """Fast HBP using pre-loaded variants and pre-cached graph structure.
+
+    Avoids Neo4j queries entirely. Runs in ~0.1s per locus.
+    """
+    n_var = len(variants)
+    if n_var < 3:
+        return []
+
+    z_stats = _compute_association_stats(variants, phenotype)
+    R_sq = _compute_ld_matrix(variants)
+    unique_stats, n_nb = _ld_deconvolve(z_stats, R_sq, r2_smooth)
+
+    vids = [v["variantId"] for v in variants]
+    vid_idx = {vid: i for i, vid in enumerate(vids)}
+
+    # Build bipartite matrices from graph_cache
+    gene_set = set()
+    pathway_set = set()
+    vid_genes = {}
+    for vid in vids:
+        info = graph_cache.get(vid)
+        if not info:
+            continue
+        for gene in info["genes"]:
+            gene_set.add(gene)
+            vid_genes.setdefault(vid, []).append(
+                (gene, info["pathways"], info["ppi"]))
+        pathway_set.update(info["pathways"])
+
+    genes = sorted(gene_set)
+    pathways = sorted(pathway_set)
+    n_genes = len(genes)
+    n_pathways = len(pathways)
+
+    if n_genes == 0:
+        pip = _softmax(unique_stats)
+        return _build_candidates(
+            variants, pip, z_stats, np.zeros(n_var), unique_stats,
+            unique_stats, n_nb, chr_name, credible_set_coverage)
+
+    gene_idx = {g: i for i, g in enumerate(genes)}
+    pw_idx = {p: i for i, p in enumerate(pathways)}
+
+    B_vg = np.zeros((n_var, n_genes))
+    for vid, entries in vid_genes.items():
+        i = vid_idx.get(vid)
+        if i is None:
+            continue
+        eqtl_weight = 1.0
+        if eqtl_cache:
+            eq = eqtl_cache.get(vid)
+            if eq:
+                eqtl_weight = 1.0 + np.log1p(eq.get("composite", 0))
+        for gene, _, _ in entries:
+            j = gene_idx[gene]
+            B_vg[i, j] = max(B_vg[i, j], eqtl_weight)
+
+    B_gp = np.zeros((n_genes, n_pathways))
+    for vid, entries in vid_genes.items():
+        for gene, pws, _ in entries:
+            gi = gene_idx[gene]
+            for pw in pws:
+                if pw in pw_idx:
+                    B_gp[gi, pw_idx[pw]] = 1.0
+
+    W_gg = np.zeros((n_genes, n_genes))
+    for vid, entries in vid_genes.items():
+        for gene, _, ppis in entries:
+            gi = gene_idx[gene]
+            for ppi_gene in ppis:
+                if ppi_gene in gene_idx:
+                    gj = gene_idx[ppi_gene]
+                    W_gg[gi, gj] = 1.0
+                    W_gg[gj, gi] = 1.0
+
+    # Message passing
+    variant_belief = _softmax(unique_stats)
+    variant_prior = np.zeros(n_var)
+
+    for rnd in range(n_rounds):
+        gene_score = B_vg.T @ variant_belief
+        if W_gg.any():
+            row_sum = W_gg.sum(axis=1)
+            row_sum = np.where(row_sum > 0, row_sum, 1.0)
+            W_norm = W_gg / row_sum[:, np.newaxis]
+            gene_score = 0.7 * gene_score + 0.3 * (W_norm @ gene_score)
+        pathway_score = B_gp.T @ gene_score
+
+        gene_prior = B_gp @ pathway_score
+        variant_prior = B_vg @ gene_prior
+        vp_sum = variant_prior.sum()
+        if vp_sum > 0:
+            variant_prior = variant_prior / vp_sum
+
+        new_belief = alpha * _softmax(unique_stats) + (1 - alpha) * variant_prior
+        new_belief = new_belief / new_belief.sum()
+        variant_belief = damping * variant_belief + (1 - damping) * new_belief
+        variant_belief = variant_belief / variant_belief.sum()
+
+    pip = variant_belief
+    z_func = variant_prior * z_stats.max() if variant_prior.max() > 0 else np.zeros(n_var)
+
+    return _build_candidates(
+        variants, pip, z_stats, z_func, unique_stats,
+        alpha * unique_stats + (1 - alpha) * z_func,
+        n_nb, chr_name, credible_set_coverage)
+
+
+# ===================================================================
+# Design A: Cross-Locus Graph Fine-Mapping (CLGF)
+# ===================================================================
+
+def cross_locus_graph_finemap(
+    conn: "GraphGWASConnection",
+    loci: list[dict],
+    phenotype: np.ndarray,
+    all_idx: np.ndarray,
+    n_iterations: int = 3,
+    pathway_weight: float = 0.3,
+    alpha: float = 0.7,
+    r2_smooth: float = 0.3,
+    credible_set_coverage: float = 0.95,
+    eqtl_cache: dict | None = None,
+    verbose: bool = True,
+) -> dict[str, list[FinemapCandidate]]:
+    """CLGF: Cross-Locus Graph Fine-Mapping.
+
+    Shares evidence across multiple GWAS loci via the biological pathway
+    graph. Loci connected through shared pathways reinforce each other's
+    causal variant identification — information that single-locus methods
+    like SuSiE and FINEMAP structurally cannot use.
+
+    Args:
+        loci: list of dicts with keys 'chr', 'lead_pos', 'window'.
+        phenotype: pre-loaded phenotype vector aligned to all_idx.
+        all_idx: sample packed_index array.
+        n_iterations: EM rounds for cross-locus refinement.
+        pathway_weight: weight for cross-locus pathway prior vs local annotation.
+        alpha: balance statistical vs functional (higher = more statistical).
+
+    Returns:
+        dict mapping locus key ("chr:pos") to sorted FinemapCandidate list.
+    """
+    if verbose:
+        print(f"CLGF: Cross-Locus Graph Fine-Mapping ({len(loci)} loci)")
+
+    # --- Phase 1: Initialize each locus ---
+    locus_data = {}
+    for loc in loci:
+        key = f"{loc['chr']}:{loc['lead_pos']}"
+        variants = _load_locus_variants(
+            conn, loc["chr"], loc["lead_pos"],
+            loc.get("window", 500_000), all_idx)
+        if len(variants) < 3:
+            continue
+
+        z_stats = _compute_association_stats(variants, phenotype)
+        R_sq = _compute_ld_matrix(variants)
+        unique, n_nb = _ld_deconvolve(z_stats, R_sq, r2_smooth)
+
+        # eQTL annotation scores
+        z_func = np.zeros(len(variants))
+        if eqtl_cache:
+            for i, v in enumerate(variants):
+                eq = eqtl_cache.get(v["variantId"])
+                if eq:
+                    score = eq.get("composite", 0)
+                    nt = eq.get("n_tissues", 0)
+                    if 1 <= nt <= 3:
+                        score *= 1.5
+                    elif nt >= 8:
+                        score *= 0.3
+                    z_func[i] = np.log1p(score)
+            if z_func.max() > 0:
+                z_func = z_func / z_func.max() * z_stats.max()
+
+        pip = _softmax(unique)
+
+        # Query variant→pathway mapping
+        vids = [v["variantId"] for v in variants]
+        result = conn.execute_read("""
+            UNWIND $vids AS vid
+            MATCH (v:Variant {variantId: vid})-[:HAS_CONSEQUENCE]->(g:Gene)
+            OPTIONAL MATCH (g)-[:IN_PATHWAY]->(p:Pathway)
+            RETURN vid, collect(DISTINCT p.name) AS pathways
+        """, {"vids": vids})
+
+        vid_pathways = {}
+        for rec in result:
+            pws = [p for p in rec.get("pathways", []) if p]
+            if pws:
+                vid_pathways[rec["vid"]] = pws
+
+        locus_data[key] = {
+            "variants": variants, "z_stats": z_stats, "unique": unique,
+            "z_func": z_func, "n_nb": n_nb, "pip": pip,
+            "vid_pathways": vid_pathways,
+        }
+
+    if verbose:
+        n_with_pw = sum(1 for ld in locus_data.values() if ld["vid_pathways"])
+        print(f"  {len(locus_data)} loci loaded, {n_with_pw} with pathway info")
+
+    # --- Phase 2: Iterative cross-locus refinement ---
+    for iteration in range(n_iterations):
+        # E-step: Accumulate pathway evidence across ALL loci
+        pathway_scores = {}
+        for key, ld in locus_data.items():
+            for i, v in enumerate(ld["variants"]):
+                vid = v["variantId"]
+                for pw in ld["vid_pathways"].get(vid, []):
+                    pathway_scores.setdefault(pw, 0.0)
+                    pathway_scores[pw] += ld["pip"][i]
+
+        # M-step: Update PIPs with cross-locus prior
+        for key, ld in locus_data.items():
+            n_var = len(ld["variants"])
+            cross_prior = np.zeros(n_var)
+
+            for i, v in enumerate(ld["variants"]):
+                vid = v["variantId"]
+                for pw in ld["vid_pathways"].get(vid, []):
+                    total = pathway_scores.get(pw, 0)
+                    # Subtract own-locus contribution to prevent self-reinforcement
+                    own = sum(
+                        ld["pip"][j]
+                        for j in range(n_var)
+                        if pw in ld["vid_pathways"].get(
+                            ld["variants"][j]["variantId"], [])
+                    )
+                    cross_prior[i] += max(total - own, 0)
+
+            if cross_prior.max() > 0:
+                cross_prior = cross_prior / cross_prior.max()
+
+            # Combined score
+            func_score = (
+                pathway_weight * cross_prior
+                + (1 - pathway_weight) * (ld["z_func"] / max(ld["z_func"].max(), 1e-10))
+            )
+            combined = alpha * ld["unique"] + (1 - alpha) * func_score * ld["z_stats"].max()
+
+            ld["pip"] = _softmax(combined)
+            ld["combined"] = combined
+            ld["cross_prior"] = cross_prior
+
+        if verbose:
+            top_pw = sorted(pathway_scores.items(), key=lambda x: -x[1])[:3]
+            print(f"  Iteration {iteration + 1}: top pathways = "
+                  + ", ".join(f"{p}({s:.2f})" for p, s in top_pw))
+
+    # --- Phase 3: Build results ---
+    results = {}
+    for key, ld in locus_data.items():
+        chr_name = key.split(":")[0]
+        z_func_final = ld.get("cross_prior", np.zeros(len(ld["variants"])))
+        combined = ld.get("combined", ld["unique"])
+        results[key] = _build_candidates(
+            ld["variants"], ld["pip"], ld["z_stats"], z_func_final,
+            ld["unique"], combined, ld["n_nb"], chr_name,
+            credible_set_coverage)
+
+    return results
 
 
 # ===================================================================

@@ -142,3 +142,43 @@ multiple traits before claiming as a methodological advance.
 **Cause:** Each batch creates nodes + MATCH for variant links + MATCH for study links.
 **Rule:** Default to TSV output (like conventional GWAS tools). Neo4j storage is
 optional (--store flag). For graph-native queries on results, load TSV post-hoc.
+
+### LESSON 017: FINEMAP needs signed correlation, not r²
+**Pattern:** FINEMAP produced empty .snp files (0.001s runtime) on 200+ variant loci.
+**Cause:** LD matrix was r² (squared correlation) but FINEMAP expects signed Pearson
+correlation. With r² (all positive), the Bayesian model becomes degenerate.
+**Rule:** Always check what LD matrix format a tool expects. FINEMAP: signed correlation.
+SuSiE: dosage matrix (computes LD internally). Different tools, different formats.
+
+### LESSON 018: Annotation prior weight must be gentle (α≈0.9)
+**Pattern:** L1 with α=0.5 (50% stat + 50% annotation) HURT ranking performance.
+Annotations boosted many non-causal variants equally, diluting the statistical signal.
+**Cause:** eQTL annotations cover ~26% of variants in a locus. Non-causal eQTL variants
+get the same annotation boost as the true causal variant.
+**Rule:** Set α=0.85-0.95. Annotations should be a gentle nudge, not equal weight.
+Only reduce α (more annotation weight) when annotations strongly discriminate (high
+variance across variants in the locus).
+
+### LESSON 020: LASSO/ADMM over-shrinks in fine-mapping; use ridge + Bayes factors
+**Pattern:** GRSD with L1+graph-TV penalty via ADMM produced rank 151-517 for causal variants.
+After switching to ridge + graph Laplacian, still rank 4-53 (better but not competitive).
+**Cause:** LASSO aggressively shrinks most betas to zero, including the causal variant among
+hundreds of correlated proxies. Ridge preserves more signal but over-smooths.
+**Rule:** For fine-mapping, proper Bayesian variable selection (SuSiE/FINEMAP) beats
+penalized regression. Graph structure should augment priors, not replace the likelihood.
+HBP works because it uses graph structure for the prior only, keeping statistical evidence
+as the primary signal.
+
+### LESSON 021: Pre-cache graph structure to avoid Neo4j bottleneck
+**Pattern:** HBP took 223s/locus because each call queried Neo4j for variant→gene→pathway.
+After pre-caching chr22 graph structure (9.4s once), HBP runs at 0.08s/locus.
+**Rule:** For benchmarks or batch operations, cache the full chromosome's graph structure
+in a Python dict once, then pass it to per-locus functions. The cache for chr22 has 514K
+entries and loads in ~9s.
+
+### LESSON 019: FAME is not a fine-mapping tool
+**Pattern:** Tried to compare FAME to SuSiE/FINEMAP/L1 for per-variant ranking.
+**Cause:** FAME estimates epistatic variance components (σ²) partitioned by annotation
+categories. It produces no per-variant PIPs.
+**Rule:** Match tools by output type. Fine-mapping → PIPs/ranks (SuSiE, FINEMAP, L1).
+Heritability partitioning → variance components (FAME, LDSC, S-LDSC).

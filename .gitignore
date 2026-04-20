@@ -23,6 +23,11 @@ tests/data/*.bed
 tests/data/*.bim
 tests/data/*.fam
 tests/data/yeast/
+tests/data/human/
+tests/data/arabidopsis/
+tests/data/sim/
+data/
+import.report
 docs/*.pdf
 
 # Output
