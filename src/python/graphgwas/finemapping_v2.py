@@ -81,6 +81,58 @@ def _load_locus_variants(
     return variants
 
 
+def _load_locus_variants_bgen(
+    reader,
+    chr: str,
+    center: int,
+    window: int,
+    min_af: float = 0.001,
+) -> list[dict]:
+    """BGEN-backed locus loader. Returns dicts matching the Neo4j loader shape."""
+    start = center - window // 2
+    end = center + window // 2
+    variant_df, dosage_matrix = reader.load_locus(chr, start, end, format="dosage")
+    variants: list[dict] = []
+    for i, row in variant_df.iterrows():
+        d = dosage_matrix[:, i]
+        af = float(d.mean() / 2.0)
+        if af < min_af or af > (1 - min_af):
+            continue
+        variants.append(
+            {
+                "variantId": f"{row['chr']}:{row['pos']}:{row['a1']}:{row['a2']}",
+                "chr": row["chr"],
+                "pos": int(row["pos"]),
+                "ref": row["a1"],
+                "alt": row["a2"],
+                "af_total": af,
+                "dosage": d.astype(np.float64),
+            }
+        )
+    return variants
+
+
+def load_locus_variants(
+    chr: str,
+    center: int,
+    window: int,
+    source,
+    all_idx: np.ndarray | None = None,
+) -> list[dict]:
+    """Unified locus loader dispatching on source type.
+
+    If `source` is a GraphGWASConnection, uses Neo4j-backed _load_locus_variants
+    (requires `all_idx`). If `source` is a BgenReader, uses BGEN-backed loader.
+    Both return the same dict shape for downstream methods.
+    """
+    from .bgen_reader import BgenReader  # local import to avoid heavy import cost
+    if isinstance(source, BgenReader):
+        return _load_locus_variants_bgen(source, chr, center, window)
+    if all_idx is None:
+        raise ValueError("all_idx required when source is a Neo4j connection")
+    return _load_locus_variants(source, chr, center, window, all_idx)
+
+
 def _compute_ld_matrix(variants: list[dict]) -> np.ndarray:
     """Compute pairwise r² matrix for locus variants.
 
