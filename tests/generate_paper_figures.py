@@ -725,6 +725,83 @@ def figure_8():
     save(fig, "fig8_power_vs_sample_size")
 
 
+# ===================================================================
+# Figure 9: Cross-ancestry performance
+# ===================================================================
+
+def figure_9():
+    print("Figure 9 — Cross-ancestry")
+    p = ROOT / "cross_ancestry" / "cross_ancestry.json"
+    if not p.exists():
+        print(f"  skipping: {p} not found")
+        return
+    data = json.loads(p.read_text())
+    summary = data["summary"]
+    results = data["results"]
+    pops = ["EUR", "AFR", "EAS"]
+    ancestry_colors = {"EUR": "#4c72b0", "AFR": "#dd8452", "EAS": "#55a868"}
+
+    fig, axes = plt.subplots(2, 2, figsize=(10, 7.5))
+    ax_a, ax_b, ax_c, ax_d = axes.flatten()
+
+    # Panel A: Rank-#1 rate
+    rates = [summary[p]["rank_1_rate_pct"] for p in pops]
+    ns = [summary[p]["n_samples"] for p in pops]
+    bars = ax_a.bar(pops, rates, color=[ancestry_colors[p] for p in pops])
+    for bar, r, n in zip(bars, rates, ns):
+        ax_a.text(bar.get_x() + bar.get_width() / 2, r + 1.5,
+                  f"{r:.0f}%\n(N={n})", ha="center", fontsize=9, weight="bold")
+    ax_a.set_ylabel("Rank-#1 rate (%)")
+    ax_a.set_title("a  HBP rank-#1 rate by ancestry (1KG chr22, h²=0.05)")
+    ax_a.set_ylim(0, 70)
+
+    # Panel B: Mean rank
+    ranks = [summary[p]["mean_rank"] for p in pops]
+    medians = [summary[p]["median_rank"] for p in pops]
+    x = np.arange(len(pops))
+    width = 0.35
+    ax_b.bar(x - width/2, ranks, width, label="Mean",
+             color=[ancestry_colors[p] for p in pops])
+    ax_b.bar(x + width/2, medians, width, label="Median",
+             color=[ancestry_colors[p] for p in pops], alpha=0.5,
+             edgecolor="black")
+    ax_b.set_xticks(x)
+    ax_b.set_xticklabels(pops)
+    ax_b.set_ylabel("Causal rank (lower = better)")
+    ax_b.set_title("b  Mean and median causal rank by ancestry")
+    ax_b.legend(fontsize=9)
+    ax_b.axhline(1, color="k", linestyle=":", lw=0.8, alpha=0.5)
+
+    # Panel C: Mean PIP by ancestry
+    pips = [summary[p]["mean_pip"] for p in pops]
+    bars = ax_c.bar(pops, pips, color=[ancestry_colors[p] for p in pops])
+    for bar, p in zip(bars, pips):
+        ax_c.text(bar.get_x() + bar.get_width() / 2, p + 0.01,
+                  f"{p:.3f}", ha="center", fontsize=9, weight="bold")
+    ax_c.set_ylabel("Mean PIP of causal variant")
+    ax_c.set_title("c  Posterior confidence by ancestry")
+    ax_c.set_ylim(0, 0.5)
+
+    # Panel D: per-rep PIP distribution
+    for p in pops:
+        sub = [r for r in results if r["ancestry"] == p and r["causal_pip"] is not None]
+        y = [r["causal_pip"] for r in sub]
+        x = [p] * len(y)
+        ax_d.scatter(x, y, alpha=0.55, color=ancestry_colors[p], s=45,
+                     edgecolors="black", linewidths=0.3)
+    # Overlay means
+    for i, p in enumerate(pops):
+        ax_d.plot(i, summary[p]["mean_pip"], "D", color="red",
+                  markersize=11, markeredgecolor="black",
+                  label="Mean" if i == 0 else None)
+    ax_d.set_ylabel("Per-rep PIP of causal variant")
+    ax_d.set_title("d  Per-replicate PIP distribution")
+    ax_d.set_ylim(0, 1.05)
+    ax_d.legend(fontsize=9, loc="upper left")
+
+    save(fig, "fig9_cross_ancestry")
+
+
 if __name__ == "__main__":
     figure_1()
     figure_2()
@@ -734,4 +811,5 @@ if __name__ == "__main__":
     figure_6()
     figure_7()
     figure_8()
+    figure_9()
     print("\nAll figures written to:", OUT)
