@@ -71,6 +71,33 @@
 
 ---
 
+## COMPLETED (2026-04-20/21): UKB-Ready Hybrid Architecture + Paper Assets
+
+### Track 1 (hybrid genotype): DONE
+- [x] 22 BGEN files built from 1KG VCFs (~14 GB)
+- [x] `src/python/graphgwas/bgen_reader.py` (AF matches Neo4j to 1e-4)
+- [x] `load_locus_variants()` dispatcher in finemapping_v2.py (Neo4j or BGEN)
+- [x] `src/python/graphgwas/summary_import.py` (PLINK2 + regenie parsers)
+- [x] End-to-end: PLINK2 GWAS → sumstats → BGEN HBP → graph query (1569/1681 hits)
+- [ ] M1 epistasis BGEN refactor (still Neo4j-only)
+
+### Track 2 (multi-omics annotation graph): DONE
+- [x] GENCODE v47: 20,092 protein-coding genes
+- [x] 38.4M HAS_CONSEQUENCE proximity edges (67s with 6 workers)
+- [x] GTEx v8 49 tissues: **43.2M eQTL edges** (8.4 min with 4 workers)
+- [x] STRING PPI score≥700: 230,850 INTERACTS_WITH edges
+- [x] ENCODE cCRE: 370K RegulatoryElement nodes (partial, 40%)
+- [ ] PhyloP conservation (deferred)
+
+### Paper artifacts: DONE
+- [x] 7 figures (fig1..7) in results/benchmark_v2/paper_figures/
+- [x] 5 tables (table1..5) in results/benchmark_v2/paper_tables/
+- [x] docs/PAPER_DRAFT_MANUSCRIPT.md (~2000 words, abstract + 6 result sections)
+- [x] docs/PAPER_COVER_LETTER.md (~400-word NG cover letter)
+- [x] docs/REPRODUCIBILITY.md (regen every artifact from scratch)
+- [x] docs/MATHEMATICAL_PROOFS.md (5 theorems, supplement S1)
+- [x] 60/60 unit tests pass
+
 ## IN PROGRESS / TODO
 
 ### Science (completed in this session)
