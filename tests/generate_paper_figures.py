@@ -665,6 +665,66 @@ def figure_2():
     save(fig, "fig2_hbp_schematic")
 
 
+# ===================================================================
+# Figure 8: Power vs sample size (1KG subsampling)
+# ===================================================================
+
+def figure_8():
+    print("Figure 8 — Power vs sample size")
+    p = ROOT / "power_vs_N" / "power_curve.json"
+    if not p.exists():
+        print(f"  skipping: {p} not found")
+        return
+    data = json.loads(p.read_text())
+    summary = data["summary"]
+    results = data["results"]
+
+    Ns = sorted([int(k) for k in summary.keys()])
+    r1 = [summary[str(n)]["rank_1_rate_pct"] for n in Ns]
+    mean_rank = [summary[str(n)]["mean_rank"] for n in Ns]
+    mean_pip = [summary[str(n)]["mean_pip"] for n in Ns]
+
+    fig, axes = plt.subplots(2, 2, figsize=(10, 7.5))
+    ax_a, ax_b, ax_c, ax_d = axes.flatten()
+
+    ax_a.plot(Ns, r1, "o-", color=C["hbp"], lw=2, markersize=8)
+    ax_a.set_xlabel("Sample size N")
+    ax_a.set_ylabel("Rank-#1 rate (%)")
+    ax_a.set_title("a  HBP rank-#1 rate vs N")
+    ax_a.grid(True, alpha=0.3)
+    ax_a.set_ylim(0, 100)
+
+    ax_b.plot(Ns, mean_rank, "s-", color=C["hbp"], lw=2, markersize=8)
+    ax_b.set_xlabel("Sample size N")
+    ax_b.set_ylabel("Mean causal rank (lower = better)")
+    ax_b.set_title("b  Mean causal rank vs N")
+    ax_b.grid(True, alpha=0.3)
+    ax_b.axhline(1, color="k", linestyle=":", lw=0.8, alpha=0.5, label="Ideal")
+    ax_b.legend(fontsize=8)
+
+    ax_c.plot(Ns, mean_pip, "^-", color=C["hbp"], lw=2, markersize=8)
+    ax_c.set_xlabel("Sample size N")
+    ax_c.set_ylabel("Mean PIP of causal variant")
+    ax_c.set_title("c  Mean PIP vs N (monotonic gain)")
+    ax_c.grid(True, alpha=0.3)
+    ax_c.set_ylim(0, 1)
+
+    # Panel D: per-rep scatter
+    for N in Ns:
+        sub = [r for r in results if r["N"] == N and r["causal_pip"] is not None]
+        ys = [r["causal_pip"] for r in sub]
+        ax_d.scatter([N] * len(ys), ys, alpha=0.4, s=30, color=C["hbp"])
+    ax_d.plot(Ns, mean_pip, "o-", color="red", lw=1.5, markersize=10,
+              markerfacecolor="white", label="Mean PIP")
+    ax_d.set_xlabel("Sample size N")
+    ax_d.set_ylabel("Per-locus causal PIP")
+    ax_d.set_title("d  Per-rep PIP distribution")
+    ax_d.grid(True, alpha=0.3)
+    ax_d.legend(fontsize=9)
+
+    save(fig, "fig8_power_vs_sample_size")
+
+
 if __name__ == "__main__":
     figure_1()
     figure_2()
@@ -673,4 +733,5 @@ if __name__ == "__main__":
     figure_5()
     figure_6()
     figure_7()
+    figure_8()
     print("\nAll figures written to:", OUT)
