@@ -538,6 +538,194 @@ def ld_pruned_cooccurrence(
 
 
 # ===================================================================
+# M1 — source-agnostic entry point (BGEN-compatible)
+# ===================================================================
+
+def ld_pruned_cooccurrence_from_data(
+    variants: list[dict],
+    dosage_list: list[np.ndarray],
+    phenotype: np.ndarray,
+    r2_prune: float = 0.5,
+    min_cocarriers: int = 5,
+    min_distance_bp: int = 100_000,
+    max_variants: int = 2000,
+    verbose: bool = True,
+) -> list[InteractionResult]:
+    """Pure-function M1: runs LD pruning + interaction testing on pre-loaded
+    genotypes and a quantitative phenotype.
+
+    No Neo4j dependency. Can be fed from any source — Neo4j, BGEN via
+    BgenReader.load_locus, etc. Binarises the phenotype at 25th/75th
+    percentiles to define cases/controls for the co-carrier pre-filter.
+
+    Args:
+        variants: list of dicts, each with at least 'pos', 'variantId',
+                  'af_total'. Must be in the same order as `dosage_list`.
+        dosage_list: list of numpy arrays (length n_samples each, values in [0, 2]).
+        phenotype: length-n_samples quantitative phenotype vector.
+                   NaN-bearing samples are masked out.
+        r2_prune: LD threshold for greedy pruning.
+        min_cocarriers: minimum number of co-carriers in cases to test a pair.
+        min_distance_bp: minimum physical distance between pair members.
+        max_variants: stop LD pruning after this many kept variants.
+
+    Returns:
+        list[InteractionResult] sorted by interaction p-value.
+    """
+    # Sample-level validity mask (drop NaN phenotype samples)
+    valid = ~np.isnan(phenotype)
+    pheno_v = phenotype[valid]
+    # Subset all dosage vectors consistently
+    dosage_list_v = [d[valid] for d in dosage_list]
+    n_samples = int(valid.sum())
+    if n_samples < 40:
+        if verbose:
+            print(f"M1 from_data: only {n_samples} valid samples — aborting")
+        return []
+
+    # Binarise via 25/75 percentiles of phenotype
+    q75 = np.percentile(pheno_v, 75)
+    q25 = np.percentile(pheno_v, 25)
+    case_idx_local = np.where(pheno_v >= q75)[0]
+    ctrl_idx_local = np.where(pheno_v <= q25)[0]
+    n_case, n_ctrl = len(case_idx_local), len(ctrl_idx_local)
+    if verbose:
+        print(f"M1 from_data: n={n_samples} ({n_case} cases + {n_ctrl} controls "
+              f"by quartile), {len(variants)} variants, r²_prune={r2_prune}")
+
+    # LD pruning (greedy keep-first)
+    keep: list[int] = []
+    used: set[int] = set()
+    for i in range(len(variants)):
+        if i in used:
+            continue
+        keep.append(i)
+        for j in range(i + 1, len(variants)):
+            if j in used:
+                continue
+            if abs(variants[i]["pos"] - variants[j]["pos"]) < min_distance_bp:
+                r2 = _compute_ld(dosage_list_v[i], dosage_list_v[j])
+                if r2 > r2_prune:
+                    used.add(j)
+        if len(keep) >= max_variants:
+            break
+    pruned_variants = [variants[i] for i in keep]
+    pruned_dosages = [dosage_list_v[i] for i in keep]
+    if verbose:
+        print(f"  After LD pruning: {len(pruned_variants)} variants")
+
+    results: list[InteractionResult] = []
+    pairs_tested = 0
+    for i in range(len(pruned_variants)):
+        for j in range(i + 1, len(pruned_variants)):
+            if abs(pruned_variants[i]["pos"] - pruned_variants[j]["pos"]) < min_distance_bp:
+                continue
+            d1 = pruned_dosages[i]
+            d2 = pruned_dosages[j]
+            carriers_1 = d1 > 0
+            carriers_2 = d2 > 0
+            co_case = int(np.sum(carriers_1[case_idx_local] & carriers_2[case_idx_local]))
+            if co_case < min_cocarriers:
+                continue
+            r = _test_interaction(d1, d2, pheno_v)
+            pairs_tested += 1
+            if r["p_interaction"] < 0.05:
+                results.append(InteractionResult(
+                    variant_1=pruned_variants[i]["variantId"],
+                    variant_2=pruned_variants[j]["variantId"],
+                    motif="co_occurrence",
+                    shared_entity=f"co_carriers={co_case}",
+                    beta_marginal_1=r["beta_1"],
+                    beta_marginal_2=r["beta_2"],
+                    beta_interaction=r["beta_interaction"],
+                    se_interaction=r["se_interaction"],
+                    p_interaction=r["p_interaction"],
+                    p_corrected=None,
+                    n_samples=r["n"],
+                    maf_1=pruned_variants[i]["af_total"],
+                    maf_2=pruned_variants[j]["af_total"],
+                ))
+    if verbose:
+        print(f"  Pairs tested: {pairs_tested:,}")
+        print(f"  Nominal p < 0.05: {len(results):,}")
+    if results:
+        for r in results:
+            r.p_corrected = min(1.0, r.p_interaction * pairs_tested)
+        results.sort(key=lambda r: r.p_interaction)
+    return results
+
+
+def ld_pruned_cooccurrence_bgen(
+    reader,
+    chr: str,
+    start: int,
+    end: int,
+    phenotype_by_sample: dict[str, float],
+    min_af: float = 0.01,
+    mac_min: int = 10,
+    r2_prune: float = 0.5,
+    min_cocarriers: int = 5,
+    min_distance_bp: int = 100_000,
+    max_variants: int = 2000,
+    verbose: bool = True,
+) -> list[InteractionResult]:
+    """M1 epistasis driven by a BgenReader — UKB-ready path.
+
+    Loads the locus once from BGEN, aligns the phenotype to BGEN sample
+    order, then calls ld_pruned_cooccurrence_from_data. The output is
+    identical in shape to the Neo4j-backed ld_pruned_cooccurrence().
+    """
+    variants_df, dosage = reader.load_locus(chr, start, end, format="dosage")
+    if len(variants_df) == 0:
+        return []
+    # Align phenotype to BGEN sample order
+    samples = [str(s) for s in reader.samples(chr)]
+    pheno = np.array(
+        [phenotype_by_sample.get(s, np.nan) for s in samples], dtype=float
+    )
+
+    # Per-variant filters: MAF + MAC + mean-impute NaN
+    variants: list[dict] = []
+    dosage_list: list[np.ndarray] = []
+    for i in range(len(variants_df)):
+        d = dosage[:, i]
+        col_mean = np.nanmean(d)
+        if not np.isfinite(col_mean):
+            continue
+        af = float(col_mean / 2.0)
+        if af < min_af or af > 1 - min_af:
+            continue
+        d_imp = np.where(np.isnan(d), col_mean, d)
+        mac = min(int(d_imp.sum()), int(2 * len(d_imp) - d_imp.sum()))
+        if mac < mac_min:
+            continue
+        row = variants_df.iloc[i]
+        variants.append({
+            "variantId": f"{row['chr']}:{row['pos']}:{row['a1']}:{row['a2']}",
+            "pos": int(row["pos"]),
+            "chr": row["chr"],
+            "ref": row["a1"],
+            "alt": row["a2"],
+            "af_total": af,
+        })
+        dosage_list.append(d_imp)
+        if len(variants) >= max_variants * 3:  # load extra for LD pruning headroom
+            break
+    if verbose:
+        print(f"M1 BGEN: {len(variants)} variants from {chr}:{start}-{end}")
+    return ld_pruned_cooccurrence_from_data(
+        variants=variants,
+        dosage_list=dosage_list,
+        phenotype=pheno,
+        r2_prune=r2_prune,
+        min_cocarriers=min_cocarriers,
+        min_distance_bp=min_distance_bp,
+        max_variants=max_variants,
+        verbose=verbose,
+    )
+
+
+# ===================================================================
 # M3: Differential Subgraph Analysis
 # ===================================================================
 
