@@ -421,9 +421,256 @@ def figure_6():
     save(fig, "fig6_weak_signal_headline")
 
 
+# ===================================================================
+# Figure 7: Method selection decision tree
+# ===================================================================
+
+def figure_7():
+    print("Figure 7 — Method selection guide")
+    from matplotlib.patches import FancyBboxPatch
+
+    fig, ax = plt.subplots(figsize=(12, 8))
+    ax.set_xlim(0, 14)
+    ax.set_ylim(0, 9)
+    ax.axis("off")
+
+    def box(x, y, w, h, text, color="#e8e8e8", edge="black", fontweight="normal"):
+        ax.add_patch(FancyBboxPatch((x - w / 2, y - h / 2), w, h,
+                                    boxstyle="round,pad=0.08",
+                                    facecolor=color, edgecolor=edge, linewidth=1))
+        ax.text(x, y, text, ha="center", va="center", fontsize=9,
+                fontweight=fontweight, wrap=True)
+
+    def arrow(x0, y0, x1, y1, label=""):
+        ax.annotate("", xy=(x1, y1), xytext=(x0, y0),
+                    arrowprops=dict(arrowstyle="->", lw=1.2, color="black"))
+        if label:
+            ax.text((x0 + x1) / 2, (y0 + y1) / 2 + 0.15, label,
+                    ha="center", fontsize=8, style="italic")
+
+    # Root
+    box(7, 8.3, 3.2, 0.6, "Start: which fine-mapper?", color="#f0c48a",
+        fontweight="bold")
+
+    # Level 1
+    box(3, 7.0, 2.6, 0.6, "Epistatic pair\ndetection?", color="#fef3c7")
+    box(11, 7.0, 2.6, 0.6, "Single-variant\nfine-mapping?", color="#fef3c7")
+    arrow(6.1, 8.1, 3.8, 7.3, "epistasis")
+    arrow(7.9, 8.1, 10.2, 7.3, "single variant")
+
+    # Left branch
+    box(3, 5.5, 2.8, 0.9,
+        "M1\nLD-pruned co-occurrence\n42,000× search reduction",
+        color="#aed9a0", fontweight="bold")
+    arrow(3, 6.7, 3, 5.95)
+
+    # Right branch: signal strength
+    box(11, 5.5, 2.8, 0.6, "Strong statistical\nsignal (h² > 0.05)?",
+        color="#fef3c7")
+    arrow(11, 6.7, 11, 5.8)
+
+    # Two sub-branches by signal strength
+    # Strong (left sub-tree, lower left)
+    box(8, 3.8, 2.6, 0.6, "eQTL / PPI annotations\navailable?", color="#fef3c7")
+    arrow(10.1, 5.2, 8.7, 4.1, "yes (strong)")
+
+    box(6, 2.1, 2.8, 0.9, "HBP or L1\n20–30× faster,\ngraph-native output",
+        color="#aed9a0", fontweight="bold")
+    box(8, 2.1, 1.9, 0.7, "SuSiE / FINEMAP",
+        color="#e8d4f5")
+    arrow(7.4, 3.5, 6.5, 2.55, "yes")
+    arrow(8.3, 3.5, 8.0, 2.45, "no")
+
+    # Weak (right sub-tree, lower right)
+    box(12.2, 3.8, 2.6, 0.6, "Annotations\navailable?", color="#fef3c7")
+    arrow(11.4, 5.2, 12.0, 4.1, "no (weak)")
+
+    box(11, 2.1, 2.8, 0.9,
+        "L1 Bayesian\n27–2 wins over SuSiE\n(13.5:1 at h²=0.01)",
+        color="#6eb86e", fontweight="bold")
+    box(13.2, 2.1, 1.5, 0.7, "SuSiE /\nFINEMAP", color="#e8d4f5")
+    arrow(11.8, 3.5, 11.2, 2.55, "yes")
+    arrow(12.6, 3.5, 13.2, 2.45, "no")
+
+    # Legend
+    ax.text(0.3, 0.5,
+            "• Dark green = GraphGWAS's decisive advantage\n"
+            "• Light green = GraphGWAS alternative (speed + graph)\n"
+            "• Purple = matrix-based baselines (SuSiE / FINEMAP)\n"
+            "• Yellow = decision point",
+            fontsize=8.5, ha="left", va="center",
+            bbox=dict(boxstyle="round", fc="white", ec="black", lw=0.5))
+    ax.set_title("Method selection guide for fine-mapping tasks",
+                 fontsize=12, fontweight="bold")
+    save(fig, "fig7_method_selection")
+
+
+# ===================================================================
+# Figure 1: GraphGWAS 5-layer architecture (schematic)
+# ===================================================================
+
+def figure_1():
+    print("Figure 1 — Architecture schematic")
+    from matplotlib.patches import FancyBboxPatch
+
+    fig, (ax_schema, ax_data) = plt.subplots(1, 2, figsize=(12, 7.5))
+    for ax in (ax_schema, ax_data):
+        ax.set_xlim(0, 10)
+        ax.set_ylim(0, 8)
+        ax.axis("off")
+
+    # LEFT: 5-layer architecture
+    ax_schema.set_title("a  GraphGWAS architecture", loc="left",
+                        fontsize=13, fontweight="bold", x=0.0)
+    layers = [
+        ("Layer 5: AI Agent", "GraphRAG · LangGraph natural-language\nqueries · hypothesis generation", "#f9d7a8", 7.0),
+        ("Layer 4: GNN",       "Hetero GNN · PyTorch Geometric\nmessage passing over the biology graph", "#c6e6c6", 5.6),
+        ("Layer 3: Multi-locus", "Epistasis (M1-M4) · Fine-mapping (L1, HBP, L4) · pathway diffusion", "#aed9a0", 4.2),
+        ("Layer 2: Single-locus", "Linear/logistic/Firth regression · GRAMMAR+\nmixed-model calibration", "#b3d9ff", 2.8),
+        ("Layer 1: Data",       "Neo4j graph: variants · samples · genes · pathways\n+ BGEN for biobank genotypes", "#e8e8e8", 1.4),
+    ]
+    for title, body, color, y in layers:
+        ax_schema.add_patch(FancyBboxPatch((0.4, y - 0.55), 9.2, 1.1,
+                            boxstyle="round,pad=0.08",
+                            facecolor=color, edgecolor="black", linewidth=1))
+        ax_schema.text(0.7, y + 0.28, title, fontsize=10.5, fontweight="bold")
+        ax_schema.text(0.7, y - 0.2, body, fontsize=9, va="center")
+    for y in (6.4, 5.0, 3.6, 2.2):
+        ax_schema.annotate("", xy=(5, y - 0.1), xytext=(5, y + 0.1),
+                           arrowprops=dict(arrowstyle="->", lw=1.2))
+
+    # RIGHT: schema node counts
+    ax_data.set_title("b  Graph schema: 1000 Genomes Phase 3 load",
+                      loc="left", fontsize=13, fontweight="bold", x=0.0)
+    nodes = [
+        ("Variant",       "70.7 M",  "#b3d9ff", 6.8, 3.5),
+        ("Sample",        "3,202",   "#f9d7a8", 7.3, 7),
+        ("Gene",          "20,092",  "#aed9a0", 3.6, 6.5),
+        ("Pathway",       "5",       "#d4b9e8", 1.3, 7.0),
+        ("RegulatoryEl.", "370 K",   "#f0c0c0", 1.3, 5.3),
+        ("GTEx tissue",   "49",      "#c6e6c6", 3.0, 3.5),
+        ("AssocResult",   "(dynamic)","#fef3c7", 7.0, 5.3),
+    ]
+    node_pos = {}
+    for name, count, color, x, y in nodes:
+        ax_data.add_patch(plt.Circle((x, y), 0.5, facecolor=color,
+                                      edgecolor="black", linewidth=1))
+        ax_data.text(x, y + 0.05, name, ha="center", va="center",
+                     fontsize=8.5, fontweight="bold")
+        ax_data.text(x, y - 0.25, count, ha="center", va="center",
+                     fontsize=8.5)
+        node_pos[name] = (x, y)
+
+    edges = [
+        ("Variant", "Gene", "HAS_CONSEQUENCE\n38.9M"),
+        ("Variant", "Gene", "eQTL\n43.2M"),
+        ("Gene", "Gene", "INTERACTS_WITH\n230K"),
+        ("Gene", "Pathway", "IN_PATHWAY"),
+        ("Variant", "RegulatoryEl.", "IN_REGULATORY"),
+        ("AssocResult", "Variant", "FOR_VARIANT"),
+        ("Sample", "Variant", "  genotype (gt_packed)"),
+    ]
+    for a, b, label in edges:
+        (xa, ya), (xb, yb) = node_pos[a], node_pos[b]
+        ax_data.annotate("", xy=(xb, yb), xytext=(xa, ya),
+                         arrowprops=dict(arrowstyle="-", lw=0.9, color="gray"))
+        mx, my = (xa + xb) / 2, (ya + yb) / 2
+        ax_data.text(mx, my + 0.2, label, fontsize=7, ha="center",
+                     color="dimgray", style="italic")
+
+    save(fig, "fig1_architecture")
+
+
+# ===================================================================
+# Figure 2: HBP factor graph schematic
+# ===================================================================
+
+def figure_2():
+    print("Figure 2 — HBP factor-graph schematic")
+    import matplotlib.patches as mpatches
+
+    fig, ax = plt.subplots(figsize=(11, 7))
+    ax.set_xlim(0, 12)
+    ax.set_ylim(0, 6.5)
+    ax.axis("off")
+
+    # Three layers
+    ax.text(1, 5.0, "Pathways", fontsize=11, fontweight="bold", ha="center")
+    ax.text(1, 3.2, "Genes\n(+ PPI)", fontsize=11, fontweight="bold", ha="center")
+    ax.text(1, 1.2, "Variants", fontsize=11, fontweight="bold", ha="center")
+
+    # Pathway nodes
+    pw = [(4.5, 5.0), (7.5, 5.0), (10.5, 5.0)]
+    for x, y in pw:
+        ax.add_patch(plt.Circle((x, y), 0.30, facecolor="#d4b9e8",
+                                edgecolor="black"))
+
+    # Gene nodes
+    genes = [(3.5, 3.2), (5.0, 3.2), (6.5, 3.2), (8.0, 3.2), (9.5, 3.2), (11.0, 3.2)]
+    for x, y in genes:
+        ax.add_patch(plt.Circle((x, y), 0.25, facecolor="#aed9a0",
+                                edgecolor="black"))
+
+    # PPI edges (within gene layer)
+    ppi = [(genes[0], genes[1]), (genes[1], genes[2]),
+           (genes[3], genes[4]), (genes[4], genes[5])]
+    for (x0, y0), (x1, y1) in ppi:
+        ax.plot([x0, x1], [y0 + 0.25, y1 + 0.25], "-",
+                color="#388e3c", lw=0.8, alpha=0.6)
+    ax.text(7, 3.7, "PPI (W_gg)", fontsize=8, ha="center", style="italic",
+            color="#388e3c")
+
+    # Variant nodes (many)
+    np.random.seed(0)
+    n_var = 18
+    vx = np.linspace(3.2, 11.2, n_var)
+    vy = np.ones(n_var) * 1.2 + np.random.uniform(-0.05, 0.05, n_var)
+    for x, y in zip(vx, vy):
+        ax.add_patch(plt.Circle((x, y), 0.18, facecolor="#b3d9ff",
+                                edgecolor="black", linewidth=0.5))
+
+    # Edges: variant -> gene (sparse)
+    rng = np.random.default_rng(1)
+    assign = rng.integers(0, len(genes), size=n_var)
+    for i, gidx in enumerate(assign):
+        ax.plot([vx[i], genes[gidx][0]], [vy[i] + 0.18, genes[gidx][1] - 0.25],
+                "-", color="gray", lw=0.5, alpha=0.5)
+
+    # Edges: gene -> pathway
+    g2p = [(0, 0), (1, 0), (2, 0), (2, 1), (3, 1), (4, 1), (4, 2), (5, 2)]
+    for g, p in g2p:
+        ax.plot([genes[g][0], pw[p][0]], [genes[g][1] + 0.25, pw[p][1] - 0.30],
+                "-", color="#6a1b9a", lw=0.8, alpha=0.6)
+
+    # Upward / downward arrows on the right
+    ax.annotate("", xy=(11.6, 3.0), xytext=(11.6, 1.5),
+                arrowprops=dict(arrowstyle="->", lw=1.6, color="#d62728"))
+    ax.text(11.7, 2.3, "Upward\nevidence\nB_vg, B_gp", fontsize=9,
+            color="#d62728")
+
+    ax.annotate("", xy=(11.8, 1.4), xytext=(11.8, 3.0),
+                arrowprops=dict(arrowstyle="->", lw=1.6, color="#1f77b4"))
+    ax.text(11.9, 2.3, "Downward\nprior", fontsize=9, color="#1f77b4",
+            ha="left")
+
+    # Formula
+    ax.text(6, 0.3,
+            r"$b^{(t+1)} = \alpha \cdot \mathrm{softmax}(z) + (1-\alpha) \cdot \pi(b^{(t)})$"
+            "\nContraction rate $L = \\lambda + (1-\\lambda)(1-\\alpha)\\rho(M) < 1$",
+            ha="center", fontsize=11,
+            bbox=dict(boxstyle="round", fc="#fff9c4", ec="black"))
+
+    ax.set_title("HBP: message passing on the variant → gene → pathway factor graph",
+                 fontsize=12, fontweight="bold")
+    save(fig, "fig2_hbp_schematic")
+
+
 if __name__ == "__main__":
+    figure_1()
+    figure_2()
     figure_3()
     figure_4()
     figure_5()
     figure_6()
+    figure_7()
     print("\nAll figures written to:", OUT)
