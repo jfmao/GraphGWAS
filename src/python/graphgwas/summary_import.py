@@ -77,6 +77,13 @@ def parse_plink2_glm(path: Path, p_threshold: float = 1.0) -> Iterable[dict]:
             ref = row.get("REF", "")
             alt = row.get("ALT", "")
             a1 = row.get("A1", alt)
+            # PLINK2 may swap REF/ALT after BGEN round-trip (see PROVISIONAL_REF?).
+            # Prefer the original ID column if it looks like chr:pos:ref:alt.
+            orig_id = row.get("ID", "")
+            if orig_id and orig_id.count(":") >= 3:
+                variant_id_str = orig_id if orig_id.startswith("chr") else f"chr{orig_id}"
+            else:
+                variant_id_str = _build_variant_id(chrom, pos, ref, alt)
             # PLINK2 defaults A1 to ALT. BETA refers to A1 effect.
             flip = a1 != alt
             if is_logistic:
@@ -92,7 +99,7 @@ def parse_plink2_glm(path: Path, p_threshold: float = 1.0) -> Iterable[dict]:
             n = _safe_int(row.get("OBS_CT", "0")) or 0
             log10p = -math.log10(p) if p > 0 else 999.0
             yield dict(
-                variantId=_build_variant_id(chrom, pos, ref, alt),
+                variantId=variant_id_str,
                 method="plink2_logistic" if is_logistic else "plink2_linear",
                 beta=beta,
                 se=se,

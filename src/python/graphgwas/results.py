@@ -22,21 +22,20 @@ def create_gwas_study(conn: GraphGWASConnection, run_id: str, phenotype_key: str
     study_id = f"study_{run_id}"
     conn.execute_write(
         """
-        CREATE (gs:GWASStudy {
-            id: $id,
-            run_id: $run_id,
-            name: $name,
-            phenotype_key: $phenotype_key,
-            method: $method,
-            n_cases: $n_cases,
-            n_controls: $n_controls,
-            n_variants_tested: $n_variants_tested,
-            region: $region,
-            significance_threshold: 5e-8,
-            timestamp: datetime(),
-            notes: $notes,
-            software_version: 'graphgwas-0.1.0'
-        })
+        MERGE (gs:GWASStudy {id: $id})
+        ON CREATE SET
+            gs.run_id = $run_id,
+            gs.name = $name,
+            gs.phenotype_key = $phenotype_key,
+            gs.method = $method,
+            gs.n_cases = $n_cases,
+            gs.n_controls = $n_controls,
+            gs.n_variants_tested = $n_variants_tested,
+            gs.region = $region,
+            gs.significance_threshold = 5e-8,
+            gs.timestamp = datetime(),
+            gs.notes = $notes,
+            gs.software_version = 'graphgwas-0.1.0'
         """,
         {
             "id": study_id,
