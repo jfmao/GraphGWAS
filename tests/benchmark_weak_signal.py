@@ -32,10 +32,12 @@ FINEMAP_BIN = "/home/jfmao/bin/finemap"
 EQTL_CACHE = "/mnt/data/GraphGWAS/data/annotations/gtex_chr22_enhanced_cache.json"
 
 WINDOW = 50000
-N_REPS = 30
+N_REPS = int(os.environ.get("GRAPHGWAS_N_REPS", 30))
 # Weak signal parameters
 BETA = 0.2
 H2_TARGET = 0.02
+# Allow output path override
+OUT_SUFFIX = os.environ.get("GRAPHGWAS_OUT_SUFFIX", "")
 
 CENTERS = [17000000, 19000000, 21000000, 23000000, 25000000,
            27000000, 29000000, 31000000, 33000000, 35000000,
@@ -430,9 +432,9 @@ def run_benchmark():
             print(f"  {a_name} vs {b_name}: {a_wins}:{b_wins}:{ties} "
                   f"[{a_wins/t*100:.0f}% win]")
 
-    with open(f"{OUTDIR}/weak_signal_comparison.json", "w") as f:
+    with open(f"{OUTDIR}/weak_signal_comparison{OUT_SUFFIX}.json", "w") as f:
         json.dump(results, f, indent=2, default=str)
-    with open(f"{OUTDIR}/weak_signal_comparison.tsv", "w", newline="") as f:
+    with open(f"{OUTDIR}/weak_signal_comparison{OUT_SUFFIX}.tsv", "w", newline="") as f:
         if results:
             keys = sorted(set().union(*(r.keys() for r in results)))
             w = csv.DictWriter(f, fieldnames=keys, delimiter="\t")

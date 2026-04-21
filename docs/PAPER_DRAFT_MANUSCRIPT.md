@@ -180,6 +180,40 @@ advantage is not a raw-power improvement over SuSiE but a *complement*
 — it provides the prior that turns LD-ambiguous credible sets into
 actionable calls.
 
+### 2.3b Cross-dataset replication: 100-rep 1KG chr22 benchmark
+
+To test whether the §2.3 headline generalises beyond the yeast simulation,
+we re-ran a 100-rep weak-signal benchmark on 1000 Genomes chromosome 22
+(β = 0.2, h² = 0.02, 30 rotating centers across 17–46 Mb):
+
+| Method | Rank-#1 | Mean rank | Median | Mean PIP | Runtime |
+|---|---:|---:|---:|---:|---:|
+| L1 (statistical core) | 54% | 4.62 | 1.0 | 0.493 | 0.08 s |
+| L1 (annotation-scaled — older variant)* | 19% | 10.39 | 9.0 | 0.147 | 0.09 s |
+| FINEMAP | 57% | 4.25 | 1.0 | 0.522 | 2.41 s |
+| SuSiE | 57% | 4.24 | 1.0 | 0.526 | 1.89 s |
+
+Head-to-head:
+- L1 (stat) vs SuSiE: L1 10, ties 63, SuSiE 27 (SuSiE wins)
+- L1 (annot) vs SuSiE: L1 10, ties 22, SuSiE 68 (SuSiE wins decisively)
+- FINEMAP vs SuSiE: FINEMAP 5, ties 83, SuSiE 12 (tied in practice)
+
+\*The "L1 annotation-scaled" column uses the multiplicative-boost L1 variant
+documented in Section 8 of the benchmark report, which is **not** the L1
+Bayesian formulation that produced the §2.3 27–2 win. It under-performs here
+for the reason diagnosed in the L1 development history: uniform multiplicative
+boosts propagate LD-shared annotation signal to non-causal proxies, diluting
+the causal PIP. The L1 Bayesian variant with adaptive α (§2.3) corrects this
+behaviour, but its decisive advantage requires the specific regime combined
+in §2.3 (weak signal h²=0.01, tissue-specific eQTL causal, adaptive prior
+weighting).
+
+**Honest summary**: at a moderately weak 1KG h²=0.02 signal without the
+§2.3 regime combination, **SuSiE and L1 (stat) are roughly equivalent on
+rank-1 rate; L1 runs ~25× faster**. FINEMAP and SuSiE are statistically
+indistinguishable on this dataset. This is consistent with the §2.6
+Polyfun-proxy finding that L1's decisive advantage is specific, not universal.
+
 ### 2.4 PIP calibration and FPR control
 
 Any fine-mapper, to be trustworthy, must (i) produce PIPs that mean what
