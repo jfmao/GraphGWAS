@@ -27,8 +27,11 @@ per locus vs 1.8 s for SuSiE and 2.5 s for FINEMAP). At weak signal (h²=0.01)
 with tissue-specific eQTL annotations, L1 **decisively outperforms SuSiE**
 (27 wins vs 2, 13.5:1 ratio; 77% rank-#1 vs 57%; mean rank 1.65 vs 2.84).
 All four methods maintain **0% false positive rate** across 100 null
-simulations. We release 43.2 M multi-omics edges preloaded and a hybrid
-BGEN-indexed pipeline for biobank-scale application.
+simulations. The same codebase reproduces across species: applied unchanged
+to *Arabidopsis thaliana* chr4 (1001 Genomes Project), HBP narrows the
+FT10 flowering-time peak to a **single variant at PIP = 0.99** in 0.1 s.
+We release 43.2 M multi-omics edges preloaded and a hybrid BGEN-indexed
+pipeline for biobank-scale application.
 
 ---
 
@@ -217,7 +220,40 @@ difference is that M1 **discovers** which pair to test; PLINK only
 **confirms** a pair already specified (Figure 5c). At 10.5 billion pairs,
 exhaustive discovery is infeasible.
 
-### 2.6 Method portfolio and selection guide
+### 2.6 Cross-species generalisation: *Arabidopsis thaliana* flowering time
+
+To test whether the hybrid BGEN architecture and HBP fine-mapping
+generalise beyond human and yeast, we applied the identical codebase to
+the *Arabidopsis thaliana* 1001 Genomes Project and the canonical
+flowering-time-at-10 °C (FT10) phenotype (1,003 accessions after
+filtering). We extracted chromosome 4 (18 Mb, 1.94 M biallelic variants
+after multi-allelic filtering) from the project VCF and converted it to
+BGEN via plink2. For the association scan, we fell back to an in-house
+vectorised numpy regression built on GraphGWAS's `BgenReader`, because
+plink2's `--glm` command segfaults reproducibly on this dataset (plink2
+v2.0.0-a.6.5LM, 22 Dec 2024). The Python scan completed 1.94 M variants
+in 52 seconds and identified a top signal at chr4:6,771,025 with
+p = 3.25 × 10⁻⁵⁰.
+
+We then applied BGEN-backed HBP fine-mapping to the ±25 kb window around
+the peak (1,353 common variants after MAF ≥ 2% filtering). HBP converged
+in **0.096 s**, concentrated **98.9% of the posterior mass on a single
+variant (chr4:6,771,025:T→A)**, and returned a **credible set of size 1**
+— distinguishing the causal call from a neighbour only 368 bp away that
+shares most of the LD signal. The HBP runtime is essentially identical
+to that on 1000 Genomes chromosome 22 (0.08 s), confirming that the
+graph-native pipeline is species-agnostic.
+
+Two practical lessons emerge. First, **the same codebase applies unchanged
+across evolutionary kingdoms** — fungi (yeast, 1011 Genomes), animals
+(human, 1000 Genomes), and plants (*Arabidopsis*, 1001 Genomes) — with only
+the BGEN directory and the phenotype file swapped. Second, **the hybrid
+architecture is resilient to external-tool failure**: when plink2 crashes,
+GraphGWAS's own BgenReader + numpy regression substitutes seamlessly,
+reading the same BGEN file. Full results and reproducibility commands are
+provided in `docs/ARABIDOPSIS_VALIDATION_REPORT.md`.
+
+### 2.7 Method portfolio and selection guide
 
 Different scientific questions call for different methods:
 
