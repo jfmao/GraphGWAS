@@ -71,6 +71,39 @@
 
 ---
 
+## COMPLETED (2026-04-22): Wu et al. 2026 baseline integration + paper polish
+
+### Track 3 (head-to-head with state-of-art): DONE
+- [x] 3.1 Polyfun-proxy (eQTL→prior_weights to SuSiE), 20 reps, 1KG chr22
+- [x] 3.2 Power vs N curves (N=500/1k/2k/3k, 30 reps), 1KG chr22
+- [x] 3.3 Cross-ancestry (EUR/AFR/EAS, 30 reps each), 1KG chr22
+- [x] 3.4 100-rep weak-signal benchmark, 1KG chr22, all 4 R-baselines
+- [x] **NEW: SuSiE-inf + FINEMAP-inf** (Cui et al. 2024) integrated
+- [x] **NEW: SBayesRC** (Wu et al. 2026) — pipeline verified on canonical UKB sumstats
+- [x] **NEW: Cross-species** Arabidopsis FT10 — PIP=0.989 single variant
+
+### Paper polish: DONE
+- [x] Section renumbering 2.1-2.12 (clean integers, no 2.3a/2.3b)
+- [x] Refreshed abstract (~230 words covering all 6 baselines + 3 species)
+- [x] Updated figure inventory (9 figures all regenerable)
+- [x] Updated table inventory (9 tables all regenerable)
+- [x] Added refs 5-7 (Cui 2024, Zheng 2024, Wu 2026)
+- [x] Updated cover letter (13-claim headline table)
+- [x] All cross-references audited
+
+## REMAINING for NG submission
+
+- [ ] Methods §4 prose expansion (~1500 words; currently terse stubs)
+- [ ] Author list + affiliations (placeholders in cover letter + manuscript)
+- [ ] Reviewer suggestions (3-5 names for cover letter)
+- [ ] Final manual proofread
+
+## ORTHOGONAL track
+
+- [ ] UK Biobank application (paperwork; ~4-6 weeks approval)
+- [ ] Optional: SBayesRC head-to-head on our 1KG chr22 aggregated sumstats
+- [ ] Optional: tighter Methods-level pseudocode for HBP/M1
+
 ## COMPLETED (2026-04-20/21): UKB-Ready Hybrid Architecture + Paper Assets
 
 ### Track 1 (hybrid genotype): DONE
