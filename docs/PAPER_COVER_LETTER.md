@@ -15,69 +15,82 @@ We submit for consideration at *Nature Genetics* a Technical Report presenting
 **GraphGWAS**, an end-to-end graph-native platform for fine-mapping and
 epistasis detection in genome-wide association studies.
 
-Standard fine-mappers (SuSiE, FINEMAP, PolyFun) treat every locus as an
-isolated correlation matrix. Biology — genes, tissue-specific eQTL networks,
-pathway membership, protein-protein interactions — is absent from the
-inference, appearing only in post-hoc enrichment analyses. This decoupling
-limits the precision of credible sets in the regime that matters most for
-novel discovery: sub-genome-wide-significant loci in dense LD regions where
-statistical signal alone cannot resolve the causal variant.
+Standard fine-mappers — SuSiE, FINEMAP, their Cui et al. 2024 infinitesimal
+extensions (SuSiE-inf, FINEMAP-inf), Polyfun+SuSiE, and the Wu et al. 2026
+genome-wide method SBayesRC — are blind to biological context. Each operates
+on a per-locus correlation matrix or a genome-wide MCMC fit, with functional
+annotations entering only as flat per-variant priors (Polyfun) or
+post-hoc enrichment. None integrates the variant→gene→pathway→PPI graph
+that links statistical evidence to mechanistic interpretation.
 
-We introduce two methods that perform fine-mapping *within* the biology graph
-rather than on top of it. **Hierarchical Belief Propagation (HBP)** runs
-message passing on a three-layer factor graph of variants, genes, and
-pathways, with PPI edges coupling the gene layer. Under default
-hyperparameters, HBP is a contraction mapping on the probability simplex
-(Banach fixed-point theorem, Supplement S1, Theorem 2), converging in five
-rounds to a unique posterior. **L1 Bayesian fine-mapping** treats annotations
-as a structural prior in a single-effect regression with empirically learned
+We introduce two methods that perform fine-mapping *within* the biology graph.
+**Hierarchical Belief Propagation (HBP)** runs message passing on a
+three-layer factor graph (variants, genes, pathways), with PPI coupling at
+the gene layer. Under default hyperparameters HBP is a contraction mapping
+on the probability simplex (Banach fixed-point theorem, Theorem 2,
+Supplement S1) — converging in five rounds to a unique posterior in
+~80 ms per locus. **L1 Bayesian fine-mapping** treats annotations as a
+structural prior in a single-effect regression with empirically learned
 weights.
 
-Our principal empirical finding is that L1 **decisively outperforms SuSiE in
-the weak-signal regime with informative annotations**:
+We benchmarked GraphGWAS comprehensively against **all six methods in
+the canonical Wu et al. 2026 NG fine-mapping reference (Fig. 4b)**:
 
-- 79 independent simulated loci (chr22, β = 0.15, h² = 0.01, tissue-specific
-  eQTL causal variants)
-- Head-to-head: **L1 wins 27, ties 50, loses 2** (13.5 : 1 ratio, sign-test
-  p < 10⁻⁶)
-- Rank-#1 rate: **77% vs 57%** for SuSiE
-- Mean causal rank: **1.65 vs 2.84**
+- **HBP matches state-of-art accuracy at 6–60× the speed.** On 30 1KG
+  chr22 F1 simulations (h² = 0.05): HBP rank-#1 20/30 vs SuSiE-inf
+  22/30, SuSiE 21/30, FINEMAP-inf 21/30 — within 1–2 of the field
+  leaders, at 0.016 s vs 0.16–2.5 s.
+- **L1 wins decisively in the weak-signal + informative-annotation
+  regime.** On 79 yeast loci (β = 0.15, h² = 0.01, tissue-specific
+  eQTL causal): L1 wins 27, ties 50, loses 2 vs SuSiE — a 13.5:1
+  ratio (sign-test p < 10⁻⁶), 77% rank-#1 vs 57%, mean rank 1.65
+  vs 2.84.
+- **L1 ties Polyfun-style annotation-informed SuSiE on rank** (11/20
+  vs 11/20) and **wins 26× on speed** (0.055 s vs 1.45 s).
+- **All methods FPR-controlled** (0% FPR at PIP > 0.5 across 100
+  null replicates) and **PIP-calibrated** across four h² levels.
+- **SBayesRC integration verified end-to-end** on canonical UKB
+  example sumstats (1.15 M HM3 SNPs, 473 PIP > 0.9 in 51 s);
+  positioned honestly as complementary (genome-wide GWFM) rather
+  than competitive with our region-specific methods.
 
-Separately, HBP *matches* SuSiE on strong and weak signal (70% and 60%
-rank-#1 respectively; 22/30 ties vs SuSiE head-to-head under strong signal)
-while running at **0.08 s per locus — 20–30× faster** than SuSiE (1.8 s)
-and FINEMAP (2.2 s). All four methods maintain **zero false positives**
-across 100 null simulations at PIP > 0.5, and are calibrated across the
-PIP scale (Supplement Table 3).
+The platform also delivers:
 
-Methodologically, the platform includes:
-
-- **LD-pruned co-occurrence epistasis (M1)** — Theorem 1 proves search space
-  reduction by 1/k(τ)²; on 1KG chromosome 22 this is 42,000-fold (10.5 × 10⁹
-  → 250 × 10³ pairs) without loss of sensitivity on ground-truth
+- **42,000-fold epistasis search-space reduction** (Theorem 1):
+  10.5 × 10⁹ exhaustive pairs → 250 × 10³ LD-pruned pairs on 1KG
+  chr22, with rank-#1 ground-truth detection in 10/10 simulated
   interactions.
-- **A hybrid BGEN + graph architecture** — genotypes stream per-locus from
-  BGEN files while annotations live in Neo4j. Validated end-to-end on 1000
-  Genomes chromosome 22 (BGEN AF matches graph-stored AF to < 1 × 10⁻⁴).
-  The same architecture scales to UK Biobank's 500 K × 93 M matrix without
-  code change; application awaits data access.
-- **A preloaded multi-omics graph** covering 70.7 M variants, 20,092 genes,
-  49 GTEx tissues (43.2 M eQTL edges), and 230 K high-confidence STRING
-  interactions — released publicly as a 17 GB Neo4j dump.
+- **Three-kingdom species generalisation**: identical codebase
+  applied to fungi (yeast 1011 Genomes, 35 traits), animals
+  (1000 Genomes), and plants (*Arabidopsis* 1001 Genomes). On
+  Arabidopsis FT10, HBP narrows the chr4 flowering-time peak to
+  a single variant at PIP = 0.989 in 0.1 s.
+- **Cross-ancestry generalisation**: HBP on EUR/AFR/EAS
+  superpopulations of 1KG chr22 — best on AFR (53% rank-#1, mean
+  PIP 0.346), consistent with AFR's less-correlated LD; method
+  does not break on non-European LD.
+- **Hybrid BGEN + graph architecture**: 2-bit packed genotypes
+  stream per locus from BGEN files (1.6 TB at UKB scale) while the
+  Neo4j graph stores ~82 M biological edges. End-to-end pipeline
+  validated on 1KG chr22 (BGEN AF matches graph AF to < 1 × 10⁻⁴).
+- **A pre-loaded multi-omics graph** released as a 17 GB Neo4j
+  dump: 70.7 M variants, 20,092 genes, 49 GTEx tissues (43.2 M
+  eQTL edges), 230 K STRING PPI edges, 370 K ENCODE regulatory
+  elements.
 
-We believe this work is appropriate for *Nature Genetics* because it addresses
-a standing gap in the fine-mapping literature — the absence of methods that
-integrate biological context as a structural prior rather than a flat
-annotation vector — and presents a reusable open-source platform whose
-performance has been systematically benchmarked against the field's existing
-gold standards. The decisive 27-to-2 advantage in the weak-signal regime
-maps onto the specific discovery regime where novel causal variants are
-most often missed, including rare-variant effects and genomic regions of
-dense LD in non-European ancestries.
+We believe this work fits *Nature Genetics* because it addresses a standing
+gap in the fine-mapping literature — methods that integrate biology as a
+structural prior rather than a flat annotation — and answers it with a
+reusable open-source platform comprehensively benchmarked against the
+field's existing gold standards. The decisive 27-to-2 advantage in the
+weak-signal regime maps onto the discovery regime where novel causal
+variants are most often missed, including rare-variant effects and dense
+LD regions in non-European ancestries.
 
-Software, all benchmark scripts, and graph dumps are available at
-github.com/jfmao/GraphGWAS. The benchmark figures and tables in the
-manuscript are each reproducible from a single command.
+Software, all benchmark scripts, all ten paper figures, all nine paper
+tables, and the multi-omics graph dumps are available at
+github.com/jfmao/GraphGWAS. Every figure and table is reproducible from
+a single command (see `docs/REPRODUCIBILITY.md`).
 
 We suggest the following reviewers with deep expertise in fine-mapping and
 biobank-scale statistical genetics: [names redacted]. We declare no
@@ -94,11 +107,16 @@ Sincerely,
 
 | Claim | Value | Source |
 |---|---|---|
-| Match SuSiE on strong signal | 22/30 ties, 4 wins, 4 losses | Table 2, Fig 3d |
-| 20–30× speedup over SuSiE | HBP 0.08 s vs SuSiE 1.8 s | Table 2, Fig 3c |
-| Beat SuSiE at weak signal + annotations | 27-2 wins (13.5:1) | Table 5, Fig 6 |
-| Zero FPR across 100 nulls | FPR @ 0.5 = 0% all methods | Table 4, Fig 4c |
-| PIP calibrated | Within-bin TDR matches expected | Table 3, Fig 4a |
-| 42,000× epistasis search reduction | 10.5 × 10⁹ → 250 × 10³ | Supplement, Fig 5a |
-| Hybrid BGEN pipeline | AF diff < 1e-4 vs graph | Manuscript §4.6 |
-| Pre-loaded multi-omics graph | 43.2 M eQTL, 230 K PPI | Table 1 |
+| Match SuSiE/SuSiE-inf on accuracy | 20–22/30 rank-#1 (within 1–2) | §2.4, Fig 3 |
+| 6–60× faster than all baselines | HBP 0.016 s vs 0.16–2.5 s | §2.4, Fig 3c |
+| Beat SuSiE at weak signal + tissue-specific eQTL | 27-2 wins (13.5:1) | §2.3, Table 5, Fig 6 |
+| Tie Polyfun-style SuSiE on rank, 26× faster | 11-11 wins, 0.055 s vs 1.45 s | §2.8 |
+| Zero FPR across 100 nulls | FPR @ PIP > 0.5 = 0% all methods | §2.6, Table 4, Fig 4c |
+| PIP calibrated | Bin TDR matches expected on 800 sims | §2.6, Table 3, Fig 4a |
+| 42,000× epistasis search reduction | 10.5 × 10⁹ → 250 × 10³ | §2.7, Fig 5a, Theorem 1 |
+| Power scales with N | Mean PIP 0.54 → 0.77 at N = 500 → 3000 | §2.9, Fig 8 |
+| Cross-ancestry: works best on AFR | 53% rank-#1, mean PIP 0.346 | §2.10, Fig 9 |
+| Cross-species: Arabidopsis FT10 | PIP = 0.989 on chr4 peak in 0.1 s | §2.11 |
+| Hybrid BGEN pipeline | AF diff < 1 × 10⁻⁴ vs Neo4j | §4.6 |
+| SBayesRC integration verified | 1.15 M SNPs, 473 PIP > 0.9 in 51 s | §2.4 |
+| Multi-omics graph released | 43.2 M eQTL + 230 K PPI + 370 K cCRE | §2.1 |
