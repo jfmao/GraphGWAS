@@ -34,8 +34,8 @@ VCF = "/mnt/data/GraphPop/data/raw/3kRG_data/NB_final_snp.vcf.gz"
 GT_GENES = pd.read_csv(DATA / "ground_truth" / "grain_quality_causal_genes.tsv",
                         sep="\t")
 FM_WINDOW = 250_000
-MAX_LEADS_PER_TRAIT = 5   # keep it tractable
-MAX_SUGGESTIVE_PER_TRAIT = 3
+MAX_LEADS_PER_TRAIT = 3   # keep it tractable
+MAX_SUGGESTIVE_PER_TRAIT = 1
 
 
 def _parse_gt(g):
@@ -178,7 +178,9 @@ def main():
         print(f"\n--- {trait} {chrom}:{pos:,} [{sig}, p={lead['p']:.2e}] ---",
               flush=True)
         # Find the GWAS sumstats file for this trait
-        gwf = list(GWAS_OUT.glob(f"gwas_{trait}.*.glm.linear"))
+        gwf = list(GWAS_OUT.glob(f"gwas_irri.{trait}.glm.linear"))
+        if not gwf:
+            gwf = list(GWAS_OUT.glob(f"gwas_{trait}.*.glm.linear"))
         if not gwf:
             print(f"  no GWAS output for {trait}"); continue
         gw_path = gwf[0]
