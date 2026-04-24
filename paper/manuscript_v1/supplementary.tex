@@ -1,0 +1,529 @@
+\section*{Supplementary Information}
+
+\setcounter{figure}{0}
+\renewcommand{\thefigure}{S\arabic{figure}}
+\setcounter{table}{0}
+\renewcommand{\thetable}{S\arabic{table}}
+
+% ===================================================================
+% SUPPLEMENTARY TABLES (moved from main text to stay under NG's 8-item cap)
+% ===================================================================
+
+\subsection*{Supplementary Table S1 --- Multi-omics graph state after loading on 1000 Genomes Phase~3}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{lr}
+\toprule
+Node~/~edge & Count \\
+\midrule
+Variant & 70{,}691{,}875 \\
+Sample & 3{,}202 \\
+Gene (GENCODE v47) & 20{,}092 \\
+GTEx~v8 tissue eQTL & 43{,}170{,}154 \\
+\texttt{HAS\_CONSEQUENCE} edges & 38{,}940{,}085 \\
+STRING \texttt{INTERACTS\_WITH} ($\geq$~700) & 230{,}850 \\
+RegulatoryElement (ENCODE cCRE) & 370{,}000 \\
+\bottomrule
+\end{tabular}
+\caption{Counts in the multi-omics knowledge graph loaded on 1000
+Genomes Phase~3. Variant / Sample / Gene / Pathway / GOTerm /
+RegulatoryElement are first-class typed nodes; HAS\_CONSEQUENCE,
+eQTL, INTERACTS\_WITH, IN\_PATHWAY, HAS\_GO\_TERM,
+IN\_REGULATORY are first-class typed edges. Same counts visualised
+inline in Figure~1 of the main text.}
+\label{tab:sup_graph}
+\end{table}
+
+\clearpage
+
+\subsection*{Supplementary Table S2 --- Head-to-head benchmark: HBP, L1 and five Bayesian baselines on 1000~Genomes chromosome~22 simulations}
+
+\begin{table}[htbp]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{lcccrrr}
+\toprule
+\multirow{2}{*}{Method} & \multicolumn{3}{c}{Rank-\#1 rate} & \multirow{2}{*}{Mean rank} & \multirow{2}{*}{Mean PIP} & \multirow{2}{*}{Median runtime} \\
+\cmidrule(lr){2-4}
+                       & Strong & Weak & Functional &           &           & \\
+\midrule
+SuSiE                              & 70\% & 57\% & 40\% & 2.3             & 0.62 & 1.8\,s \\
+FINEMAP                            & 69\% & 55\% & 37\% & 2.5             & 0.61 & 2.2\,s \\
+SuSiE-inf                          & 73\% & 58\% & 40\% & 2.1             & 0.69 & 0.16\,s \\
+FINEMAP-inf                        & 70\% & 57\% & 40\% & 2.2             & 0.70 & 0.20\,s \\
+Polyfun-proxy                      & 70\% & 55\% & 42\% & 2.3             & 0.54 & 1.45\,s \\
+\textbf{L1 (ours)}                 & 70\% & \textbf{77\%} & 42\% & \textbf{1.65}$^{*}$ & 0.56 & \textbf{0.07\,s} \\
+\textbf{HBP (ours)}                & \textbf{70\%} & 60\% & 37\% & 2.3     & 0.58 & \textbf{0.08\,s} \\
+\bottomrule
+\end{tabular}
+\caption{Head-to-head fine-mapping benchmark. Rank-\#1 columns
+are reported per scenario: strong signal ($h^2 \in \{0.10, 0.20\}$),
+weak signal ($h^2 \in \{0.02, 0.05\}$) and
+functional-causal (tissue-specific eQTL-restricted). Mean rank
+and mean PIP are pooled across scenarios.
+Polyfun-proxy = SuSiE supplied with the same eQTL prior used by
+HBP/L1 via \texttt{prior\_weights}.
+$^*$L1 mean rank is reported at weak signal with tissue-specific
+eQTL priors, the regime in which L1 wins 27--2 head-to-head
+against SuSiE. Graphical summary in main-text Figure~4.}
+\label{tab:sup_baselines}
+\end{table}
+
+\clearpage
+
+\subsection*{Supplementary Table S3 --- Method portfolio: recommended GraphGWAS method by scenario}
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{0.47\textwidth}ll}
+\toprule
+Scenario & Recommended & Primary reason \\
+\midrule
+Strong signal, no annotations & SuSiE~/~FINEMAP & Well-calibrated Bayesian model \\
+Strong signal~+~eQTL annotations & L1~/~HBP & 20--30$\times$ faster, graph output \\
+\textbf{Weak signal~+~informative annotations} & \textbf{L1} & \textbf{27--2 wins over SuSiE} \\
+Dense LD~+~annotations & L1 & Graph prior breaks LD ties \\
+Multi-locus~/~shared pathway evidence & CLGF & EM borrows across loci \\
+Genome-wide, many traits & SBayesRC & Polygenic mixture \\
+Many loci, speed-critical & HBP~/~L1 & 0.02--0.08~s per locus \\
+Biobank-scale sumstats & HBP from sumstats & Pan-UKB~/~UK Biobank-ready \\
+Epistasis discovery (paper~\#2) & M1 & 42{,}000$\times$ vs exhaustive \\
+\bottomrule
+\end{tabular}
+\caption{Decision table mapping fine-mapping scenarios to the
+recommended GraphGWAS method. All listed methods share a common
+input interface (Neo4j graph, BGEN file, or Pan-UKB-style summary
+statistics) and a common output (\texttt{AssociationResult} and
+\texttt{CredibleSet} graph nodes). Graphical summary in main-text
+Figure~8.}
+\label{tab:sup_portfolio}
+\end{table}
+
+\clearpage
+
+% ===================================================================
+% SUPPLEMENTARY FIGURES
+% ===================================================================
+
+\subsection*{Supplementary Figure S1 --- M1 LD-pruned epistasis (preview)}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{fig5_m1_epistasis.pdf}
+\caption{\textbf{M1 LD-pruned co-occurrence epistasis preview.}
+(\textbf{a})~Search-space reduction on 1000 Genomes chromosome~22
+common variants at LD threshold $\tau{=}0.5$: $k(\tau) \approx 0.003$
+yields a 42{,}000$\times$ reduction
+($5.2 \times 10^9 \rightarrow \approx 31{,}000$ pairs) without loss
+of ground-truth detection. (\textbf{b})~Interaction test p-value
+distribution on 5 pure-interaction simulations. (\textbf{c})~Ground-
+truth rank placement: M1 places the interacting pair at rank~\#1 in
+5/5 replicates. (\textbf{d})~Runtime per locus. See Theorem~1
+(Supplementary Note~S1) for the theoretical bound. The full
+epistasis benchmarking programme (multi-scenario, null FPR,
+BOOST/MDR baselines, higher-order $k \geq 3$) is the subject of a
+companion manuscript in preparation.}
+\label{fig:sup_epistasis}
+\end{figure}
+
+\clearpage
+
+\subsection*{Supplementary Figure S2 --- Pan-UKB cross-ancestry fine-mapping (extended panels)}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figS2_panukb_cross_ancestry.pdf}
+\caption{\textbf{Pan-UKB cross-ancestry fine-mapping: extended view.}
+HBP sumstats-only fine-mapping on four canonical multi-ancestry
+loci (FTO~/~BMI, APOA5~/~triglycerides, LDLR~/~LDL-C, HMGA2~/~height)
+$\times$ four ancestries (EUR $N{=}420{,}531$, CSA $8{,}876$, AFR
+$6{,}636$, EAS $2{,}709$). Pan-UKB summary statistics were streamed
+via \texttt{tabix} over HTTPS ($\sim$3~s per locus) and lifted
+GRCh37~$\rightarrow$~GRCh38 for alignment with our 1KG reference
+panel; ancestry-matched 1KG subsets provided the LD reference.
+(\textbf{a})~Top-variant HBP PIP heatmap across locus $\times$
+ancestry cells. (\textbf{b})~95\% credible-set size heatmap
+($\log_{10}$-scaled). (\textbf{c})~Credible-set size vs Pan-UKB $N$
+(log-log) --- the same scaling relationship demonstrated in Figure~6
+on 1KG simulations, here replicated on real-biobank data.
+(\textbf{d})~Top-variant PIP by locus $\times$ ancestry. Notable
+results: EUR BMI/LDL/Height resolve to PIP~=~1.000 with
+credible-set size~1; Height/HMGA2 is cross-ancestry robust (EUR
+PIP~=~1.0, CSA PIP~=~1.0, EAS PIP~=~0.97); triglycerides/APOA5
+shows two-ancestry convergence (EUR and CSA both top-rank the same
+indel 11:116767975:A:AAAT).}
+\label{fig:sup_panukb}
+\end{figure}
+
+\clearpage
+
+\subsection*{Supplementary Figure S3 --- GraphGWAS CLI command hierarchy}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figS3_cli_tree.pdf}
+\caption{\textbf{GraphGWAS CLI command hierarchy.} The
+\texttt{graphgwas} command-line interface organises 44~commands
+across 19~functional groups and 10~domains. Colour coding indicates
+benchmark tier: red = rigorously benchmarked in this paper
+(fine-mapping); orange = previewed here, full benchmark in
+companion paper (epistasis); purple = platform methods implemented
+but awaiting dedicated benchmarks (heritability, multivariate,
+polygenic risk scores, Mendelian randomisation, gene--environment
+interaction, GNN, agent); grey = shared infrastructure
+(QC, plotting, I/O, REST~/~MCP servers). All commands share the
+same input interface (graph database, BGEN file, or Pan-UKB-style
+summary statistics) and write outputs as typed graph nodes
+(\texttt{AssociationResult}, \texttt{CredibleSet}) queryable
+through the database's native query language alongside the
+biological annotations that produced them. Full per-command
+documentation at \texttt{docs/manual/index.md}; end-to-end worked
+examples in \texttt{vignettes/}.}
+\label{fig:sup_cli_tree}
+\end{figure}
+
+\clearpage
+
+% ===================================================================
+% SUPPLEMENTARY NOTES
+% ===================================================================
+
+\subsection*{Supplementary Note S1 --- Mathematical proofs}\label{snote:proofs}
+
+This note summarises the five theorems that underlie GraphGWAS'
+core methods. Full proofs with technical lemmas are deposited as
+\texttt{docs/MATHEMATICAL\_PROOFS.md} in the accompanying code
+repository.
+
+\paragraph{Theorem 1 (M1 search-space reduction).}
+Let $V = \{v_1, \dots, v_M\}$ be a set of $M$ variants and
+$G_\tau = (V, E_\tau)$ with $E_\tau = \{(i,j) : r^2_{ij} \geq \tau\}$.
+Let $S_\tau \subseteq V$ be a maximal independent set of $G_\tau$
+with $k(\tau) = |S_\tau|/|V|$. The number of epistasis pairs tested
+within $S_\tau$ is at most
+$\binom{|S_\tau|}{2} \approx k(\tau)^2 \binom{M}{2}$, giving a
+$1/k(\tau)^2$ reduction against exhaustive search. On 1KG chr22
+with $\tau{=}0.5$ we measure $k(\tau) \approx 0.003$, giving
+$\approx$ 100{,}000$\times$ theoretical reduction; the empirical
+reduction is 42{,}000$\times$ after the additional distance and
+co-carrier filters.
+
+\paragraph{Theorem 2 (HBP fixed-point convergence).}
+The HBP update operator
+$T(b) = \lambda b + (1-\lambda)[\alpha s + (1-\alpha) \pi(b)]$ on
+the probability simplex, with $s = \text{softmax}(z)$ constant and
+$\pi(b)$ a normalised non-negative linear propagation, satisfies
+$\|T(b_1) - T(b_2)\|_1 \leq L \|b_1 - b_2\|_1$ with
+$L = \lambda + (1-\lambda)(1-\alpha) \rho(M) < 1$ for $\lambda > 0$,
+where $\rho(M)$ is the spectral radius of
+$B_{vg} B_{gp} B_{gp}^\top B_{vg}^\top$. By the Banach fixed-point
+theorem\cite{banach1922operations}, $T$ has a unique fixed point
+$b^*$ and $\{b^{(t)}\}$ converges geometrically at rate $L$. At defaults
+($\lambda{=}0.5$, $\alpha{=}0.6$, $\rho \approx 0.5$),
+$L \approx 0.6$, giving residual $\leq 0.6^5 \approx 0.078$ in 5
+rounds---empirically convergent to four decimal places.
+
+\paragraph{Theorem 3 (L1 causal-variant ranking).}
+Under linear LD decay ($r_{ic} = 1 - d_i/D$) and bounded cross-LD
+between non-causal variants ($r^2_{ij} \leq r^2_{ic} r^2_{jc}$),
+the L1 deconvolved statistic satisfies
+$u_c > u_i$ for all $i \neq c$. That is, the causal variant has
+the highest unique-signal contribution after LD deconvolution.
+
+\paragraph{Theorem 4 (Null PIP bound).}
+Under the null ($\beta{=}0$), the L1/HBP softmax PIP satisfies
+$\mathbb{E}[\max_i \pi_i] \leq e^{\sqrt{2 \log n} - 1/2} / n$. For
+$n = 500$ variants this gives $\max \pi_i \leq 0.04$; for $n = 5{,}000$
+the bound is $\leq 0.005$. Empirical null mean
+$\max$-PIP on 100 replicates: L1~0.004, HBP~0.003---both within the
+theoretical bound.
+
+\paragraph{Theorem 5 (CLGF EM convergence).}
+The CLGF cross-locus graph fine-mapping iteration is an instance of
+expectation-maximisation (EM) on a hierarchical Bayesian model with
+pathway membership informing the variant prior. Monotone increase
+of the expected complete-data log-likelihood follows from
+Dempster, Laird \& Rubin\cite{dempster1977maximum}; convergence to a
+local optimum in
+$O(\log 1/\epsilon)$ iterations follows from the compactness of the
+parameter space (PIPs on the probability simplex, $\sigma$ bounded
+by total PIP mass). The own-locus subtraction
+$\tilde{\sigma}_k = \sigma_k - \sum_{j \in V^{(l)}} \pi_j^{(t,l)} P^{(l)}_{jk}$
+is essential to prevent pathological self-reinforcement.
+
+\clearpage
+
+\subsection*{Supplementary Note S2 --- Reproducibility}\label{snote:repro}
+
+Every figure and table in this paper is regeneratable from a
+single command documented in \texttt{docs/REPRODUCIBILITY.md}:
+
+\begin{itemize}
+\item \textbf{Figures~1--8} (main text): \texttt{python tests/generate\_paper\_figures.py}\\
+      Figure~1 (flat-vs-relational) specifically: \texttt{python tests/generate\_fig1\_v2.py}
+\item \textbf{Supp.~Figure~S1} (M1 epistasis): \texttt{python tests/generate\_paper\_figures.py --fig 5}
+\item \textbf{Supp.~Figure~S2} (Pan-UKB cross-ancestry):\\
+      \texttt{python tests/benchmark\_panukb\_finemap.py --all \&\&\\
+              python tests/generate\_panukb\_figure.py}
+\item \textbf{Supp.~Tables~S1--S3}: \texttt{python tests/generate\_paper\_tables.py}
+\item \textbf{Benchmark JSONs} in \texttt{results/benchmark\_v2/}; seeds and simulation parameters logged per-replicate.
+\item \textbf{Pre-built graph-database dumps} in Neo4j~5.26 format (yeast 0.5~GB; human~+~multi-omics 17~GB) deposited on Zenodo (DOI to be assigned on acceptance).
+\end{itemize}
+
+All benchmark runs were performed on a single workstation
+(Intel Core i9-13900K, 64~GB DDR5, Ubuntu~24.04, Python~3.13,
+graph-database heap~16~GB~/~page-cache~16~GB; Neo4j~5.26 reference
+implementation); none of the results require a cluster.
+
+\clearpage
+
+\subsection*{Supplementary Note S3 --- The GraphGWAS platform: scope beyond fine-mapping}\label{snote:platform}
+
+\paragraph{Scope and positioning.}
+GraphGWAS is a Python package of which fine-mapping (the subject
+of this paper) is the first method class rigorously benchmarked.
+The full source is at \url{https://github.com/jfmao/GraphGWAS}
+under the MIT licence. This note describes the platform's other
+capabilities---some previewed here (M1 epistasis), some
+implemented but awaiting dedicated benchmarks in forthcoming
+manuscripts, and some included as infrastructure that makes the
+fine-mapping methods reproducible and extensible. We disclose the
+full scope here so that readers can place the present paper's
+claims within the broader codebase. \textbf{Only the fine-mapping
+method class (HBP, L1, CLGF) is rigorously benchmarked in this
+paper.}
+
+\paragraph{Package architecture.}
+The Python package (\texttt{graphgwas}, 34 modules, 78 passing
+unit tests) is structured around seven functional groups:
+
+\begin{itemize}
+\item \textbf{Data access}: \texttt{db}, \texttt{schema}, \texttt{config}
+      (graph-database connection, schema audit, global constants);
+      \texttt{bgen\_reader} (per-locus BGEN streaming);
+      \texttt{panukb} (Pan-UKB tabix-over-HTTPS sumstats,
+      Hail LD-BlockMatrix slicer);
+      \texttt{annotations} (GENCODE~/~GTEx~/~STRING~/~ENCODE
+      loaders);
+      \texttt{genotype} (gt\_packed encoding, PCA import).
+\item \textbf{Single-locus association}: \texttt{assoc}
+      (Chi$^2$, Fisher, logistic, Firth, linear with
+      quantitative-trait correction); \texttt{qc} (HWE, MAC,
+      missingness, heterozygosity); \texttt{popstruct} (GRM, PCA,
+      GRAMMAR+, graph-spectral PCs, GPU-accelerated);
+      \texttt{phenotype}, \texttt{results}, \texttt{plots}.
+\item \textbf{Fine-mapping (this paper)}:
+      \texttt{finemapping\_v2}
+      (L1 Bayesian,
+      L4 MDS-embedding, HBP hierarchical belief propagation,
+      CLGF cross-locus EM); sumstats-only entry paths
+      \texttt{l1\_finemap\_from\_sumstats},
+      \texttt{hbp\_finemap\_from\_sumstats}.
+\item \textbf{Epistasis (paper~\#2 in preparation)}:
+      \texttt{epistasis\_v2}
+      (M1 LD-pruned co-occurrence; M2 motif-filtered;
+      M3 differential subgraph; M4 dark-matter pairs).
+\item \textbf{Other quantitative-genetics methods (not benchmarked here)}:
+      \texttt{heritability} (6 estimators: spectral, GRM-REML,
+      conductance, random-effect, etc.);
+      \texttt{multivariate} (cross-trait genetic correlation,
+      G-matrix, coherence, pleiotropy);
+      \texttt{met} (multi-environment trials; G$\times$E);
+      \texttt{prs} (polygenic risk score: classical,
+      graph-pruned, pathway-weighted);
+      \texttt{mr} (Mendelian randomisation: IVW, Egger, weighted
+      median);
+      \texttt{mpat} (gene-level MPAT); \texttt{flow} (max-flow
+      pathway scoring); \texttt{spectral} (rare-variant spectral
+      similarity); \texttt{sv} (structural variants).
+\item \textbf{Machine-learning and agent interfaces (not benchmarked here)}:
+      \texttt{gnn} (HeteroGNN export/train/explain via PyTorch
+      Geometric); \texttt{agent} (LangGraph ReAct agent for
+      natural-language GWAS queries); \texttt{mcp\_server} (Model
+      Context Protocol tool server).
+\item \textbf{Infrastructure}: \texttt{parallel} (ProcessPoolExecutor
+      with staggered graph-database connections); \texttt{api} (FastAPI
+      REST); \texttt{sumstats}, \texttt{summary\_import},
+      \texttt{simulate} (genotype/phenotype simulation under F1,
+      S1, null, cross-ancestry scenarios);
+      \texttt{cli} (\texttt{graphgwas} command-line interface,
+      60+ commands organised by functional group).
+\end{itemize}
+
+\paragraph{Benchmark-status table.}
+Table~\ref{tab:sup_benchmark_status} lists each method class
+implemented in GraphGWAS alongside its validation status in the
+present paper. This distinction---between methods rigorously
+benchmarked here, methods previewed for follow-up manuscripts, and
+methods implemented as infrastructure without dedicated
+benchmarks---is essential for honest interpretation of the
+codebase.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{p{0.22\textwidth}p{0.17\textwidth}p{0.21\textwidth}p{0.28\textwidth}}
+\toprule
+Method class & Module & Status in this paper & Benchmark record \\
+\midrule
+\textbf{Fine-mapping} (HBP, L1, CLGF, L4) & \texttt{finemapping\_v2} & \textbf{Rigorously benchmarked} (Figs~2--5,~7) & 90 F1 simulations, 79 weak-signal replicates, 100 null replicates, 200 PIP-calibration replicates, Pan-UKB 4 ancestries \\
+\midrule
+Epistasis (M1--M4) & \texttt{epistasis\_v2} & M1 preview only (Supp.~Fig.~S1) & 5 replicates; full benchmark in paper~\#2 (in preparation) \\
+\midrule
+Single-locus GWAS + GRAMMAR+ & \texttt{assoc},\,\texttt{popstruct} & Used internally (yeast $\lambda_{\text{GC}}$ 0.98 reported) & Validated vs PLINK2 at $r = 1.0000$ on 82k shared variants \\
+\midrule
+Heritability (6 estimators) & \texttt{heritability} & Mentioned only & Spectral $h^2$ computed on 35 yeast traits; not formally benchmarked vs GCTA-GREML \\
+\midrule
+Multivariate (r$_G$, G-matrix, pleiotropy, coherence) & \texttt{multivariate} & Not used & Implemented; 35-trait yeast r$_G$ matrix computed; no formal benchmark \\
+\midrule
+Polygenic risk score (classical, pathway-weighted) & \texttt{prs} & Not used & Implemented; no formal benchmark \\
+\midrule
+Mendelian randomisation (IVW, Egger, weighted median) & \texttt{mr} & Not used & Implemented; no formal benchmark \\
+\midrule
+Multi-environment trials / G$\times$E & \texttt{met} & Not used & Implemented; no formal benchmark \\
+\midrule
+GNN (HeteroGNN) & \texttt{gnn} & Mentioned only (Discussion future directions) & Implemented; not trained for this paper \\
+\midrule
+AI agent (LangGraph ReAct) & \texttt{agent},\,\texttt{mcp\_server} & Not used & Proof-of-concept implementation; no formal benchmark \\
+\bottomrule
+\end{tabular}
+\caption{Benchmark-status table for all method classes in
+GraphGWAS. Only the fine-mapping class is rigorously benchmarked
+in the present paper. Eight further method classes are implemented
+in the released package but either previewed for follow-up work
+(epistasis) or shipped as infrastructure without formal
+benchmarks. This table is the honest record of the codebase's
+scope versus the paper's claims.}
+\label{tab:sup_benchmark_status}
+\end{table}
+
+\paragraph{Reproducibility and extensibility.}
+Every result in this paper is regeneratable by a single command
+(Supp.~Note~S2). New methods plug into the shared
+\texttt{load\_locus\_variants} input contract (graph database, BGEN,
+or Pan-UKB-style sumstats) and the shared
+\texttt{CredibleSet}~/~\texttt{AssociationResult} output contract
+(results become graph nodes queryable by Cypher alongside
+biological annotations). New annotations plug into the
+\texttt{graphgwas.annotations} loader via a small typed-edge
+registration schema. Distribution channels: GitHub source,
+Zenodo-versioned package DOI (to be assigned on acceptance),
+graph-database dumps for yeast (0.5~GB) and human with full
+multi-omics (17~GB).
+
+\paragraph{User-facing documentation.}
+The package ships with three levels of documentation. (i)~A
+top-level \texttt{README.md} with quick-start, key features,
+three-interface table (CLI / REST / MCP), and pointers to detailed
+guides. (ii)~A per-command reference at \texttt{docs/manual/index.md}
+listing all 44 commands organised by 10 functional domains; each
+command has its own page under \texttt{docs/manual/commands/}
+following a standard template (description, usage, arguments,
+options, output schema, examples). The CLI hierarchy is visualised
+in Supplementary Figure~S3. (iii)~End-to-end vignettes in
+\texttt{vignettes/}, including \texttt{fine-mapping-quickstart.md}
+which walks from Pan-UKB summary-statistics fetch through an
+ancestry-resolved credible set in $\sim$15 minutes, replicating
+the FTO/BMI headline result of the main paper (Figure~7). An
+installation guide at \texttt{docs/INSTALL.md} documents Python
+environment setup, graph-database configuration for the optional full-graph
+deployment, and Hail setup for the optional Pan-UKB in-sample LD
+path.
+
+\paragraph{Three programmatic interfaces.}
+The same 40+ procedures are exposed through three interfaces sharing
+a common implementation: (i)~the \texttt{graphgwas} CLI (Click-based,
+44~commands, Supplementary Figure~S3); (ii)~a FastAPI REST server
+with 37 endpoints for web or pipeline integration
+(\texttt{graphgwas serve}); and (iii)~a Model Context Protocol (MCP)
+server with 16 tools for AI-agent access from Claude Desktop or
+Claude Code (\texttt{graphgwas mcp}). All three interfaces call the
+same underlying Python module functions; there is no duplication of
+logic between interfaces.
+
+\paragraph{Roadmap.}
+The GraphGWAS platform is developed with a three-paper roadmap:
+(1) this paper---fine-mapping, the first rigorously benchmarked
+method class; (2) a companion manuscript on graph-native
+epistasis (M1 and higher-order extensions) in preparation; and
+(3) a prospective application note fully describing the platform
+and benchmarking the quantitative-genetics methods
+(heritability, PRS, MR, MET, multivariate) that are implemented
+but not formally validated in the present paper. Releasing the
+full package alongside this first paper invites third-party
+benchmarks and extensions on methods that the GraphGWAS group
+itself will address in follow-up.
+
+\subsection*{Supplementary Note S4 --- Multi-omics coverage ablation (rice)}\label{snote:ablation}
+
+This note expands on the ablation result in Results \S\ref{sec:ablation}.
+
+\paragraph{Protocol.} On each of 5 simulated grain-quality causal loci in
+the 3{,}000 Rice Genomes panel (GW2, BG1, GS5, TGW6, GW8/OsSPL16; each at
+$\pm$250~kb around the Ren-2023 causal variant position), we took the
+per-chromosome rice multi-omics graph cache (RAP-DB variant$\to$gene via
+snpEff~ANN, Ren 2023 gene$\to$pathway curated catalogue of 269 grain genes,
+RicePPINet gene$\leftrightarrow$gene PPI at probability~$\geq$~0.7). At
+each retention fraction $f \in \{0.1, 0.25, 0.5, 0.75, 1.0\}$ we randomly
+dropped each (variant, edge) entry with probability $1-f$ and re-ran HBP
+on the same sumstats-derived $z$ and LD matrix. Ten independent bootstrap
+seeds were used per non-unit fraction ($f = 1$ is deterministic).
+
+\paragraph{Per-locus rank of causal variant.} Means over 10 seeds:
+
+\begin{center}
+\begin{tabular}{lrrrrrr}
+\toprule
+\textbf{Locus} & \textbf{Baseline PIP} & \textbf{10\%} & \textbf{25\%} &
+\textbf{50\%} & \textbf{75\%} & \textbf{100\%} \\
+\midrule
+GW8/OsSPL16  & 0.040   &  2.2 &  2.1 &  2.0 &  2.0 &  2.0 \\
+BG1          & 1.3$\times$10$^{-3}$ & 154.3 & 58.6 & 7.5 &  4.5 &  4.0 \\
+TGW6         & 2.7$\times$10$^{-3}$ &  64.7 & 34.7 & 15.2 &  6.7 &  3.0 \\
+GS5          & 2.1$\times$10$^{-4}$ & 514.3 & 764.0 & 1025.6 & 1156.0 & 1139.0 \\
+GW2          & 6.1$\times$10$^{-7}$ &10791 &10899 &11033 &11130 &11197 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Per-locus credible-set size.} CS size at the same fractions:
+
+\begin{center}
+\begin{tabular}{lrrrrr}
+\toprule
+\textbf{Locus} & \textbf{10\%} & \textbf{25\%} & \textbf{50\%} & \textbf{75\%} & \textbf{100\%} \\
+\midrule
+GW8/OsSPL16  &  184 &  354 &  558 &  700 &  783 \\
+BG1          & 7164 & 7164 & 7164 & 7164 & 7164 \\
+TGW6         & 4017 & 4047 & 4086 & 4115 & 4157 \\
+GS5          & 8577 & 8577 & 8577 & 8577 & 8577 \\
+GW2          &  901 & 1155 & 1472 & 1707 & 1865 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Seed-variance.} Rice shows rank\_std $\in$ [7, 18] across 10
+seeds for borderline and unresolved loci, confirming that the random
+edge-dropping produces genuinely different caches whose HBP outputs
+differ. A companion human-chr22 ablation on simulated phenotypes using a
+GTEx eQTL + STRING PPI cache (combined\_score~$\geq$~700, nearly uniform
+1-gene / $N$-PPI per annotated variant) yielded rank\_std $=$ 0 for all
+5 test loci at every fraction in both strong-signal ($\lambda=6$) and
+weak-signal ($\lambda=3.5$) regimes --- no coverage sensitivity. This
+distinguishes the rice cache's heterogeneity (Ren-2023 hand-curated
+pathway labels vs. gene-only vs. PPI-only) as the driver of the
+observed signal in rice, and implies that uniform-density multi-omics
+priors do not benefit fine-mapping above a saturation density.
+
+\paragraph{Reproducibility.} Driver scripts are
+\texttt{tests/multiomics\_ablation\_test.py} (reusable scaffold),
+\texttt{tests/multiomics\_ablation\_rice.py} (rice driver), and
+\texttt{tests/multiomics\_ablation\_human\_weak.py} (human chr22
+weak-signal companion). Combined TSV output is
+\texttt{data/rice\_3k/results/ablation\_rice\_combined.tsv};
+full report with classification methodology is
+\texttt{data/rice\_3k/results/ablation\_multi\_species\_report.md}.
