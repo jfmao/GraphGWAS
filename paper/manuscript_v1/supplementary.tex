@@ -527,3 +527,53 @@ weak-signal companion). Combined TSV output is
 \texttt{data/rice\_3k/results/ablation\_rice\_combined.tsv};
 full report with classification methodology is
 \texttt{data/rice\_3k/results/ablation\_multi\_species\_report.md}.
+
+\subsection*{Supplementary Note S5 --- Cross-species ground-truth catalogs}\label{snote:multispecies_gt}
+
+This note documents the literature and database sources used for the
+ground-truth validation of cross-species fine-mapping (Results
+\S\ref{sec:multispecies}).
+
+\paragraph{Rice (Ren \emph{et al.} 2023).}
+269 grain-quality genes from the comprehensive Science Bulletin
+review\cite{ren2023rice}, with chromosome and position from snpEff
+ANN of the 3kRG pseudo-canonical VCF
+(\texttt{data/rice\_3k/ground\_truth/grain\_quality\_causal\_genes.tsv}
++ \texttt{gene\_position\_index.tsv}).
+
+\paragraph{Yeast (Bloom 2015 + Peter 2018 + curation).}
+35 trait-to-gene mappings drawn from\cite{peter2018genome,bloom2015genetic}
+plus standard yeast genetics canon. Examples:
+TUP1/SPT7/ADH1-3 (ethanol tolerance), CUP1/CUP2/CTR1/ACE1 (copper),
+HSP82/HSP104/HSP12/TPS1/TPS2 (heat), GAL1-10/GAL80
+(galactose utilisation), TOR1/PDR1/PDR3/YRR1 (caffeine, multidrug
+resistance), ERG3/ERG6/ERG11/PDR5/CDR1 (fluconazole/sterol),
+HOG1/SLN1/HAL1-3/ENA1 (osmotic), TUB1-3/BEN1 (benomyl/microtubule),
+RAD52/RAD53/RNR1-3/MEC1 (HU/DNA-damage), GAL/HXT/GUT/RBK1
+(carbon-source). Positions parsed from
+\texttt{tests/data/yeast/SGD\_features.tab}.
+
+\paragraph{Arabidopsis (AraGWAS bonferroni + literature).}
+275 SNP--phenotype rows from AraGWAS bonferroni-significant
+associations (\texttt{tests/data/arabidopsis/aragwas\_bonf\_associations.csv})
+plus 24 literature-canonical entries we added for traits not in
+AraGWAS but with well-known causal genes:
+FLC \cite{}, FRI \cite{}, CONSTANS, GIGANTEA, VIN3, FT, AP1, DOG1,
+HKT1. The AraGWAS file is dominated by chr-4 hits; cross-chromosome
+validation relies on the literature layer.
+
+\paragraph{Human (GWAS Catalog literature canon).}
+8 chr22 loci linked in the GWAS Catalog or major lipid GWAS
+to our 4 traits: APOL1/APOL2 (LDL, Klarin et al.\ 2018
+\cite{}), SREBF2 (LDL/Height, Willer et al.\ 2013\cite{}),
+BCL2L13/BID (LDL), PLA2G6 (TG, GLGC 2013), PPARA (TG, Surakka
+et al.\ 2015), KCNJ4 (Height). Chromosome-22-only because that is
+where our graph cache is built.
+
+\paragraph{Validation criterion.} A fine-mapped lead is "validated"
+if any catalog feature for its trait lies within 250~kb of the lead
+position on the same chromosome. This is the same criterion used
+across all four species. The 250~kb window matches the typical
+LD-block scale of the densest panel (rice 3kRG); for human it is
+about half a typical LD block (Pan-UKB chr22 leads have $\geq 1$~Mb
+LD) and so likely under-counts true positives.
