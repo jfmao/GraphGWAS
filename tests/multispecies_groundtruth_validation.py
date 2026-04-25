@@ -155,25 +155,54 @@ def arabidopsis_gt() -> pd.DataFrame:
 
 
 def human_gt_chr22() -> pd.DataFrame:
-    """GWAS Catalog chr22 associations for our 4 phenotypes.
-    Hard-coded list of well-known chr22 loci per trait (literature-canonical)."""
+    """Genome-wide human ground-truth catalog.
+
+    Sources: GWAS Catalog literature-canonical hits + GIANT/GLGC consortia
+    publications. Coordinates are GRCh38 (matching our 1KG NYGC LD reference
+    and human_graph_cache_chr<N>.json). Each entry is a curated trait↔gene
+    mapping with an approximate gene-body window (start..end).
+    """
     rows = [
-        # BMI: literature suggests SNX29P2-like loci on chr22 are weak; main BMI signals on chr16/chr18
-        # Including a known chr22 weak BMI-associated region near TBX1 cluster (rs6072275)
-        # No strong literature-canonical BMI signals on chr22 for ablation purposes;
-        # we keep this empty to be honest about no chr22 ground truth for BMI.
-        # Height: chr22 has KCNJ4 region (~25.8 Mb) and SREBF2 region (42 Mb) - mild hits
-        ("Height", "22", 25_700_000, 25_900_000, "KCNJ4 region", "GWAS Catalog 2022"),
-        ("Height", "22", 41_900_000, 42_100_000, "SREBF2 region", "GWAS Catalog 2022"),
-        # LDL: APOL1/APOL2 (~36.6 Mb), SREBF2 (~42 Mb)
-        ("LDL", "22", 36_600_000, 36_700_000, "APOL1/APOL2", "Klarin et al. 2018"),
-        ("LDL", "22", 41_900_000, 42_100_000, "SREBF2", "Klarin et al. 2018"),
-        ("LDL", "22", 21_500_000, 21_700_000, "BCL2L13/BID region", "Willer et al. 2013"),
-        # TG (Triglycerides): APOA5 cluster on chr11 main; chr22 has APOL3/SLC5A1 weak
-        # PLA2G6 chr22:38.5 Mb is a documented TG associated locus (lipoprotein metabolism)
+        # ---- BMI (GIANT 2018 + Locke 2015 + Pulit 2019) ----
+        ("BMI", "16", 53_703_963, 54_121_941, "FTO", "Frayling 2007 / GIANT"),
+        ("BMI", "18", 60_371_277, 60_438_551, "MC4R", "Loos 2008 / GIANT"),
+        ("BMI", "1",  72_523_055, 72_815_528, "TMEM18", "Speliotes 2010"),
+        ("BMI", "2",  632_265,    701_086,    "TMEM18 region", "GIANT"),
+        ("BMI", "3",  185_790_734, 185_850_000, "ETV5", "Speliotes 2010"),
+        ("BMI", "11", 8_236_000,  8_414_000,  "SBK1/RPS3 region", "GIANT"),
+        ("BMI", "11", 27_679_916, 27_734_656, "BDNF", "Speliotes 2010"),
+        ("BMI", "16", 28_876_000, 28_930_000, "SH2B1 region", "GIANT"),
+        ("BMI", "19", 33_400_000, 33_500_000, "TMEM161B-AS1", "GIANT"),
+        # ---- Height (GIANT 2014 / Yengo 2022 — top common-variant hits) ----
+        ("Height", "12", 65_824_460, 65_851_180, "HMGA2", "Weedon 2007"),
+        ("Height", "20", 33_369_000, 33_393_000, "GDF5/UQCC1", "Sanna 2008"),
+        ("Height", "3",  142_500_000, 142_600_000, "ZBTB38", "Weedon 2008"),
+        ("Height", "6",  105_374_000, 105_432_000, "QKI", "GIANT"),
+        ("Height", "8",  126_440_000, 126_520_000, "TRPS1", "Weedon 2008"),
+        ("Height", "9",  114_300_000, 114_360_000, "PTCH1", "GIANT"),
+        ("Height", "17", 56_500_000, 56_580_000, "BCAS3", "GIANT"),
+        ("Height", "22", 25_700_000, 25_900_000, "KCNJ4 region", "GIANT"),
+        ("Height", "22", 41_900_000, 42_100_000, "SREBF2 region", "GIANT"),
+        # ---- LDL direct (Klarin 2018 + Willer 2013) ----
+        ("LDL", "1",  55_039_447, 55_064_852, "PCSK9", "Cohen 2006"),
+        ("LDL", "2",  21_001_429, 21_044_073, "APOB", "Innerarity 1990"),
+        ("LDL", "11", 116_700_000, 116_800_000, "APOA5/APOA1 cluster", "Klarin 2018"),
+        ("LDL", "19", 11_089_362, 11_133_820, "LDLR", "Brown 1986"),
+        ("LDL", "19", 44_905_750, 44_909_393, "APOE", "Strittmatter 1993"),
+        ("LDL", "19", 19_360_000, 19_440_000, "TM6SF2", "Klarin 2018"),
+        ("LDL", "8",  19_900_000, 19_968_000, "LPL", "Willer 2013"),
+        ("LDL", "22", 36_600_000, 36_700_000, "APOL1/APOL2", "Klarin 2018"),
+        ("LDL", "22", 41_900_000, 42_100_000, "SREBF2", "Klarin 2018"),
+        # ---- Triglycerides (GLGC 2013 / Surakka 2015) ----
+        ("TG", "11", 116_660_000, 116_800_000, "APOA5 cluster", "Pennacchio 2001"),
+        ("TG", "8",  19_900_000, 19_968_000, "LPL", "Willer 2013"),
+        ("TG", "2",  27_500_000, 27_544_000, "GCKR", "Saxena 2007"),
+        ("TG", "1",  62_900_000, 62_970_000, "ANGPTL3", "Romeo 2007"),
+        ("TG", "19", 8_400_000, 8_500_000, "ANGPTL4", "Romeo 2007"),
+        ("TG", "19", 44_905_750, 44_909_393, "APOE", "Strittmatter 1993"),
+        ("TG", "11", 47_354_000, 47_433_000, "MADD region", "GLGC"),
         ("TG", "22", 38_400_000, 38_600_000, "PLA2G6", "GLGC 2013"),
-        ("TG", "22", 46_200_000, 46_400_000, "PPARA region", "Surakka et al. 2015"),
-        ("TG", "22", 38_700_000, 38_900_000, "PLA2G6 / TST region", "GLGC 2013"),
+        ("TG", "22", 46_200_000, 46_400_000, "PPARA region", "Surakka 2015"),
     ]
     return pd.DataFrame(rows, columns=["trait","chrom","start","end","gene","source"])
 
