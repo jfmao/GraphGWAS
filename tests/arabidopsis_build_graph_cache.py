@@ -83,9 +83,26 @@ def parse_plant_reactome() -> dict[str, list[str]]:
 
 
 def parse_string_ath_ppi() -> dict[str, set[str]]:
-    """Return {AT_id: {AT_id partners}} via STRING ENSP→AT mapping in INFO file."""
-    # STRING uses ENSP IDs like 3702.AT1G01010.1 — actually for Arabidopsis,
-    # STRING IDs are 3702.AT-form, so we can extract the AT directly.
+    """Return {AT_id: {AT_id partners}} via UniProt→AT mapping (idmapping.dat).
+    Arabidopsis STRING IDs are UniProt accessions (3702.A0A0A7EPL0 etc.),
+    not AT-IDs. We use the UniProt knowledgebase idmapping file
+    (Gene_OrderedLocusName field) to map UniProt → ATxGyyyyy.
+    """
+    UNIPROT_DAT = ANN_DIR / "uniprot_3702_idmapping.tab.gz"
+    print(f"  Parsing UniProt → AT mapping ({UNIPROT_DAT.name}) ...", flush=True)
+    uniprot_to_at: dict[str, str] = {}
+    with gzip.open(UNIPROT_DAT, "rt") as fh:
+        for line in fh:
+            f = line.rstrip("\n").split("\t")
+            if len(f) < 3: continue
+            if f[1] != "Gene_OrderedLocusName": continue
+            uid, at = f[0], f[2].upper()
+            m = AT_RE.search(at)
+            if m:
+                uniprot_to_at[uid] = m.group(0)
+    print(f"    {len(uniprot_to_at):,} UniProt→AT mappings")
+
+    # Pull symbol→UniProt from STRING info as a fallback path
     print(f"  Parsing STRING info (3702 species) ...", flush=True)
     ensp_to_at: dict[str, str] = {}
     with gzip.open(STRING_INFO, "rt") as fh:
@@ -94,11 +111,15 @@ def parse_string_ath_ppi() -> dict[str, set[str]]:
             f = line.rstrip("\n").split("\t")
             if len(f) < 2: continue
             ensp = f[0].split(".", 1)[1] if "." in f[0] else f[0]
-            # f[1] is preferred_name; for Arabidopsis the STRING preferred_name often equals AT-id
-            m = AT_RE.search(ensp) or AT_RE.search(f[1])
-            if m:
-                ensp_to_at[ensp] = m.group(0)
-    print(f"    {len(ensp_to_at):,} ENSP→AT mappings")
+            # 1) UniProt → AT lookup (primary)
+            at = uniprot_to_at.get(ensp)
+            # 2) AT-regex on preferred_name (fallback)
+            if not at:
+                m = AT_RE.search(f[1])
+                if m: at = m.group(0)
+            if at:
+                ensp_to_at[ensp] = at
+    print(f"    {len(ensp_to_at):,} STRING-protein → AT mappings")
 
     print(f"  Parsing STRING links (combined_score≥{STRING_THRESHOLD}) ...", flush=True)
     ppi: dict[str, set[str]] = defaultdict(set)

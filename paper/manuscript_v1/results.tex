@@ -419,7 +419,34 @@ ran L1 and HBP fine-mapping on the top-3 genome-wide-significant plus
 top-1 suggestive independent leads per trait (72 total) using
 $\pm$250~kb windows and the rice multi-omics graph cache.
 
-\paragraph{Single-variant credible-set resolution without ground truth.}
+\paragraph{Ground-truth validation: fine-mapped leads recover textbook
+rice causal genes.} We compared all 72 fine-mapped lead positions against
+the 269-gene Ren \emph{et al.}~2023 catalogue\cite{ren2023rice} of curated
+grain-quality causal genes (the same catalogue we used for the ablation
+study, but applied here to the IRRI-scan output rather than the simulated
+causals). \textbf{24 of 72 leads (33\%) lie within 250~kb of at least
+one Ren-2023 gene}, with 14 of 18 traits contributing $\geq 1$ validated
+locus. Notable hits include the textbook rice red-pericarp gene
+\emph{Rc} (only \textbf{4.5~kb} from the SCCO\_REV Chr7:6.07~Mb lead),
+\emph{TGW6} (12.3 kb from LLT\_CODE Chr6:25.11~Mb), the awn-development
+gene \emph{GAD1/RAE2} (4.4 kb from AWPR\_REPRO Chr8:23.98~Mb,
+$p\!=\!4.4\!\times\!10^{-90}$, L1 PIP$\,=\,$0.999), grain-shape genes
+\emph{An-1} (240 kb from BLCO\_REV\_VEG Chr4:16.47~Mb, L1 PIP$=$1.00) and
+\emph{BG1} (68.7 kb from SPKF Chr3:4.10~Mb), the panicle-development
+gene \emph{OsER1} (62 kb from APCO\_REV\_REPRO Chr6:5.31~Mb, L1
+PIP$=$0.77), and the Vp1-orthologue \emph{OsVP1} (176 kb from PTY
+Chr1:39.54~Mb). The two highest-confidence pigment-related loci
+--- APCO\_REV\_REPRO Chr10:13.32~Mb (L1 PIP$=$0.999, 28.5 kb from
+\emph{BRD2/LTBSG1}) and SCCO\_REV Chr7:6.07~Mb (4.5 kb from
+\emph{Rc}) --- both validate against well-characterised pigment
+biology, suggesting the IRRI ordinal pigment-trait scoring really does
+capture the same axis of variation as the molecular literature.
+Per-trait validation rates reach 100\% (4/4) for APCO\_REV\_REPRO and
+$\geq 50$\% for BLCO\_REV\_VEG, LPPUB, SCCO\_REV, SPKF, and PEX\_REPRO;
+4 traits (AUCO\_REV\_VEG, CUST\_REPRO, LA, LPCO\_REV\_POST) had no
+fine-mapped lead within 250~kb of a Ren-2023 gene.
+
+\paragraph{Single-variant credible-set resolution.}
 Across the 72 leads fine-mapped: \textbf{L1 delivers a
 single-variant 95\% credible set on 11 loci (15\%)} with
 top-variant PIP $\geq 0.99$; HBP delivers the same on 8 loci (11\%);
