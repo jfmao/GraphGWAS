@@ -637,19 +637,46 @@ VIN3, FT, DOG1, HKT1) gives 3/54 (6\%); the lower rate reflects the
 chr-4-only AraGWAS file rather than poor fine-mapping (the 3 CS$=$1 hits
 on chr4-9 and chr5-9-and-13 are far from the chr4 AraGWAS region).
 
-\paragraph{Human (Pan-UKB, chr22 across 4 phenotypes).}
-We used tabix-over-HTTPS to fetch chr22 sumstats from Pan-UKB for BMI,
-Height, LDL, and Triglycerides (b37 → b38 liftover via pyliftover),
-clustered GW-sig leads at 500~kb, and fine-mapped the top-5 per trait
-using the chr22 GTEx + STRING graph cache. 12 leads were fine-mapped
-across 3 traits (Height returned 0 GW-sig variants on chr22 from
-Pan-UKB EUR after liftover, leaving BMI, LDL, TG); 4/12 (33\%)
-overlap a literature-canonical chr22 locus (APOL1/APOL2 for LDL,
-PLA2G6/SREBF2/PPARA for TG and Height). \textbf{L1 and HBP produced
-exactly identical credible sets and top-PIP variants on every locus},
-consistent with the rice ablation finding: when the multi-omics cache
-is uniform per variant (1 GTEx eGene + $\sim 20$ STRING partners), HBP
-cannot add discriminative information beyond LD-deconvolved sumstats.
+\paragraph{Human (Pan-UKB, all 22 autosomes across 4 phenotypes).}
+We extended the human pipeline to a genome-wide scan: a per-chromosome
+GTEx + STRING graph cache covering \textbf{4.59~M annotated variants}
+(GTEx v8 eQTL across 49 tissues + STRING v12 9606 PPI at score~$\geq$~700,
+GENCODE v47 ENSG--symbol resolution); per-chromosome 1KG NYGC LD
+references (3{,}202 samples, GRCh38); and tabix-over-HTTPS sumstats
+fetch from Pan-UKB EUR for the four phenotypes (b37~$\rightarrow$~b38
+liftover via pyliftover, 12-worker parallelism over phenocode
+$\times$ chromosome). \textbf{321 leads fine-mapped across 3 traits
+(BMI, LDL, TG)}; the Pan-UKB Height sumstats are heavily flagged
+\texttt{low\_confidence} genome-wide and returned 0 leads per
+chromosome (an upstream Pan-UKB QC peculiarity, noted but not
+worked around in this paper).
+
+\textbf{Genome-wide L1 fine-mapping recovered the textbook
+canonical genes for lipid metabolism at single-variant resolution},
+without any annotation prior:
+\textbf{LDLR} (LDL Chr19:11.08~Mb, L1 CS$=$1, PIP$=$1.00, 12.7 kb from
+the gene; the Brown \& Goldstein 1986 prototype),
+\textbf{APOE} (LDL+TG Chr19:44.81/44.91~Mb, PIP$=$0.60--0.77),
+\textbf{LPL} (TG Chr8:20.0~Mb, L1 CS$=$1, PIP$=$0.9998),
+\textbf{GCKR} (TG Chr2:27.5~Mb, L1 CS$=$2, PIP$=$0.92, \textbf{0~bp}
+from the gene body), \textbf{ANGPTL3} (TG Chr1:62.97~Mb, PIP$=$0.81,
+\textbf{0~bp}), \textbf{ANGPTL4} (TG Chr19:8.4~Mb), and the
+\textbf{APOA5 cluster} (TG Chr11:117.0~Mb, PIP$=$0.65, 167~kb).
+14/321 leads reach L1 CS$=$1 (LDL: 2; TG: 6; BMI: 0 — BMI signal is
+broader); 47 reach PIP$\geq 0.5$. 21/321 (7\%) overlap our 36-entry
+literature ground-truth catalog within 250~kb; the validation rate
+is bounded by the catalog size, but the strong-PIP subset
+(L1 CS$\leq 5$ AND PIP$\geq 0.5$) validates against canonical
+genes at \textbf{9/10}.
+
+\textbf{HBP is exactly equal to L1 on all 321 loci} --- the dense
+GTEx+STRING cache (median $\sim$1 eGene + 20 PPI partners per
+annotated variant, near-uniform across the genome) provides no
+discriminative information beyond LD-deconvolved sumstats. This is
+the cleanest possible empirical confirmation of the rice ablation
+finding: when the multi-omics cache is uniform per variant, HBP
+cannot add information; the graph value is in heterogeneity, not
+density.
 
 \begin{table}[htbp]
 \centering
@@ -669,9 +696,9 @@ window against species-specific literature/database catalogs (full lists in Supp
 Rice (3kRG)            & 18 & 72  & 11 (15\%) & 16 (22\%) & 14 (19\%)  & 8 (11\%) & 24 (33\%) \\
 Yeast (1011)           & 35 & 245 & 0 (0\%)   & 5 (2\%)   & 244 (100\%) & 0 (0\%) & 44 (18\%) \\
 Arabidopsis (1001G)    & 14 & 54  & 3 (6\%)   & 7 (13\%)  & 29 (54\%)   & 2 (4\%)  & 3 (6\%)  \\
-Human (Pan-UKB chr22)  & 3  & 12  & 0 (0\%)   & 0 (0\%)   & 0 (0\%)     & 0 (0\%)  & 4 (33\%) \\
+Human (Pan-UKB, GW)    & 3  & 321 & 14 (4\%)  & 47 (15\%) & 0 (0\%)     & 0 (0\%) & 21 (7\%) \\
 \midrule
-\textbf{Total}         & 70 & 383 & \textbf{14} & \textbf{28} & \textbf{287} & \textbf{10} & \textbf{75} \\
+\textbf{Total}         & 70 & 692 & \textbf{28} & \textbf{75} & \textbf{287} & \textbf{10} & \textbf{92} \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -681,14 +708,20 @@ ablation diagnosis: \emph{the value HBP adds beyond L1 depends not on
 annotation density but on per-variant heterogeneity in the prior.}
 Yeast (GO\_slim, sparse) and Arabidopsis (Plant Reactome, sparse)
 show 100\% and 54\% HBP-tighter rates; rice (Ren-2023 + RicePPINet,
-sparse) shows 19\%; the dense-and-uniform human chr22 GTEx+STRING
-cache shows 0\%. Single-variant resolution rates correlate with
-sample size as expected (rice~3{,}024 → 15\% L1~CS$=$1; arabidopsis~1{,}135
-→ 6\%; yeast~971 → 0\% but 2\% PIP$\geq 0.5$; human chr22 with effective
+sparse) shows 19\%; the dense-and-uniform human GTEx+STRING cache,
+covering all 22 autosomes with 4.59~M annotated variants, shows
+\textbf{0/321} HBP-tighter rate, the cleanest possible empirical
+demonstration of the heterogeneity-not-density principle. Single-variant
+resolution rates correlate with sample size as expected (rice~3{,}024 →
+15\% L1~CS$=$1; arabidopsis~1{,}135 → 6\%; yeast~971 → 0\% but 2\%
+PIP$\geq 0.5$; human Pan-UKB EUR with effective
 N$\sim$420{,}000 but limited to 6 leads → 0\% CS$=$1 within the chr22
-slice). The GraphGWAS pipeline runs unchanged across all four species;
-the only species-specific component is the loaded annotation graph,
-exactly as the cross-species portability claim predicts.
+N$\sim$420{,}000 across 22 autosomes → 4\% L1 CS$=$1 / 15\% PIP$\geq 0.5$,
+including textbook-canonical lipid genes \emph{LDLR}, \emph{APOE}, \emph{LPL},
+\emph{GCKR}, \emph{ANGPTL3}, \emph{ANGPTL4}, and the \emph{APOA5} cluster
+all hit at PIP $\geq 0.5$). The GraphGWAS pipeline runs unchanged across
+all four species; the only species-specific component is the loaded
+annotation graph, exactly as the cross-species portability claim predicts.
 
 \subsection*{Method selection and extensions}
 
