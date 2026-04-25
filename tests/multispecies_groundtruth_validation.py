@@ -306,7 +306,7 @@ def main():
         "rice": "/mnt/data/GraphGWAS/data/rice_3k/results/irri_finemap/irri_finemap_summary.tsv",
         "yeast": "/mnt/data/GraphGWAS/results/yeast_finemap/yeast_finemap_summary.tsv",
         "arabidopsis": "/mnt/data/GraphGWAS/results/arabidopsis_finemap/arabi_finemap_summary.tsv",
-        "human": "/mnt/data/GraphGWAS/results/human_finemap/human_finemap_summary.tsv",
+        "human": "/mnt/data/GraphGWAS/results/human_finemap_gw/human_finemap_summary_gw.tsv",
     }
     gt_loaders = {
         "rice": rice_gt, "yeast": yeast_gt,

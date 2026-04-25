@@ -16,13 +16,13 @@ FILES = {
     "rice (3kRG, IRRI)":   "/mnt/data/GraphGWAS/data/rice_3k/results/irri_finemap/irri_finemap_summary.tsv",
     "yeast (1011)":        "/mnt/data/GraphGWAS/results/yeast_finemap/yeast_finemap_summary.tsv",
     "Arabidopsis (1001G)": "/mnt/data/GraphGWAS/results/arabidopsis_finemap/arabi_finemap_summary.tsv",
-    "human (Pan-UKB chr22)":"/mnt/data/GraphGWAS/results/human_finemap/human_finemap_summary.tsv",
+    "human (Pan-UKB GW)":   "/mnt/data/GraphGWAS/results/human_finemap_gw/human_finemap_summary_gw.tsv",
 }
 VAL = {
     "rice (3kRG, IRRI)":   OUT / "validation_rice.tsv",
     "yeast (1011)":        OUT / "validation_yeast.tsv",
     "Arabidopsis (1001G)": OUT / "validation_arabidopsis.tsv",
-    "human (Pan-UKB chr22)":OUT / "validation_human.tsv",
+    "human (Pan-UKB GW)":   OUT / "validation_human.tsv",
 }
 
 
