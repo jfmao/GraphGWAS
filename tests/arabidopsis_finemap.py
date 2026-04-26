@@ -23,12 +23,16 @@ from graphgwas.finemapping_v2 import (
     l1_finemap_from_sumstats,
 )
 
+import os
 DATA = Path("/mnt/data/GraphGWAS/data/arabidopsis")
 GWAS_DIR = DATA
 ANN = DATA / "annotations"
 VCF = "/mnt/data/GraphGWAS/tests/data/arabidopsis/1001genomes_snp-short-indel_only_ACGTN.vcf.gz"
 ARAGWAS = Path("/mnt/data/GraphGWAS/tests/data/arabidopsis/aragwas_bonf_associations.csv")
-OUT_DIR = Path("/mnt/data/GraphGWAS/results/arabidopsis_finemap")
+CACHE_VERSION = os.environ.get("CACHE_VERSION", "v2")  # default v2 (PPI-fixed)
+_cache_prefix = "arabidopsis_graph_cache_" + (f"{CACHE_VERSION}_" if CACHE_VERSION != "v2" else "") + "chr"
+OUT_DIR = Path(f"/mnt/data/GraphGWAS/results/arabidopsis_finemap_{CACHE_VERSION}") if CACHE_VERSION != "v2" \
+          else Path("/mnt/data/GraphGWAS/results/arabidopsis_finemap")
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 WINDOW_BP = 100_000
 GW = 5e-8
@@ -126,8 +130,9 @@ def fm_lead(trait, lead, sumstats, full_cache):
                     if k in full_cache}
 
     l1 = l1_finemap_from_sumstats(
-        variants, z, R_sq, z_func=None, alpha=1.0,
+        variants, z, R_sq, z_func=None, alpha=0.7,
         r2_smooth=0.3, credible_set_coverage=0.95, chr_name=chrom,
+        graph_cache=window_cache,
     )
     hbp = hbp_finemap_from_sumstats(
         variants, z, R_sq, graph_cache=window_cache,
@@ -152,7 +157,10 @@ def main():
     print("Loading arabidopsis chr1-5 graph caches ...", flush=True)
     chr_caches = {}
     for c in "12345":
-        p = ANN.parent / f"arabidopsis_graph_cache_chr{c}.json"
+        cache_name = (f"arabidopsis_graph_cache_{CACHE_VERSION}_chr{c}.json"
+                      if CACHE_VERSION != "v2"
+                      else f"arabidopsis_graph_cache_chr{c}.json")
+        p = ANN.parent / cache_name
         if p.exists():
             chr_caches[c] = json.load(p.open())
             print(f"  chr{c}: {len(chr_caches[c]):,} variants")
