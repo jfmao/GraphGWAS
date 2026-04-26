@@ -1,0 +1,118 @@
+\section*{Introduction}
+
+Genome-wide association studies have identified tens of thousands of
+trait-associated loci\cite{visscher2017years,buniello2019nhgri},
+but resolving the causal variants that drive each signal remains the
+rate-limiting step between statistical discovery and mechanistic
+biology. Because nearby variants co-segregate through linkage
+disequilibrium (LD), a single causal variant is typically
+indistinguishable from hundreds of non-causal proxies on statistical
+evidence alone. Fine-mapping procedures aim to break this
+degeneracy\cite{schaid2018genome,ulirsch2021fine}; their accuracy
+directly constrains downstream experimental follow-up and the
+trans-ancestry portability of polygenic scores.
+
+The challenge has different shapes across the regimes in which
+fine-mapping is most needed. In human medical genetics, biobank-scale
+sample sizes deliver high signal-to-noise but LD is dense and
+ancestry-imbalanced, so the same lead variant can map to tightly
+correlated proxy clusters of $10^2$--$10^3$ variants in non-European
+panels even when the European credible set resolves to a singleton.
+In the model organisms used to interrogate trait architecture under
+controlled conditions --- inbred yeast and \emph{Arabidopsis} 1001G ---
+LD is exceptionally long, so single-locus credible sets routinely
+exceed $10^3$ variants and statistical resolution alone cannot
+isolate causal variants. In agricultural germplasm such as the
+3{,}000 Rice Genomes panel\cite{wang2018genomic}, accessions span
+between-population $F_{ST}\!\approx\!0.5$, most traits have only
+ordinal phenotypic scoring, and curated causal-gene catalogues exist
+for only a few well-studied phenotypes\cite{ren2023rice}. A method
+that improves fine-mapping must therefore travel between these
+regimes without re-engineering for each.
+
+Modern fine-mapping is dominated by Bayesian variable-selection
+methods operating on a per-locus genotype matrix or summary-statistics
+vector---SuSiE\cite{wang2020simple}, FINEMAP\cite{benner2016finemap},
+PolyFun\cite{weissbrod2020polyfun},
+PAINTOR\cite{kichaev2014integrating}---with two recent extensions
+that add an infinitesimal random-effect background
+(SuSiE-inf and FINEMAP-inf)\cite{cui2024improving} and a genome-wide
+multi-component Bayesian mixture
+(SBayesRC)\cite{zheng2024leveraging} that
+Wu~\emph{et~al.}~2026\cite{wu2026genome} used as the substrate for a
+genome-wide fine-mapping framework. All share a common design choice:
+biological annotations, where used at all, enter as \emph{flat
+per-variant scalars}---averaged across tissues, collapsed across
+pathways, and stripped of their relational structure. A variant's
+connection to a particular gene in a particular tissue, participating
+in a particular pathway coupled via protein--protein interactions to
+further functional neighbourhoods, is flattened to a single weight.
+
+This flattening is the limiting approximation. Multi-omics resources
+released since 2020---the Genotype-Tissue Expression (GTEx) project
+v8 with 43~million tissue-specific expression quantitative trait
+loci (eQTLs)\cite{gtex2020}, STRING~v12 with 230{,}000 high-confidence
+protein--protein interactions (PPIs) at combined
+score~$\geq$~700\cite{szklarczyk2023string}, and the ENCODE Project's
+candidate cis-regulatory elements (cCREs) with 370{,}000
+entries\cite{encode2020expanded}---carry exactly the relational
+biology that flat priors discard. When signal is strong, statistical evidence alone resolves
+the causal variant and relational context is optional; but this is
+not the regime that matters most for novel discovery. Sub-genome-wide-
+significant loci, low-frequency effects and non-European ancestries
+all sit in the weak-signal regime, where annotation priors dominate
+the posterior. The question we address is whether fine-mapping
+methods that represent multi-omics context \emph{as a graph, not as a
+vector} can decisively outperform flat-prior methods in that regime.
+
+Answering that question requires a computational substrate in which
+multi-omics structure is \emph{primary data}, not reconstructed on
+demand from files. Graph databases provide exactly
+this\cite{robinson2015graph}: typed nodes (variant, gene, pathway,
+tissue, regulatory element) and labelled edges (consequence, eQTL,
+pathway membership, protein--protein interaction) are first-class
+storage objects; index-free adjacency makes traversing a
+relationship an $O(1)$ operation regardless of database size; and
+new annotation layers register as additional edge types without
+restructuring the underlying schema. These properties are absent
+from the file-based pipelines assembled from variant call format
+(VCF) files, browser extensible data (BED) tracks, general feature
+format (GTF) annotations, and pathway tables glued together by
+\texttt{bedtools}/\texttt{tabix} lookups. Encoding the biology
+directly as a graph reframes fine-mapping as a Bayesian computation
+\emph{on the graph itself}---not as a regression that happens to
+have annotation weights attached---and collapses what would
+otherwise be a multi-file data-integration task into a single
+database traversal that can be iterated thousands of times per
+second.
+
+Doing so changes the fine-mapping
+accuracy--speed frontier. GraphGWAS is a fine-mapping platform
+built on a graph database (Neo4j~5.26 Community Edition is the
+present implementation\cite{robinson2015graph}) holding 70.7~M
+variants, 20{,}092 GENCODE~v47 genes\cite{frankish2023gencode},
+43.2~M GTEx~v8 eQTL edges, 230{,}850 STRING interactions and
+370{,}000 ENCODE regulatory elements. Its central methods ---
+hierarchical belief propagation (HBP), with proved geometric
+convergence via a Banach contraction argument, and L1 Bayesian
+fine-mapping, with a proof that the causal variant ranks first
+under mild LD-decay assumptions --- carry the full
+variant~$\rightarrow$~gene$\rightarrow$~pathway factor graph with
+PPI coupling through every update. On 90 simulated chromosome~22
+loci, HBP matches SuSiE and FINEMAP at 6--60$\times$ the speed; on
+79 weak-signal tissue-specific eQTL simulations, L1 beats SuSiE
+27--2 head-to-head (sign-test $p < 10^{-5}$). PIPs are calibrated
+with 0\% null false-positive rate across 100 simulations. A
+sumstats-only entry path consumes Pan-UK Biobank\cite{karczewski2024pan}
+directly, fine-mapping across four ancestries
+(EUR $N{=}420{,}531$; CSA, AFR, EAS) and recovering canonical
+lipid genes \emph{LDLR}, \emph{APOE}, \emph{LPL}, \emph{GCKR},
+\emph{ANGPTL3} at single-variant resolution. The same code
+fine-maps yeast\cite{peter2018genome},
+\emph{Arabidopsis}\cite{alonso20161001} and the 3{,}000 Rice
+Genomes panel without algorithmic change. Across 692 leads in
+the four species, a direct intervention experiment shows that the
+operative quantity is per-variant heterogeneity of the prior, not
+annotation density --- adding even a coarse regulatory-element
+flag to the otherwise dense uniform human cache flips HBP
+narrower than flat-prior L1 from 0\% to 88\% of leads.
