@@ -414,7 +414,9 @@ catalogue\cite{wang2018genomic} and linked to plink2 sample IDs via
 the Wang~\emph{et al.}~2018 metadata (IRGC accession number
 cross-reference). PLINK2 \texttt{--glm linear} with 10 genotype PCs
 identified between 127 and 152{,}348 genome-wide significant
-variants per trait ($\lambda_{GC}$: 0.50--2.07, median 1.09). We then
+variants per trait ($\lambda_{GC}$: 0.50--2.07, median 1.09;
+per-trait inflation, lead counts and L1 CS$=$1 yields are listed in
+Table~\ref{tab:irri_scan}). We then
 ran L1 and HBP fine-mapping on the top-3 genome-wide-significant plus
 top-1 suggestive independent leads per trait (72 total) using
 $\pm$250~kb windows and the rice multi-omics graph cache.
@@ -714,12 +716,11 @@ covering all 22 autosomes with 4.59~M annotated variants, shows
 demonstration of the heterogeneity-not-density principle. Single-variant
 resolution rates correlate with sample size as expected (rice~3{,}024 →
 15\% L1~CS$=$1; arabidopsis~1{,}135 → 6\%; yeast~971 → 0\% but 2\%
-PIP$\geq 0.5$; human Pan-UKB EUR with effective
-N$\sim$420{,}000 but limited to 6 leads → 0\% CS$=$1 within the chr22
-N$\sim$420{,}000 across 22 autosomes → 4\% L1 CS$=$1 / 15\% PIP$\geq 0.5$,
-including textbook-canonical lipid genes \emph{LDLR}, \emph{APOE}, \emph{LPL},
-\emph{GCKR}, \emph{ANGPTL3}, \emph{ANGPTL4}, and the \emph{APOA5} cluster
-all hit at PIP $\geq 0.5$). The GraphGWAS pipeline runs unchanged across
+PIP$\geq 0.5$; human Pan-UKB EUR with effective $N\sim 420{,}000$
+across 22 autosomes → 4\% L1 CS$=$1 / 15\% PIP$\geq 0.5$, including
+textbook-canonical lipid genes \emph{LDLR}, \emph{APOE}, \emph{LPL},
+\emph{GCKR}, \emph{ANGPTL3}, \emph{ANGPTL4}, and the \emph{APOA5}
+cluster all hit at PIP $\geq 0.5$). The GraphGWAS pipeline runs unchanged across
 all four species; the only species-specific component is the loaded
 annotation graph, exactly as the cross-species portability claim predicts.
 

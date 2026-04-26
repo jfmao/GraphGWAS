@@ -1095,11 +1095,11 @@ def fast_hbp_finemap(
         info = graph_cache.get(vid)
         if not info:
             continue
-        for gene in info["genes"]:
+        for gene in info.get("genes", []):
             gene_set.add(gene)
             vid_genes.setdefault(vid, []).append(
-                (gene, info["pathways"], info["ppi"]))
-        pathway_set.update(info["pathways"])
+                (gene, info.get("pathways", []), info.get("ppi", [])))
+        pathway_set.update(info.get("pathways", []))
 
     genes = sorted(gene_set)
     pathways = sorted(pathway_set)
