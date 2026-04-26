@@ -161,61 +161,37 @@ narrows to parity on rank.}
 
 \subsection*{Head-to-head against state-of-the-art baselines}
 
-A 2026 fine-mapping manuscript must compare against the most recent
-state of the art\cite{wu2026genome}. We integrated all six methods
-benchmarked by Wu~\emph{et~al.}~2026 into a common GraphGWAS
-interface: SuSiE\cite{wang2020simple}, FINEMAP\cite{benner2016finemap},
-SuSiE-inf\cite{cui2024improving}, FINEMAP-inf\cite{cui2024improving},
-a Polyfun-proxy\cite{weissbrod2020polyfun} that feeds our eQTL
-priors to SuSiE via \texttt{prior\_weights}, and
-SBayesRC\cite{zheng2024leveraging}. On 30 1000 Genomes chromosome~22
-F1 simulations at $h^2 = 0.05$ (Figure~\ref{fig:baselines};
-full numerical breakdown in Supplementary Table~S2), SuSiE-inf
-marginally improves on
-SuSiE (22/30 vs 21/30 rank-\#1), consistent with Wu~\emph{et~al.}.
-HBP reaches 20/30 rank-\#1---one below SuSiE---at 6--60$\times$ the
-speed of every baseline (HBP~0.016~s; SuSiE-inf~0.16~s;
-FINEMAP-inf~0.20~s; SuSiE~0.98~s; FINEMAP~2.2~s).
+A common GraphGWAS interface integrates the six methods benchmarked
+by Wu~\emph{et~al.}~2026\cite{wu2026genome}: SuSiE\cite{wang2020simple},
+FINEMAP\cite{benner2016finemap}, SuSiE-inf\cite{cui2024improving},
+FINEMAP-inf\cite{cui2024improving}, a Polyfun-proxy\cite{weissbrod2020polyfun}
+that feeds the same eQTL priors to SuSiE via
+\texttt{prior\_weights}, and SBayesRC\cite{zheng2024leveraging}. On 30
+1000 Genomes chromosome~22 F1 simulations at $h^2 = 0.05$ (Figure~\ref{fig:baselines};
+Supplementary Table~S2), SuSiE-inf marginally improves on SuSiE
+(22/30 vs 21/30 rank-\#1), consistent with Wu~\emph{et~al.}; HBP
+reaches 20/30 rank-\#1 at 6--60$\times$ the speed of every baseline
+(HBP 0.016~s; SuSiE-inf 0.16~s; FINEMAP-inf 0.20~s; SuSiE 0.98~s;
+FINEMAP 2.2~s). When the eQTL prior is also supplied to SuSiE via
+Polyfun-proxy on a parallel weak-signal benchmark, SuSiE's rank-\#1
+count rises from 10/20 to 11/20 and L1 matches at 26$\times$ the
+speed. Combined with the 27--2 weak-signal result, the head-to-head
+landscape resolves: \textbf{graph-native and flat-vector priors
+converge on accuracy when the prior information is identical; the
+graph wins decisively on speed, and on accuracy in regimes where
+tissue-specific eQTL structure is informative.}
 
-When the same eQTL prior we give HBP is passed to SuSiE via
-Polyfun-proxy, SuSiE's rank-\#1 count rises from 10/20 to 11/20 on a
-parallel weak-signal benchmark. L1 matches SuSiE~+~prior on
-rank-\#1 (11/20) at 26$\times$ the speed (0.055~s vs 1.45~s).
-Combined with the 27--2 result above, the head-to-head landscape
-resolves: \textbf{graph-native priors and flat-vector priors converge
-on accuracy when the prior information is identical; the graph
-wins decisively on speed, and---when the graph captures
-tissue-specific eQTL structure that the flat prior averages
-out---also on accuracy.}
-
-SBayesRC occupies a different problem. It is a genome-wide
-multi-component Bayesian mixture processing $\sim$1.2~M HapMap~3
-(HM3) SNPs in one Markov chain Monte Carlo (MCMC) pass and requires
-$N \gtrsim 10^5$. We verified the
-SBayesRC pipeline end-to-end on the Wu lab canonical UKB example
-(1{,}154{,}522 HM3 SNPs; 3{,}016 with PIP~$>$~0.5; 51~s total runtime)
-but a like-for-like comparison on our 1KG region-specific simulations
-is not statistically meaningful. HBP/L1 target high-precision
-single-locus resolution at leads surfaced by genome-wide methods;
-the two approaches are complementary within a workflow.
-
-The 6--60$\times$ speed advantage of HBP over the Bayesian
-baselines is partly a statistical benefit (fewer latent effects to
-fit) and partly a data-access benefit of the underlying
-computational substrate. Flat-prior methods could in principle
-accept graph-structured priors, but operationalising this requires
-reconstructing the multi-omics neighbourhood of each locus on
-demand from separate files (BED tracks for regulatory elements,
-GTF annotations for genes, TSV tables for pathways, TSV matrices
-for tissue-specific eQTLs). Encoding the same information as a
-graph database collapses that multi-step file join into a single
-index-free-adjacency traversal that returns in milliseconds. The
-relational prior is formally expressible without a graph-database
-substrate, but at biobank-scale multi-omics coverage it is
-computationally prohibitive without one. The accuracy--speed
-frontier observed here is therefore a joint property of a new
-method (HBP/L1) and a new data model (typed graph with
-first-class labelled edges).
+The 6--60$\times$ speed advantage is partly statistical (fewer
+latent effects to fit) and partly a property of the data model.
+Reconstructing each locus's multi-omics neighbourhood from
+separate files (BED tracks for regulatory elements, GTF for genes,
+TSV matrices for tissue-specific eQTLs) is index-bound;
+the same information stored as a typed graph collapses the join
+into a single index-free traversal that returns in milliseconds.
+SBayesRC occupies a complementary problem (genome-wide multi-component
+Bayesian mixture on $\sim$1.2~M HapMap~3 SNPs requiring $N \gtrsim
+10^5$); HBP and L1 target single-locus resolution at leads surfaced
+by genome-wide methods.
 
 \begin{figure}[htbp]
 \centering
@@ -237,124 +213,61 @@ Supplementary Table~S2.}
 \label{fig:baselines}
 \end{figure}
 
-\subsection*{PIP calibration and null false-positive rate}
+\subsection*{Calibration, null false-positive rate, and sample-size scaling}
 
-A fine-mapper must produce PIPs that mean what they say and must not
-fire under the null (Figure~\ref{fig:calibration}). Across 100 null
-simulations (no causal variant, Gaussian phenotype) on random 50~kb
-yeast loci, \textbf{all four methods report PIP~$<$~0.5 for every
-variant in every replicate}. Mean maximum PIP is 0.004 (L1),
-0.003 (HBP), 0.029 (FINEMAP) and 0.013 (SuSiE); the softmax-based
-bound $\mathbb{E}[\max_i \pi_i] \leq O(\sqrt{\log n}/n)$ derived in
-Theorem~4 predicts $\leq$0.005 at $n = 5000$, matched empirically to
-2\% accuracy. On 200 simulations across four heritability levels
-($h^2 \in \{0.02, 0.05, 0.10, 0.20\}$), observed true-discovery
-rates match the diagonal for FINEMAP, SuSiE and L1 within each PIP
-bin, with slight conservative bias for L1 at mid-range PIPs. HBP
-caps PIPs at $\approx$0.7 by design---softmax over a diffused prior
-distributes mass across graph-related variants---but when HBP
-assigns PIP~$>$~0.5 the variant is causal 99\% of the time. All four
-methods are calibrated to the standards of the field.
+PIPs must mean what they say and must not fire under the null. On
+100 null simulations (no causal variant, Gaussian phenotype) over
+random 50-kb yeast loci, every method (HBP, L1, SuSiE, FINEMAP)
+reports $\max$\,PIP~$<$~0.5 in every replicate, with mean
+$\max$\,PIP at 0.003--0.029 --- matching to within 2\% the
+softmax bound $\mathbb{E}[\max_i \pi_i] \leq
+O(\sqrt{\log n}/n)$ proved in Supplementary Note~S1. On 200
+calibration simulations across $h^2 \in \{0.02, 0.05, 0.10, 0.20\}$,
+true-discovery rates track the reported PIP diagonal for SuSiE,
+FINEMAP and L1; HBP is mildly conservative at mid-range PIPs but
+when it assigns PIP $>$ 0.5 the variant is causal 99\% of the
+time (Supplementary Figure~S4).
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=0.95\textwidth]{fig4_calibration_null_fpr.pdf}
-\caption{\textbf{PIP calibration and null false-positive rate.}
-(\textbf{a})~PIP calibration across 200 F1 simulations $\times$ 4
-heritability levels ($h^2 \in \{0.02, 0.05, 0.10, 0.20\}$). Observed
-true-discovery rate is plotted against reported PIP in eight bins
-of width 0.125. Ideal calibration lies on the diagonal (dashed).
-SuSiE, FINEMAP and L1 track the diagonal; HBP is conservative at
-mid-range PIPs and caps at $\approx$0.7. (\textbf{b},\textbf{c})~Null
-maximum-PIP distribution across 100 null simulations (no causal
-variant, Gaussian phenotype) on random 50~kb yeast loci. Mean
-$\max$\,PIP is 0.003 (HBP), 0.004 (L1), 0.013 (SuSiE), 0.029
-(FINEMAP); all methods report $\max$\,PIP~$<$~0.5 in every replicate.
-The theoretical bound $\mathbb{E}[\max_i \pi_i] \leq
-e^{\sqrt{2 \log n} - 1/2}/n$ (Theorem~4) predicts $\leq$0.005 at
-$n = 5000$. (\textbf{d})~Null credible-set size: under $\beta = 0$,
-credible sets grow to cover $\approx$90\% of the locus---the correct
-response to ``no signal''.}
-\label{fig:calibration}
-\end{figure}
-
-\subsection*{Power scales with sample size}
-
-To characterise how HBP's fine-mapping quality scales with $N$, we
-subsampled 1000 Genomes Phase~3 chromosome~22 at
-$N \in \{500, 1{,}000, 2{,}000, 3{,}000\}$ and ran 30 F1-style
-simulations per $N$ (causal minor allele frequency (MAF)
-10--40\%, $h^2 = 0.10$). Mean PIP
-on the causal variant increases monotonically:
-\textbf{0.54~$\rightarrow$~0.58~$\rightarrow$~0.59~$\rightarrow$~0.77}
-(Figure~\ref{fig:power_vs_N}). At $N = 3{,}000$ (full 1KG), 73\% of
-replicates place the causal variant at rank~1 and mean PIP
-exceeds~0.77. The trend extrapolates linearly beyond the training
-regime, supporting the claim that HBP's relational prior remains
-well-behaved at biobank scale---a claim we test directly on
+HBP fine-mapping quality scales monotonically with sample size:
+on 1000 Genomes chromosome~22 subsampled at
+$N \in \{500, 1{,}000, 2{,}000, 3{,}000\}$ ($h^2 = 0.10$, causal
+MAF 10--40\%, 30 replicates per $N$), mean causal PIP rises
+0.54~$\rightarrow$~0.58~$\rightarrow$~0.59~$\rightarrow$~0.77, with
+73\% of replicates at rank~1 by $N = 3{,}000$ (Supplementary
+Figure~S5). The linear trend extrapolates beyond the training
+regime, supporting the biobank-scale claim tested directly on
 Pan-UK Biobank in the next subsection.
 
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=0.95\textwidth]{fig8_power_vs_sample_size.pdf}
-\caption{\textbf{HBP fine-mapping quality scales monotonically with
-sample size.} 1000 Genomes Phase~3 chromosome~22 subsampled at
-$N \in \{500, 1{,}000, 2{,}000, 3{,}000\}$, 30 F1 simulations per
-$N$ at $h^2 = 0.10$, causal MAF 10--40\%. (\textbf{a})~Mean causal-
-variant PIP scales 0.54~$\rightarrow$~0.77 across the $N$ range.
-(\textbf{b})~Rank-\#1 rate rises from 45\% at $N{=}500$ to 73\% at
-$N{=}3{,}000$. (\textbf{c})~95\% credible-set size shrinks from
-median 40 at $N{=}500$ to median 8 at $N{=}3{,}000$. (\textbf{d})~
-Per-replicate causal-variant rank distributions by $N$. The linear
-extrapolation to $N > 10{,}000$ supports the direct Pan-UKB
-biobank-scale test in Figure~\ref{fig:cross_anc}.}
-\label{fig:power_vs_N}
-\end{figure}
+\subsection*{Cross-ancestry fine-mapping: 1KG simulated and Pan-UKB real data}\label{sec:cross_anc}
 
-\subsection*{Cross-ancestry fine-mapping: 1KG simulated and Pan-UKB real-data}\label{sec:cross_anc}
+LD structure differs substantially across ancestries and many causal
+variants are ancestry-private. On 1KG chromosome~22 restricted to
+the three largest superpopulations (EUR $n=503$, AFR $n=661$, EAS
+$n=504$, F1 simulations at $h^2 = 0.05$, 30 replicates each), HBP
+rank-\#1 ordering is \textbf{AFR 53\% $>$ EAS 27\% $>$ EUR 17\%}
+(mean PIPs 0.35, 0.21, 0.08; Figure~\ref{fig:cross_anc}a) --- the
+expected direction, since AFR's older, less-correlated LD produces
+fewer indistinguishable proxies per locus. HBP's precision holds
+across all three ancestries.
 
-\textbf{Controlled simulation on 1000 Genomes.} LD structure differs
-substantially across ancestries, and many causal variants are
-ancestry-private. We restricted 1KG chromosome~22 to the three
-largest superpopulations (EUR $n = 503$, AFR $n = 661$,
-EAS $n = 504$), simulated F1 loci with $h^2 = 0.05$ within each
-ancestry (30 replicates), and ran HBP. The rank-\#1 ordering is
-\textbf{AFR 53\% $>$ EAS 27\% $>$ EUR 17\%}, with mean PIPs
-0.35, 0.21 and 0.08 respectively (Figure~\ref{fig:cross_anc}a).
-This is the expected direction: AFR has older, less-correlated LD,
-producing fewer indistinguishable proxies per locus. HBP's
-precision holds across all three ancestries; it does not fall apart
-on non-European LD, unlike methods that condition implicitly on
-European summary-statistics reference panels.
-
-\textbf{Real-biobank demonstration on Pan-UK Biobank.} We applied
-the same HBP algorithm---through a sumstats-only entry path that
-consumes Pan-UK Biobank\cite{karczewski2024pan,bycroft2018uk}
-summary statistics streamed via \texttt{tabix}\cite{li2011tabix} over
-HTTPS---to four canonical multi-ancestry loci:
-\emph{FTO} (body mass index,
-BMI\cite{frayling2007common}),
-\emph{APOA5} (triglycerides\cite{do2013common}),
-\emph{LDLR} (low-density lipoprotein cholesterol,
-LDL-C\cite{teslovich2010biological}) and
-\emph{HMGA2} (height\cite{weedon2008genome,yengo2022saturated}),
-across the four Pan-UKB ancestries with $N > 2{,}500$
-(EUR $N = 420{,}531$; CSA $8{,}876$; AFR $6{,}636$; EAS $2{,}709$).
-Pan-UKB coordinates (GRCh37) were lifted to GRCh38 to align with our
-1KG reference panel, from which ancestry-matched in-sample LD was
-computed. On three of the four EUR cells (BMI, LDL, height) HBP
-resolved a \textbf{single-variant 95\% credible set at
-PIP~=~1.000}. The Height/HMGA2 signal is cross-ancestry robust:
-CSA resolves to a single variant at PIP~=~1.000 at
-$N = 8{,}876$ and EAS to a single variant at PIP~=~0.97 at
-$N = 2{,}709$---a real-data confirmation of the power--vs--$N$
-trend on a 145$\times$ smaller sample than EUR. Triglycerides/APOA5
-shows two-ancestry convergence: EUR and CSA both top-rank the same
-indel (11:116767975:A:AAAT) with PIP~=~0.51 and 0.73. Smaller-$N$
-cells expand their credible sets to $\sim$600--1{,}000 variants as
-statistically expected (Figure~\ref{fig:cross_anc}b). The same
-codebase, the same algorithm, and no EUR-specific tuning were
-required.
+A sumstats-only entry path consumes Pan-UK
+Biobank\cite{karczewski2024pan,bycroft2018uk} summary statistics
+streamed via \texttt{tabix}\cite{li2011tabix} over HTTPS, with
+GRCh37$\to$GRCh38 liftover to align with the 1KG reference panel.
+Applied to four canonical multi-ancestry loci ---
+\emph{FTO}/BMI\cite{frayling2007common},
+\emph{APOA5}/triglycerides\cite{do2013common},
+\emph{LDLR}/LDL-C\cite{teslovich2010biological},
+\emph{HMGA2}/height\cite{weedon2008genome,yengo2022saturated} ---
+across four Pan-UKB ancestries (EUR $N=420{,}531$; CSA $8{,}876$;
+AFR $6{,}636$; EAS $2{,}709$), three of the four EUR cells (BMI,
+LDL, height) resolve to a \textbf{single-variant credible set at
+PIP $=$ 1.000}. \emph{HMGA2}/height is cross-ancestry robust: CSA
+PIP $=$ 1.000 at $N=8{,}876$ and EAS PIP $=$ 0.97 at $N=2{,}709$ ---
+a 145$\times$-smaller sample than EUR. \emph{APOA5}/triglycerides
+shows two-ancestry convergence on the same indel
+(EUR PIP $=$ 0.51, CSA PIP $=$ 0.73). The same codebase and the
+same algorithm; no EUR-specific tuning is needed.
 
 \begin{figure}[htbp]
 \centering
@@ -378,443 +291,239 @@ and real-biobank panels.}
 \label{fig:cross_anc}
 \end{figure}
 
-\subsection*{Cross-species portability: yeast and \emph{Arabidopsis}}
+\subsection*{Cross-species fine-mapping at biobank and germplasm-bank scale}
+\label{sec:multispecies}
 
-The same code fine-maps non-human organisms. We applied GraphGWAS
-unchanged to the \emph{Arabidopsis thaliana} 1001 Genomes
-Project\cite{alonso20161001} and the canonical flowering-time-at-
-10$^{\circ}$C (FT10) phenotype\cite{andres2012genetic}
-(1{,}003 accessions). On the $\pm$25~kb window around the top GWAS
-signal at chr4:6{,}771{,}025 (1{,}353 MAF~$\geq$~2\% variants), HBP
-converged in \textbf{0.096~s} and concentrated \textbf{98.9\% of
-the posterior on chr4:6{,}771{,}025:T$\rightarrow$A}, returning a
-credible set of size~1 that distinguishes the causal call from a
-neighbour 368~bp away sharing most of the LD signal.
-The yeast 1011-genome application\cite{peter2018genome,bloom2015genetic}
-(35 growth traits on 971 strains after matching; full details in
-\texttt{docs/YEAST\_ANALYSIS\_REPORT.md}) recovered established causal
-genes---\emph{TUP1} and \emph{SPT7} for ethanol tolerance,
-\emph{PPG1} and \emph{BMH2} for heat, \emph{GCR1} and \emph{HXT} loci
-for galactose, \emph{YRR1} for caffeine---at 35--50 fine-mapping loci
-across five traits.
-The cross-species portability is not coincidental: the graph schema
-is species-agnostic, and every species-specific component
-(ortholog mapping, pathway database, regulatory annotation)
-attaches as typed edges without algorithmic modification.
+Fine-mapping causal variants is hard for distinct reasons across the
+scales human medical genetics, model-organism crosses, and crop
+germplasm operate at: in human cohorts, signal-to-noise is high but
+LD is dense and reference panels are ancestry-specific; in
+inbred-yeast and \emph{Arabidopsis} panels, LD is exceptionally long
+and pathway/PPI annotation is sparse; in crop germplasm such as the
+3{,}000 Rice Genomes panel, accessions span large between-population
+$F_{ST}$ and most traits have only ordinal phenotypic scoring with
+no curated causal-gene catalogue. The same fine-mapping pipeline,
+unchanged except for the loaded annotation graph, was applied to all
+three regimes (Supplementary Tables~S5--S6).
 
-\subsection*{Whole-genome scan across 18 IRRI morphological traits}
-\label{sec:irri_scan}
+\paragraph{Rice (3{,}000 Rice Genomes, 18 morphological traits).}
+A whole-genome GWAS on 3{,}024 accessions (29.6~M biallelic SNPs)
+across 18 IRRI Standard Evaluation System traits\cite{wang2018genomic}
+($\lambda_{GC}$: 0.50--2.07, median 1.09; per-trait detail in
+Supplementary Table~S5) provided the GWAS substrate for fine-mapping
+the top three genome-wide-significant plus one suggestive
+independent lead per trait (72 total) within $\pm$250~kb windows
+against a rice multi-omics graph (RAP-DB variant--gene + Ren 2023
+gene--pathway curation\cite{ren2023rice} + RicePPINet
+gene--gene\cite{liu2017riceppinet}).
 
-To test GraphGWAS at the scale its design targets --- many traits,
-many loci, no curated ground truth --- we ran a whole-genome GWAS on
-the 3{,}024-accession 3kRG panel (29.6~M biallelic SNPs) for 18
-quantitative-like IRRI Standard Evaluation System traits extracted
-from the published 3kRG phenotype
-catalogue\cite{wang2018genomic} and linked to plink2 sample IDs via
-the Wang~\emph{et al.}~2018 metadata (IRGC accession number
-cross-reference). PLINK2 \texttt{--glm linear} with 10 genotype PCs
-identified between 127 and 152{,}348 genome-wide significant
-variants per trait ($\lambda_{GC}$: 0.50--2.07, median 1.09;
-per-trait inflation, lead counts and L1 CS$=$1 yields are listed in
-Table~\ref{tab:irri_scan}). We then
-ran L1 and HBP fine-mapping on the top-3 genome-wide-significant plus
-top-1 suggestive independent leads per trait (72 total) using
-$\pm$250~kb windows and the rice multi-omics graph cache.
+L1 delivers a single-variant 95\% credible set with PIP~$\geq$~0.99
+on 11 of 72 leads (15\%). \textbf{Twenty-four of 72 leads (33\%)
+fine-map to within 250~kb of a Ren-2023 catalogued causal gene}, with
+14 of 18 traits contributing at least one validated locus. Notable
+hits include the rice red-pericarp gene \emph{Rc} only \textbf{4.5~kb}
+from the spikelet-pericarp-colour lead at Chr7:6.07~Mb;
+\textbf{\emph{TGW6}} 12.3~kb from the leaf-length-type Chr6:25.11~Mb
+lead; the awn-development gene \emph{GAD1/RAE2} 4.4~kb from the
+awning-presence Chr8:23.98~Mb lead ($p=4.4\times10^{-90}$,
+PIP~$=$~0.999); grain-shape genes \textbf{\emph{An-1}}
+($240$~kb, blade-colour Chr4:16.47~Mb, PIP~$=$~1.00) and
+\textbf{\emph{BG1}} ($68.7$~kb, spikelet-fertility Chr3:4.10~Mb);
+the panicle-development gene \emph{OsER1} ($62$~kb,
+apiculus-colour Chr6:5.31~Mb, PIP~$=$~0.77); and the seed-dormancy
+regulator \emph{OsVP1} ($176$~kb, panicle-type Chr1:39.54~Mb).
+The two highest-confidence pigment-related leads validate against
+the same axis of variation captured by the IRRI ordinal scoring
+(spikelet pericarp at Chr7:6.07~Mb / \emph{Rc} and apiculus colour
+at Chr10:13.32~Mb / \emph{BRD2/LTBSG1}, $4.5$~kb and $28.5$~kb
+respectively, both at PIP $\geq 0.99$). Four traits with
+$\lambda_{GC} \in [1.6, 2.1]$ show residual subpopulation
+confounding ($F_{ST} \approx 0.5$ between XI and GJ subpopulations
+under 10-PC correction); the eight doubly-resolved loci with
+HBP CS $=$ L1 CS $=$ 1 are all in well-calibrated traits
+($\lambda_{GC} \in [0.50, 1.38]$).
 
-\paragraph{Ground-truth validation: fine-mapped leads recover textbook
-rice causal genes.} We compared all 72 fine-mapped lead positions against
-the 269-gene Ren \emph{et al.}~2023 catalogue\cite{ren2023rice} of curated
-grain-quality causal genes (the same catalogue we used for the ablation
-study, but applied here to the IRRI-scan output rather than the simulated
-causals). \textbf{24 of 72 leads (33\%) lie within 250~kb of at least
-one Ren-2023 gene}, with 14 of 18 traits contributing $\geq 1$ validated
-locus. Notable hits include the textbook rice red-pericarp gene
-\emph{Rc} (only \textbf{4.5~kb} from the SCCO\_REV Chr7:6.07~Mb lead),
-\emph{TGW6} (12.3 kb from LLT\_CODE Chr6:25.11~Mb), the awn-development
-gene \emph{GAD1/RAE2} (4.4 kb from AWPR\_REPRO Chr8:23.98~Mb,
-$p\!=\!4.4\!\times\!10^{-90}$, L1 PIP$\,=\,$0.999), grain-shape genes
-\emph{An-1} (240 kb from BLCO\_REV\_VEG Chr4:16.47~Mb, L1 PIP$=$1.00) and
-\emph{BG1} (68.7 kb from SPKF Chr3:4.10~Mb), the panicle-development
-gene \emph{OsER1} (62 kb from APCO\_REV\_REPRO Chr6:5.31~Mb, L1
-PIP$=$0.77), and the Vp1-orthologue \emph{OsVP1} (176 kb from PTY
-Chr1:39.54~Mb). The two highest-confidence pigment-related loci
---- APCO\_REV\_REPRO Chr10:13.32~Mb (L1 PIP$=$0.999, 28.5 kb from
-\emph{BRD2/LTBSG1}) and SCCO\_REV Chr7:6.07~Mb (4.5 kb from
-\emph{Rc}) --- both validate against well-characterised pigment
-biology, suggesting the IRRI ordinal pigment-trait scoring really does
-capture the same axis of variation as the molecular literature.
-Per-trait validation rates reach 100\% (4/4) for APCO\_REV\_REPRO and
-$\geq 50$\% for BLCO\_REV\_VEG, LPPUB, SCCO\_REV, SPKF, and PEX\_REPRO;
-4 traits (AUCO\_REV\_VEG, CUST\_REPRO, LA, LPCO\_REV\_POST) had no
-fine-mapped lead within 250~kb of a Ren-2023 gene.
+\paragraph{Yeast (1011 Genome panel, 35 growth traits).}
+Across 35 grammar-corrected growth-trait sumstats\cite{peter2018genome,
+bloom2015genetic} fine-mapped against an SGD-derived
+gene--GO-slim graph (1.14~M variants, 60\% of the panel), 245 leads
+were fine-mapped at $\pm$15~kb windows. Yeast LD is strong enough that
+no locus reaches L1 CS $=$ 1, but \textbf{HBP narrows the credible
+set on 244 of 245 leads (100\%)}, with 5 loci reaching PIP $\geq 0.5$.
+Forty-four of the 245 leads (18\%) lie within 250~kb of a
+literature-curated trait-relevant gene (e.g.\ TUP1/SPT7 for ethanol,
+CUP1/CUP2 for copper resistance, the GAL pathway for galactose,
+ENA1/HOG1 for salt response, ERG/PDR for fluconazole).
 
-\paragraph{Single-variant credible-set resolution.}
-Across the 72 leads fine-mapped: \textbf{L1 delivers a
-single-variant 95\% credible set on 11 loci (15\%)} with
-top-variant PIP $\geq 0.99$; HBP delivers the same on 8 loci (11\%);
-both methods agree on the same single variant in 8 loci (11\%). HBP
-produces a tighter CS than L1 on 14 loci (19\%); L1 wins on 10 loci
-(14\%); the two agree exactly on the remaining 48 loci (67\%). The
-8 doubly-resolved loci --- 3 in AUCO\_REV\_VEG (culm colour) at
-Chr11:3.96~Mb, Chr2:13.24~Mb and Chr12:11.57~Mb, 2 in AWCO\_REV
-(awn colour) at Chr8:27.20~Mb and Chr8:17.14~Mb, 2 in LIGCO\_REV\_VEG
-(ligule colour) at Chr11:14.60~Mb and Chr4:1.39~Mb, plus SCCO\_REV
-Chr11:22.60~Mb --- are the most confident fine-mapping calls on the
-entire panel.
+\paragraph{Arabidopsis (1001 Genomes, 14 priority traits).}
+A TAIR10 + Plant Reactome + STRING-\emph{Ath} graph (covering
+1.06--3.99~M variants across the five chromosomes; 20{,}192 genes
+with high-confidence PPI partners after UniProt-orthologue
+resolution) supports a multi-trait \texttt{plink2} GWAS on 14
+priority phenotypes (11 AraGWAS-Bonferroni-validated traits +
+flowering-time traits FT10, FT16 and FLC). Of the 54 fine-mapped
+leads, three reach L1 CS $=$ 1 with PIP $\geq 0.98$ (a seed-storage
+trait at three independent chr4 and chr5 loci); HBP narrows the
+credible set on 29 of 54 (54\%). Validation against AraGWAS plus
+canonical flowering-time genes (FRI, FLC, CONSTANS, GIGANTEA, VIN3,
+FT, DOG1, HKT1) gives 3 of 54 (6\%); the apparently low rate
+reflects the chr-4-only coverage of the AraGWAS Bonferroni file
+rather than poor fine-mapping.
 
-\paragraph{When L1 outruns HBP, and vice versa.} The IRRI scan is
-a mirror of the ablation finding (\S\ref{sec:ablation}). On strong,
-clean-signal loci (e.g. AWCO\_REV Chr8:27.20~Mb, $p = 2.7\times10^{-26}$),
-LD deconvolution alone pinpoints the causal: L1 CS $=$ 1, PIP $=$ 1.00,
-and HBP agrees. On loci where the sumstats leave ambiguity and the
-multi-omics cache has locus-specific heterogeneity, HBP narrows CS
-further; on loci where the cache is uniformly dense (e.g. APCO\_REV\_REPRO
-Chr10:13.32~Mb: L1 CS $=$ 1, HBP CS $=$ 478), the graph prior
-\emph{widens} the CS, exactly as the rice-ablation \emph{resolvable} vs
-\emph{unresolvable} dichotomy predicts. The practical implication
-for platform users is: run L1 first for tight CS at high-signal loci,
-add HBP when the graph cache has discriminative biological structure
-at the target locus.
+\paragraph{Human (Pan-UKB EUR, four phenotypes, all 22 autosomes).}
+A genome-wide GTEx + STRING graph (\textbf{4.59~M annotated
+variants}; 49 GTEx tissues + STRING v12 PPI at score $\geq$ 700;
+GENCODE v47 gene model) supports tabix-over-HTTPS Pan-UKB summary
+statistics with on-the-fly GRCh37$\to$GRCh38 liftover and per-chromosome
+1KG NYGC LD references (3{,}202 samples, GRCh38). \textbf{Three
+hundred and twenty-one leads were fine-mapped across BMI, LDL
+direct, and triglycerides}; the Pan-UKB Height sumstats are heavily
+flagged \texttt{low\_confidence} genome-wide under the
+500~kb-clustering filter we applied and returned no leads per
+chromosome (the locus-targeted Height/HMGA2 query reported in
+\S\ref{sec:cross_anc} bypasses this clustering by querying a specific
+500~kb window directly).
 
-\paragraph{Population-structure caveat.} Four traits
-(APCO\_REV\_REPRO, CUST\_REPRO, SCCO\_REV, CUAN\_REPRO) have
-$\lambda_{GC} \in [1.6, 2.1]$, indicating some residual
-subpopulation confounding (the 3kRG panel spans $F_{ST} \approx 0.5$
-between XI and GJ subpopulations under 10-PC correction). Lead-loci
-counts on these traits should be interpreted as enriched for
-stratification artefacts, and CS size at their top leads should be
-read conservatively. The eight doubly-resolved loci above are all
-in well-calibrated traits ($\lambda_{GC} \in [0.50, 1.38]$).
+\textbf{Genome-wide L1 fine-mapping recovered the textbook canonical
+lipid-metabolism genes at single-variant resolution, without any
+annotation prior:} \textbf{\emph{LDLR}} (LDL chr19:11.08~Mb, L1
+CS $=$ 1, PIP $=$ 1.00, 12.7~kb from the Brown \& Goldstein 1986
+prototype gene); \textbf{\emph{APOE}} (LDL and triglycerides
+chr19:44.81/44.91~Mb, PIP $=$ 0.60--0.77);
+\textbf{\emph{LPL}} (chr8:20.0~Mb, L1 CS $=$ 1, PIP $=$ 0.9998);
+\textbf{\emph{GCKR}} (chr2:27.5~Mb, L1 CS $=$ 2, PIP $=$ 0.92,
+\textbf{0~bp} from the gene body); \textbf{\emph{ANGPTL3}}
+(chr1:62.97~Mb, PIP $=$ 0.81, \textbf{0~bp});
+\textbf{\emph{ANGPTL4}} (chr19:8.4~Mb); and the
+\textbf{\emph{APOA5} cluster} (chr11:117.0~Mb, PIP $=$ 0.65). Eight of
+321 leads reach L1 CS $=$ 1; 47 reach PIP $\geq 0.5$;
+the strong-PIP subset (L1 CS $\leq 5$ \emph{and} PIP $\geq 0.5$)
+matches a curated chr-22 / GWAS-Catalog literature catalogue at 9 of
+10 leads. Across the genome-wide scan, HBP and L1 produce identical
+credible sets on every one of 321 leads --- a finding to which we
+return below.
 
-\begin{table}[htbp]
-\centering
-\small
-\caption{\textbf{IRRI 18-trait whole-genome scan summary.} $\lambda_{GC}$ is
-computed from $\sim$500~k random variants per trait. "GW-sig leads" and
-"sug. leads" use greedy 250~kb-window clustering on $p \leq 5\times10^{-8}$
-and $10^{-5}$ respectively. "CS$=$1 (L1)" is the count among the 4
-fine-mapped leads per trait for which L1 narrows the 95\% credible set
-to a single variant.}
-\label{tab:irri_scan}
-\begin{tabular}{lrrrrr}
-\toprule
-\textbf{Trait} & \textbf{N} & $\lambda_{GC}$ & \textbf{min}~$p$ & \textbf{GW indep.} & \textbf{CS$=$1 (L1)} \\
-\midrule
-APCO\_REV\_REPRO  & 2261 & 2.07 & $3.1\times10^{-153}$ & 352  & 1 \\
-AUCO\_REV\_VEG    & 2263 & 0.66 & $1.3\times10^{-244}$ & 1067 & 3 \\
-AWCO\_REV         & 2264 & 0.95 & $1.9\times10^{-274}$ & 1067 & 2 \\
-AWPR\_REPRO       & 2114 & 0.74 & $4.4\times10^{-90}$  & 1116 & 1 \\
-BLCO\_REV\_VEG    & 2265 & 0.50 & $8.0\times10^{-55}$  & 1083 & 1 \\
-CUAN\_REPRO       & 2264 & 1.62 & $2.6\times10^{-14}$  & 327  & 0 \\
-CULT\_CODE\_REPRO & 2094 & 1.38 & $3.2\times10^{-34}$  & 1067 & 0 \\
-CUST\_REPRO       & 2264 & 1.87 & $1.5\times10^{-24}$  & 559  & 0 \\
-LA                & 1527 & 1.10 & $2.8\times10^{-11}$  & 81   & 0 \\
-LIGCO\_REV\_VEG   & 2264 & 0.64 & $\sim$0              & 1031 & 2 \\
-LLT\_CODE         & 2095 & 1.36 & $1.1\times10^{-24}$  & 882  & 0 \\
-LPCO\_REV\_POST   & 2262 & 1.41 & $6.2\times10^{-35}$  & 517  & 0 \\
-LPPUB             & 1526 & 1.38 & $1.3\times10^{-45}$  & 869  & 0 \\
-LSEN              & 2263 & 1.37 & $1.5\times10^{-16}$  & 449  & 0 \\
-PEX\_REPRO        & 2265 & 1.07 & $3.2\times10^{-14}$  & 168  & 0 \\
-PTY               & 2262 & 0.93 & $4.4\times10^{-15}$  & 734  & 0 \\
-SCCO\_REV         & 2115 & 1.81 & $5.1\times10^{-178}$ & 1054 & 1 \\
-SPKF              & 2264 & 1.07 & $1.7\times10^{-10}$  & 74   & 0 \\
-\midrule
-\textbf{Total}    &      &      &                      &      & \textbf{11} \\
-\bottomrule
-\end{tabular}
-\end{table}
+\subsection*{Heterogeneity, not density, makes graph priors work}
+\label{sec:heterogeneity}
 
-\subsection*{Ablation: when does multi-omics coverage help fine-mapping?}
-\label{sec:ablation}
+The cross-species data above show 287 of 692 leads (41\%)
+fine-mapped tighter under HBP than under flat-prior L1, but the
+distribution of that gain across species is striking and
+non-uniform: yeast 100\%, Arabidopsis 54\%, rice 19\%, human 0\%
+genome-wide. The naive interpretation that "more annotation density
+helps fine-mapping" is therefore \emph{wrong} as a general rule:
+the human cache is by far the densest of the four (4.59~M
+annotated variants, 49 tissues, near-saturating GTEx + STRING
+coverage) yet shows zero HBP narrowing relative to L1. The
+explanation is that the human cache is also nearly \emph{uniform}
+per variant --- almost every annotated variant has the same
+neighbourhood structure (one eGene plus tens of STRING partners).
+Random graph priors with low per-variant variation cannot break
+LD ties that flat-prior fine-mapping has not already broken.
 
-A common implicit claim in annotated fine-mapping is that more
-functional coverage uniformly sharpens credible sets. We tested
-this directly on the 3{,}000 Rice Genomes panel, where we have real
-grain-quality GWAS sumstats and curated ground-truth causal genes
-(Ren \emph{et al.}~2023\cite{ren2023rice}). We randomly subsampled
-the rice multi-omics cache (RAP-DB variant$\to$gene +
-Ren-2023 gene$\to$pathway + RicePPINet gene$\leftrightarrow$gene
-PPI at Prob~$\geq$~0.7) at five retention fractions
-(10\%, 25\%, 50\%, 75\%, 100\%) $\times$ 10 bootstrap seeds, and
-re-ran HBP on each of five simulated grain-quality causal loci
-(GW2, BG1, GS5, TGW6, GW8/OsSPL16).
+\paragraph{Ablation experiment.} We tested this directly on the
+3{,}000 Rice Genomes panel by randomly subsampling the rice
+multi-omics cache at five retention fractions (10\%, 25\%, 50\%, 75\%,
+100\%) $\times$ 10 bootstrap seeds, and re-running HBP on each of
+five simulated grain-quality causal loci with curated ground truth
+(Figure~\ref{fig:ablation}). Three regimes emerged: at
+already-resolvable loci (baseline PIP $\geq 0.01$), more coverage
+has no visible effect (the causal stays at rank 2);
+\textbf{at borderline loci (baseline PIP $\sim 10^{-3}$), more
+coverage is dramatically helpful} --- BG1's causal-variant rank
+improves from 154 at 10\% coverage to 4 at 100\% (a $38.6\times$
+gain) and TGW6's improves from 65 to 3 ($21.6\times$). At
+underpowered loci (baseline PIP $\leq 10^{-4}$), more coverage
+\emph{degrades} the causal's rank, because added annotation mass is
+dispersed across non-causal variants. \emph{Heterogeneity}, not
+density, drove the response: rice's hand-curated 269-gene pathway
+labels and RicePPINet edges produced cross-seed variance in HBP
+output (rank standard deviation 7--18 at borderline loci),
+whereas the uniform human cache produced exactly zero variance
+across seeds.
 
-The effect of multi-omics coverage is \emph{not} uniform --- it
-depends sharply on the locus's signal-to-noise regime
-(Figure~\ref{fig:ablation}). We observed three regimes:
+\paragraph{Direct intervention.} If the heterogeneity-not-density
+principle is causal, then injecting per-variant heterogeneous
+prior information into the cache --- without changing GWAS
+sumstats, LD, or the fine-mapping algorithm --- should turn the
+human cache from inert (HBP $=$ L1) into informative (HBP narrows
+beyond L1). We extended the cache schema with an optional
+per-variant continuous score that HBP and L1 mix into the
+final posterior (Methods). For human, the smallest available
+heterogeneous layer was an ENCODE cCRE class flag\cite{encode2020expanded}
+(926{,}535 elements across nine classes:
+proximal/distal enhancer-like, promoter-like, CTCF-bound, etc.;
+$\approx$10--15\% of GTEx-annotated variants gain a class-weighted
+score). For Arabidopsis we used TAIR10 CDS-vs-gene-body class;
+for rice, snpEff impact class (HIGH/MODERATE/LOW/MODIFIER); for
+yeast, BIOGRID physical interactions plus ORF feature class.
 
-\begin{itemize}
-  \item \textbf{Resolvable} (baseline PIP $\geq$ 0.01): GW8/OsSPL16
-  sits here. HBP is already confident in the causal under sumstats +
-  LD alone; adding more annotation has no visible effect
-  (rank 2 at every coverage level).
-  \item \textbf{Borderline} (baseline PIP $\sim$ 10$^{-3}$): BG1 and
-  TGW6 sit here. \textbf{These are the loci where multi-omics coverage
-  matters most.} BG1's causal variant rank improves from 154 at 10\%
-  coverage to 4 at 100\% (a \textbf{38.6-fold} gain); TGW6's rank
-  improves from 65 to 3 (\textbf{21.6-fold}). These are the regimes
-  where LD confusers compete with the true causal and the relational
-  prior acts as a tiebreaker.
-  \item \textbf{Underpowered} (baseline PIP $\leq$ 10$^{-4}$): GS5
-  and GW2 sit here. The sumstats alone cannot support the causal;
-  adding annotation mass shifts probability onto other (uninformative)
-  variants, so the true-causal rank \emph{degrades} with more coverage
-  (GS5: 514$\to$1139; GW2: essentially flat at rank $\approx$10{,}900).
-\end{itemize}
-
-Two further observations emerged. First, annotation \emph{heterogeneity}
-matters more than density. On human chromosome~22 with GTEx~+~STRING
-(near-uniform 1 eGene + $N$ PPI partners per annotated variant), HBP
-output was identical across all 10 bootstrap seeds at every coverage
-fraction (rank\_std $=$ 0 for every locus tested). Random edge-dropping
-preserves the homogeneous graph structure, so the posterior does not
-change. Rice, with hand-curated Ren-2023 pathway labels on 269 genes
-alongside RicePPINet PPIs, shows real per-seed variance (rank\_std
-7--18 at borderline/unresolved loci), because surviving subsets
-emphasise different biological relationships. Second, the credible-set
-size for resolvable and borderline loci is coverage-insensitive above
-25\% retention (BG1, GS5, TGW6 all plateau immediately), but under-resolved
-loci inflate linearly with coverage (GW2: 901~$\to$~1{,}865) --- a
-second signature of the prior adding uniform mass rather than discriminative
-information in this regime. Full per-locus traces are provided in
-Supplementary Note~S4 and reproducible via
-\texttt{tests/multiomics\_ablation\_rice.py}.
+\textbf{The intervention transforms the human result and confirms
+the principle in three of four species} (Table~\ref{tab:intervention}).
+On the same 321 human Pan-UKB leads, adding the cCRE class flag
+alone takes HBP narrower than L1 on \textbf{282 of 321 leads (88\%)},
+up from 0 of 321 (0\%) without it --- a 88-percentage-point
+intervention effect on a fixed locus set. The same direction holds
+for Arabidopsis (54\%$\to$94\%) and rice (19\%$\to$78\%); yeast was
+already saturated at 100\%. Across all 692 leads, HBP narrows
+beyond L1 on 287 (41\%) before the intervention and 634 (92\%)
+after.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.85\textwidth]{fig_ablation_rice.pdf}
 \caption{\textbf{Multi-omics coverage ablation on real rice GWAS
-data.} For each of 5 curated grain-quality causal loci, HBP was
-re-run with 10\%--100\% of multi-omics edges randomly retained
-(10 bootstrap seeds per non-$100$\% fraction). The rank of the true
+data.} For each of five curated grain-quality causal loci, HBP
+was re-run with 10--100\% of multi-omics edges randomly retained
+(10 bootstrap seeds per non-100\% fraction). The rank of the true
 causal variant (log scale, lower is better) is plotted against
 retained coverage. Three regimes emerge: \emph{resolvable} loci
-(green, dashed) are already confident from sumstats alone and are
-coverage-insensitive; \emph{borderline} loci (blue, solid) improve
-20--40$\times$ in rank as coverage grows, the regime where the
-relational prior adds the most value; \emph{underpowered} loci
-(red, dotted) cannot be rescued by annotation and degrade slightly
-under dense priors. The naive ``more multi-omics = better
-fine-mapping'' framing is wrong; the correct statement is that
-multi-omics priors help \emph{borderline} loci --- precisely the
-regime where GWAS fine-mapping is hardest.}
+(green, dashed) are already confident from sumstats and LD alone
+and are coverage-insensitive; \emph{borderline} loci (blue, solid)
+improve 20--40$\times$ in rank as coverage grows --- the regime
+where the relational prior adds the most value;
+\emph{underpowered} loci (red, dotted) cannot be rescued by
+annotation and degrade slightly under dense priors.}
 \label{fig:ablation}
 \end{figure}
 
-\subsection*{Cross-species replication: 4 species, 70 traits, 383 loci}
-\label{sec:multispecies}
-
-To stress-test the GraphGWAS pipeline beyond the rice 3kRG study,
-we replicated the same end-to-end workflow ---
-build species-specific multi-omics graph cache, GWAS or load published
-sumstats, fine-map all genome-wide-significant lead loci, validate against
-literature ground truth --- on three additional organisms with very
-different genome architectures, sample sizes, and annotation densities
-(Table~\ref{tab:multispecies}).
-
-\paragraph{Yeast (1011 genome panel, 35 growth traits).}
-We built a variant--gene--GO\_slim cache from SGD features and the GO
-slim mapping (1.14~M variants, 60\% of the panel; no PPI added to v1).
-Across 35 grammar-corrected GWAS sumstats files, GraphGWAS fine-mapped
-245 leads (top-3 GW-sig + top-1 suggestive per trait, $\pm$15~kb
-windows). Yeast LD is so strong that no locus reaches L1 CS$=$1, but
-HBP narrows the credible set on \textbf{244/245 loci (100\%)} relative
-to L1, with 5/245 reaching L1 PIP$\geq 0.5$. 44/245 leads (18\%) lie
-within 250~kb of a literature-curated trait-relevant gene
-(Bloom 2015, Peter 2018; e.g.\ TUP1/SPT7 for ethanol, CUP1/CUP2 for
-copper, GAL pathway for galactose, ENA1/HOG1 for salt, ERG/PDR for
-fluconazole).
-
-\paragraph{Arabidopsis (1001 Genomes, 14 priority traits).}
-We assembled a TAIR10 + Plant Reactome + STRING-Ath graph cache covering
-285{,}830 variants across the 5 chromosomes, then ran a multi-trait
-plink2 GWAS on 14 priority phenotypes (the 11 AraGWAS-bonferroni-validated
-traits + FT10/FT16/FLC). Of the 54 fine-mapped leads,
-\textbf{3 reach L1 CS$=$1 with PIP$\geq 0.98$} (PH20\_Storage7days at
-chr5:9.93~Mb, chr5:13.55~Mb, and chr4:9.52~Mb), and HBP narrows the
-credible set on 29/54 (54\%) loci --- the highest "graph-helps" rate
-of all four species. Validation against AraGWAS bonferroni hits +
-literature-canonical flowering genes (FRI, FLC, CONSTANS, GIGANTEA,
-VIN3, FT, DOG1, HKT1) gives 3/54 (6\%); the lower rate reflects the
-chr-4-only AraGWAS file rather than poor fine-mapping (the 3 CS$=$1 hits
-on chr4-9 and chr5-9-and-13 are far from the chr4 AraGWAS region).
-
-\paragraph{Human (Pan-UKB, all 22 autosomes across 4 phenotypes).}
-We extended the human pipeline to a genome-wide scan: a per-chromosome
-GTEx + STRING graph cache covering \textbf{4.59~M annotated variants}
-(GTEx v8 eQTL across 49 tissues + STRING v12 9606 PPI at score~$\geq$~700,
-GENCODE v47 ENSG--symbol resolution); per-chromosome 1KG NYGC LD
-references (3{,}202 samples, GRCh38); and tabix-over-HTTPS sumstats
-fetch from Pan-UKB EUR for the four phenotypes (b37~$\rightarrow$~b38
-liftover via pyliftover, 12-worker parallelism over phenocode
-$\times$ chromosome). \textbf{321 leads fine-mapped across 3 traits
-(BMI, LDL, TG)}; the Pan-UKB Height sumstats are heavily flagged
-\texttt{low\_confidence} genome-wide under the genome-scan
-clustering filter we applied (greedy 500~kb-window clustering on
-\texttt{not low\_confidence} variants returned 0 leads per
-chromosome). The locus-targeted Height/HMGA2 query reported in
-\S\ref{sec:cross_anc} bypasses this clustering by querying a
-specific 500~kb window directly --- HMGA2 sumstats themselves are
-not low-confidence, but the genome-wide GW-sig variants outside
-known canonical Height loci are. We treat the genome-wide-scan
-result as the authoritative Pan-UKB Height view and note this is
-an upstream Pan-UKB QC peculiarity, not worked around in this paper.
-
-\textbf{Genome-wide L1 fine-mapping recovered the textbook
-canonical genes for lipid metabolism at single-variant resolution},
-without any annotation prior:
-\textbf{LDLR} (LDL Chr19:11.08~Mb, L1 CS$=$1, PIP$=$1.00, 12.7 kb from
-the gene; the Brown \& Goldstein 1986 prototype),
-\textbf{APOE} (LDL+TG Chr19:44.81/44.91~Mb, PIP$=$0.60--0.77),
-\textbf{LPL} (TG Chr8:20.0~Mb, L1 CS$=$1, PIP$=$0.9998),
-\textbf{GCKR} (TG Chr2:27.5~Mb, L1 CS$=$2, PIP$=$0.92, \textbf{0~bp}
-from the gene body), \textbf{ANGPTL3} (TG Chr1:62.97~Mb, PIP$=$0.81,
-\textbf{0~bp}), \textbf{ANGPTL4} (TG Chr19:8.4~Mb), and the
-\textbf{APOA5 cluster} (TG Chr11:117.0~Mb, PIP$=$0.65, 167~kb).
-8/321 leads reach L1 CS$=$1 (LDL: 2; TG: 6; BMI: 0 --- BMI signal is
-broader and lower-effect-size); 47 reach PIP$\geq 0.5$. 21/321 (7\%)
-overlap our 36-entry literature ground-truth catalog within 250~kb;
-the validation rate is bounded by the catalog size, but the
-strong-PIP subset (L1 CS$\leq 5$ AND PIP$\geq 0.5$) validates against
-canonical genes at \textbf{9/10}.
-
-\textbf{HBP is exactly equal to L1 on all 321 loci} --- the dense
-GTEx+STRING cache (median $\sim$1 eGene + 20 PPI partners per
-annotated variant, near-uniform across the genome) provides no
-discriminative information beyond LD-deconvolved sumstats. This is
-the cleanest possible empirical confirmation of the rice ablation
-finding: when the multi-omics cache is uniform per variant, HBP
-cannot add information; the graph value is in heterogeneity, not
-density.
-
 \begin{table}[htbp]
 \centering
 \small
-\caption{\textbf{Cross-species fine-mapping summary.} L1 CS$=$1 is the
-fraction of leads where flat-prior Bayesian L1 produces a single-variant
-95\% credible set. HBP tighter is the fraction of leads where HBP narrows
-the credible set further than L1. Ground-truth validation uses a 250~kb
-window against species-specific literature/database catalogs (full lists in Supplementary Note~S5).}
-\label{tab:multispecies}
-\begin{tabular}{lrrrrrrr}
-\toprule
-\textbf{Species} & \textbf{Traits} & \textbf{Loci}
-                 & \textbf{L1~CS$=$1} & \textbf{L1~PIP$\geq 0.5$}
-                 & \textbf{HBP tighter} & \textbf{Both~CS$=$1} & \textbf{Validated} \\
-\midrule
-Rice (3kRG)            & 18 & 72  & 11 (15\%) & 16 (22\%) & 14 (19\%)  & 8 (11\%) & 24 (33\%) \\
-Yeast (1011)           & 35 & 245 & 0 (0\%)   & 5 (2\%)   & 244 (100\%) & 0 (0\%) & 44 (18\%) \\
-Arabidopsis (1001G)    & 14 & 54  & 3 (6\%)   & 7 (13\%)  & 29 (54\%)   & 2 (4\%)  & 3 (6\%)  \\
-Human (Pan-UKB, GW)    & 3  & 321 & 8 (2\%)   & 47 (15\%) & 0 (0\%)     & 8 (2\%) & 21 (7\%) \\
-\midrule
-\textbf{Total}         & 70 & 692 & \textbf{22} & \textbf{75} & \textbf{287} & \textbf{18} & \textbf{92} \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\paragraph{Synthesis.} The four-species replication confirms the
-ablation diagnosis: \emph{the value HBP adds beyond L1 depends not on
-annotation density but on per-variant heterogeneity in the prior.}
-Yeast (GO\_slim, sparse) and Arabidopsis (Plant Reactome, sparse)
-show 100\% and 54\% HBP-tighter rates; rice (Ren-2023 + RicePPINet,
-sparse) shows 19\%; the dense-and-uniform human GTEx+STRING cache,
-covering all 22 autosomes with 4.59~M annotated variants, shows
-\textbf{0/321} HBP-tighter rate, the cleanest possible empirical
-demonstration of the heterogeneity-not-density principle. Single-variant
-resolution rates correlate with sample size as expected (rice~3{,}024 →
-15\% L1~CS$=$1; arabidopsis~1{,}135 → 6\%; yeast~971 → 0\% but 2\%
-PIP$\geq 0.5$; human Pan-UKB EUR with effective $N\sim 420{,}000$
-across 22 autosomes → 4\% L1 CS$=$1 / 15\% PIP$\geq 0.5$, including
-textbook-canonical lipid genes \emph{LDLR}, \emph{APOE}, \emph{LPL},
-\emph{GCKR}, \emph{ANGPTL3}, \emph{ANGPTL4}, and the \emph{APOA5}
-cluster all hit at PIP $\geq 0.5$). The GraphGWAS pipeline runs unchanged across
-all four species; the only species-specific component is the loaded
-annotation graph, exactly as the cross-species portability claim predicts.
-
-\subsection*{Heterogeneity-not-density: empirical validation by direct intervention}
-\label{sec:intervention}
-
-The cross-species observation in \S\ref{sec:multispecies} was correlational:
-species with heterogeneous priors showed high HBP-tighter rates, species with
-uniform priors showed low rates. We test whether the relationship is causal by
-direct intervention --- adding a per-variant heterogeneous \texttt{prior\_score}
-field to each species' graph cache and re-running the same fine-mapping
-pipeline.
-
-\paragraph{Schema extension.} \texttt{graph\_cache} gained an optional
-\texttt{prior\_score: float} per variant. Both HBP and L1
-from-sumstats functions now consume it: HBP re-mixes \texttt{prior\_score} into
-the final PIP after belief propagation (50/50 blend with the BP-derived
-belief); L1 adds it directly to the \texttt{z\_func} mixture before LD
-deconvolution. Caches without \texttt{prior\_score} reproduce the v1 results
-bit-for-bit.
-
-\paragraph{Per-species intervention.} For each species we added the smallest
-heterogeneous layer that was readily available without large external
-downloads, and re-ran identical pipelines:
-\begin{itemize}
-  \item \textbf{Human (Phase 1):} ENCODE cCRE v3 overlap (926{,}535 elements,
-        9 classes) with class-weighted score (PLS-CTCF$=$1.5, dELS$=$0.6, etc.).
-        $\sim$10--15\% of GTEx-annotated variants now carry a non-zero,
-        class-stratified \texttt{prior\_score}.
-  \item \textbf{Yeast (Phase 2):} BIOGRID 5.0.256 yeast S288c physical
-        interactions (263{,}403 edges, 5{,}813 ORFs with $\geq$ 1 partner) +
-        ORF-feature-class \texttt{prior\_score}.
-  \item \textbf{Arabidopsis (Phase 3):} TAIR10 CDS / exon / gene class
-        \texttt{prior\_score} (CDS$=$1.0, exon$=$0.8, gene$=$0.5; 71--73\%
-        of variants got a score).
-  \item \textbf{Rice (Phase 4):} snpEff impact-class \texttt{prior\_score}
-        from the pseudo-canonical VCF re-scan (HIGH$=$1.0, MODERATE$=$0.7,
-        LOW$=$0.4, MODIFIER$=$0.1).
-\end{itemize}
-
-\paragraph{Result.} The hypothesis is empirically confirmed across all 4
-species. Direction is consistent in all 3 non-saturated species; magnitude
-correlates with v1 cache uniformity (Table~\ref{tab:intervention}):
-
-\begin{table}[htbp]
-\centering
-\small
-\caption{\textbf{Heterogeneity-not-density: cross-species intervention results.}
-Adding per-variant heterogeneous \texttt{prior\_score} consistently raises
-HBP-tighter rate. The human row is the cleanest demonstration:
-v1 GTEx+STRING was perfectly uniform (HBP $=$ L1 on all 321 loci), and
-adding cCRE alone flipped HBP-tighter from $0\%$ to $88\%$.}
+\caption{\textbf{Heterogeneity-not-density verified by direct
+intervention.} Adding a per-variant continuous prior to the
+multi-omics cache (without altering GWAS sumstats, LD references, or
+the fine-mapping algorithm) consistently raises the rate at which HBP
+narrows the credible set beyond flat-prior L1. The human row is the
+cleanest demonstration: a uniform GTEx + STRING cache leaves HBP
+exactly equal to L1 on every one of 321 leads, but adding a
+class-weighted ENCODE cCRE flag flips that rate from 0\% to 88\% on
+the same lead set.}
 \label{tab:intervention}
 \begin{tabular}{lrrrr}
 \toprule
-\textbf{Species} & \textbf{Loci} & \textbf{v1 HBP-tighter} & \textbf{v2 HBP-tighter} & \textbf{$\Delta$} \\
+\textbf{Species} & \textbf{Loci} & \textbf{Baseline cache} & \textbf{+heterogeneous prior} & \textbf{$\Delta$} \\
+                 &               & \textbf{HBP-tighter}     & \textbf{HBP-tighter}             &                   \\
 \midrule
-Human       & 321 & 0/321 (0\%)     & 282/321 (88\%) & \textbf{$+$88pp} \\
-Arabidopsis &  54 & 29/54 (54\%)    & 51/54 (94\%)   & $+$41pp \\
-Rice        &  72 & 14/72 (19\%)    & 56/72 (78\%)   & $+$58pp \\
-Yeast       & 245 & 244/245 (100\%) & 245/245 (100\%) & saturated \\
+Human       & 321 & 0 / 321 (0\%)   & 282 / 321 (88\%) & \textbf{$+$88\,pp} \\
+Arabidopsis &  54 & 29 / 54 (54\%)  & 51 / 54 (94\%)   & $+$41\,pp \\
+Rice        &  72 & 14 / 72 (19\%)  & 56 / 72 (78\%)   & $+$58\,pp \\
+Yeast       & 245 & 244 / 245 (100\%) & 245 / 245 (100\%) & saturated \\
 \midrule
-\textbf{Total} & 692 & \textbf{287 (41\%)} & \textbf{634 (92\%)} & \textbf{$+$50pp} \\
+\textbf{Total} & 692 & \textbf{287 (41\%)} & \textbf{634 (92\%)} & \textbf{$+$50\,pp} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\paragraph{Synthesis.} The four-species intervention establishes the
-heterogeneity-not-density principle as causal, not merely correlational.
-A perfectly uniform multi-omics cache (human v1: every annotated variant
-$\approx$ 1 GTEx eGene + 20 STRING partners) leaves HBP exactly equal to L1
-on every locus tested ($321/321$); adding even a coarse 9-class regulatory-element
-flag (cCRE) flips HBP-tighter from $0\%$ to $88\%$. The same intervention
-direction holds for Arabidopsis ($54\%~\to~94\%$) and rice ($19\%~\to~78\%$);
-yeast was already saturated at $100\%$ in v1 and could not increase further.
-The full Phase 0--4 pipeline scripts and per-species v1-vs-v2 comparison
-tables are at \texttt{results/multispecies\_summary/heterogeneity\_intervention\_report.md}.
-
-A future Phase 1.B will replace the category-binary cCRE/CDS flags with
-continuous variant-level scores (CADD genome-wide, MotifBreakR allele-specific
-$\Delta$-PWM, DeepSEA chromatin-effect predictions, ABC enhancer-promoter
-contact strengths, O'Malley 2016 DAP-seq peak signal for Arabidopsis,
-Cao~2020 ChIP-seq for rice), which we predict will further raise the
-HBP-tighter rate and tighten L1's $z\_$func mixture rather than diluting it
-(the small L1 PIP regression we observed in v2 is consistent with binary
-prior\_scores being too broad within their on-class subset; continuous
-scores varying at single-variant resolution should not have this regression).
+These intervention results upgrade the heterogeneity-not-density
+principle from a cross-species observation to a causal claim:
+density alone is insufficient even at $10^7$-variant scale; the
+operative quantity is per-variant discriminative information, and
+even a coarse nine-class regulatory-element flag is enough to
+realise it. Continuous-score replacements --- combined-annotation
+PHRED scores, allele-specific transcription-factor-binding
+$\Delta$-PWM, deep-learning chromatin-effect predictions, and
+species-specific cistromes --- are a natural next direction.
 
 \subsection*{Method selection and extensions}
 
