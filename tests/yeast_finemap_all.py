@@ -35,8 +35,11 @@ from graphgwas.finemapping_v2 import (
 
 YEAST_DATA = Path("/mnt/data/GraphGWAS/tests/data/yeast")
 RES_DIR = Path("/mnt/data/GraphGWAS/results/grammar_corrected")
-CACHE_PATH = Path("/mnt/data/GraphGWAS/data/yeast/yeast_graph_cache.json")
-OUT_DIR = Path("/mnt/data/GraphGWAS/results/yeast_finemap")
+CACHE_VERSION = os.environ.get("CACHE_VERSION", "v1")
+_cache_name = "yeast_graph_cache.json" if CACHE_VERSION == "v1" else f"yeast_graph_cache_{CACHE_VERSION}.json"
+CACHE_PATH = Path(f"/mnt/data/GraphGWAS/data/yeast/{_cache_name}")
+OUT_DIR = Path(f"/mnt/data/GraphGWAS/results/yeast_finemap_{CACHE_VERSION}") if CACHE_VERSION != "v1" \
+          else Path("/mnt/data/GraphGWAS/results/yeast_finemap")
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 LD_VCF = YEAST_DATA / "1011_import_ready.vcf.gz"  # has .csi index
 
@@ -146,8 +149,9 @@ def finemap_locus(trait: str, lead: dict, sumstats: pd.DataFrame,
                     if k in full_cache} if full_cache else {}
 
     l1 = l1_finemap_from_sumstats(
-        variants, z, R_sq, z_func=None, alpha=1.0,
+        variants, z, R_sq, z_func=None, alpha=0.7,
         r2_smooth=0.3, credible_set_coverage=0.95, chr_name=chrom,
+        graph_cache=window_cache,
     )
     hbp = hbp_finemap_from_sumstats(
         variants, z, R_sq, graph_cache=window_cache,
