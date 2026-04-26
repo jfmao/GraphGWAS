@@ -23,11 +23,14 @@ from graphgwas.finemapping_v2 import (
     l1_finemap_from_sumstats,
 )
 
+import os
+CACHE_VERSION = os.environ.get("CACHE_VERSION", "v1")
+_cache_chr_prefix = "rice_graph_cache_v2_" if CACHE_VERSION == "v2" else "rice_graph_cache_"
 DATA = Path("/mnt/data/GraphGWAS/data/rice_3k")
 RES = DATA / "results"
 LEADS = RES / "irri_gwas" / "irri_lead_loci.tsv"
 GWAS_OUT = RES / "irri_gwas"
-FM_OUT = RES / "irri_finemap"
+FM_OUT = RES / ("irri_finemap" if CACHE_VERSION == "v1" else f"irri_finemap_{CACHE_VERSION}")
 FM_OUT.mkdir(parents=True, exist_ok=True)
 
 VCF = "/mnt/data/GraphPop/data/raw/3kRG_data/NB_final_snp.vcf.gz"
@@ -123,8 +126,9 @@ def run_finemap_for_lead(trait, lead_chrom, lead_pos, gw_path, chr_cache):
 
     # Run L1 + HBP
     l1 = l1_finemap_from_sumstats(
-        variants, z, R_sq, z_func=None, alpha=1.0,
+        variants, z, R_sq, z_func=None, alpha=0.7,
         r2_smooth=0.3, credible_set_coverage=0.95, chr_name=lead_chrom,
+        graph_cache=window_cache,
     )
     hbp = hbp_finemap_from_sumstats(
         variants, z, R_sq, graph_cache=window_cache,
@@ -163,7 +167,7 @@ def main():
     chr_caches = {}
     def get_chr_cache(chrom):
         if chrom not in chr_caches:
-            p = DATA / "annotations" / f"rice_graph_cache_{chrom}.json"
+            p = DATA / "annotations" / f"{_cache_chr_prefix}{chrom}.json"
             if p.exists():
                 print(f"  loading {p.name}...", flush=True)
                 chr_caches[chrom] = json.load(open(p))
