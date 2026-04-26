@@ -1,0 +1,196 @@
+%% Version 3.1 December 2024
+%% Springer Nature journal article template (sn-jnl)
+%% Target journal: Nature Genetics (Article / Technical Report)
+%% Nature Portfolio reference style
+
+\documentclass[lineno,pdflatex,sn-nature]{sn-jnl}
+
+%%% Standard Packages
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{textcomp}
+\usepackage{hyperref}
+\usepackage{siunitx}
+\usepackage{array}
+\usepackage{longtable}
+
+\graphicspath{{figures/}}
+
+\raggedbottom
+\unnumbered% Nature Portfolio uses unnumbered section heads
+
+\begin{document}
+
+\title[Relational fine-mapping]{Relational biological structure improves fine-mapping of causal GWAS variants under weak signal}
+
+%%=============================================================%%
+%% Author information
+%%=============================================================%%
+
+\author[1]{\fnm{Ehsan} \sur{Estaji}}\email{ehsan.estaji@umu.se}
+\equalcont{These authors contributed equally to this work.}
+
+\author[1]{\fnm{Shi-Wei} \sur{Zhao}}\email{shi-wei.zhao@umu.se}
+\equalcont{These authors contributed equally to this work.}
+
+\author[1]{\fnm{Zhao-Yang} \sur{Chen}}\email{zhao-yang.chen@umu.se}
+
+\author[2]{\fnm{Shuai} \sur{Nie}}\email{nieshuai@gdaas.cn}
+
+\author*[1]{\fnm{Jian-Feng} \sur{Mao}}\email{jianfeng.mao@umu.se}
+
+\affil[1]{\orgdiv{Ume\aa{} Plant Science Centre, Department of Plant Physiology}, \orgname{Ume\aa{} University}, \orgaddress{\postcode{SE-90187}, \city{Ume\aa{}}, \country{Sweden}}}
+
+\affil[2]{\orgdiv{Rice Research Institute, Key Laboratory of Genetics and Breeding of High Quality Rice in Southern China (Co-construction by Ministry and Province), Ministry of Agriculture and Rural Affairs, Guangdong Key Laboratory of New Technology in Rice Breeding}, \orgname{Guangdong Academy of Agricultural Sciences}, \orgaddress{\postcode{510640}, \city{Guangzhou}, \country{China}}}
+
+\input{abstract}
+
+\keywords{fine-mapping, GWAS, graph database, Neo4j, Pan-UKB, cross-ancestry, multi-omics, belief propagation}
+
+\maketitle
+
+% Main text (Nature Genetics Article: $\leq$ 4{,}000 words, abstract + methods excluded)
+\input{introduction}
+\input{results}
+\input{discussion}
+
+% Online Methods
+\section{Online Methods}\label{sec:methods}
+\input{methods}
+
+\backmatter
+
+\bmhead{Data Availability}
+
+Pan-UK Biobank summary statistics and LD reference matrices (used for
+the cross-ancestry demonstration in Results~\ref{sec:cross_anc}) are
+publicly available from the Pan-UKB project on Amazon S3 at
+\url{s3://pan-ukb-us-east-1/} (no authentication required); see
+\url{https://pan.ukbb.broadinstitute.org} for documentation. The 1000
+Genomes Project high-coverage NYGC 30$\times$ release is available at
+\url{https://www.internationalgenome.org/data-portal/data-collection/30x-grch38}.
+The 1011 Yeast Genomes data are available from
+\url{http://1002genomes.u-strasbg.fr/}. \emph{Arabidopsis thaliana}
+1001 Genomes data are available from
+\url{https://1001genomes.org/}. GENCODE~v47 annotations, GTEx~v8
+eQTLs, STRING~v12 interactions, and ENCODE cCRE~v4 regulatory
+elements are from their respective project portals. Pre-built
+graph-database dumps in Neo4j~5.26 format (human 1KG with full
+multi-omics annotations, 17~GB; yeast 1011 with SGD/GO
+annotations, 0.5~GB) and all benchmark outputs (JSON~+~TSV),
+per-locus Pan-UKB fine-mapping outputs, figure source data, and
+simulation seeds are deposited on Zenodo (DOI to be assigned on
+acceptance). The staging layout---with per-folder README files
+documenting contents, file schemas, restore instructions and
+SHA-256 manifest---is versioned alongside the source code under
+\texttt{zenodo/} and is ready for upload via
+\texttt{zenodo/prepare\_upload.sh}.
+
+\bmhead{Code Availability}
+
+GraphGWAS source code is available at
+\url{https://github.com/jfmao/GraphGWAS} under the MIT licence. The
+repository includes the Python package (\texttt{graphgwas}, 34~modules
+covering import, association, fine-mapping, epistasis, heritability,
+PRS, MR, Pan-UKB integration, and the \texttt{graphgwas} CLI), the
+BGEN~+~graph hybrid reader, the sumstats-only fine-mapping entry
+paths (\texttt{l1\_finemap\_from\_sumstats},
+\texttt{hbp\_finemap\_from\_sumstats}), all benchmark scripts used in
+this paper (\texttt{tests/benchmark\_*.py}), and a single-command
+figure-regeneration pipeline
+(\texttt{tests/generate\_paper\_figures.py}). A reproducibility guide
+at \texttt{docs/REPRODUCIBILITY.md} documents regeneration of every
+figure and table from scratch.
+
+\bmhead{Acknowledgements}
+
+This work was partially supported by the Wallenberg Initiatives in
+Forest Research (WIFORCE) funded by the Knut and Alice Wallenberg
+Foundation. Genomic analyses were performed on resources provided by
+the Swedish National Infrastructure for Computing (SNIC) through the
+High Performance Computing Centre North (HPC2N) at Ume\aa{}
+University. We thank the Pan-UKB consortium, the 1000 Genomes
+Project, the 1001 \emph{Arabidopsis} Genomes, and the 1011 Yeast
+Genomes consortia for making their data publicly available, and the
+SuSiE, FINEMAP, PolyFun, SuSiE-inf, and SBayesRC development teams
+for maintaining open-source reference implementations that made
+head-to-head benchmarking feasible.
+
+\section*{Declarations}
+
+\begin{itemize}
+\item \textbf{Funding:} Wallenberg Initiatives in Forest Research (WIFORCE), Knut and Alice Wallenberg Foundation.
+\item \textbf{Competing interests:} The authors declare no competing interests.
+\item \textbf{Ethics approval and consent to participate:} Not applicable. All data used were from pre-existing, publicly released resources (Pan-UKB, 1000 Genomes, 1011 Yeast, \emph{Arabidopsis} 1001) for which participant consent was obtained by the originating consortia.
+\item \textbf{Consent for publication:} Not applicable.
+\item \textbf{Author contributions:} Conceptualization and method design: J.F.M.\ and E.E. Core fine-mapping algorithms (HBP, L1 Bayesian, CLGF) and Python implementation: E.E. LD-pruned epistasis (M1) and hybrid BGEN architecture: E.E.\ and S.W.Z. Pan-UKB integration and sumstats-only entry paths: S.W.Z.\ and E.E. Mathematical proofs (Theorems~1--5): E.E.\ and J.F.M. Multi-omics annotation graph (GENCODE/GTEx/STRING/ENCODE): S.W.Z. Benchmark scripts and calibration: E.E. Cross-species validation (yeast, Arabidopsis): Z.Y.C. Writing---original draft: J.F.M.\ and E.E. Writing---review \& editing: all authors.
+\end{itemize}
+
+%% References inline (Nature Portfolio convention)
+\bibliography{references}
+
+\clearpage
+
+% ===========================================================================
+% LIST OF DISPLAY ITEMS
+% ===========================================================================
+\section*{List of Display Items}
+
+\subsection*{Main-text Figures}
+\begin{description}
+\setlength{\itemsep}{2pt}
+\item[Figure 1] Relational vs flat annotation priors in fine-mapping (graph schema + counts).
+\item[Figure 2] Hierarchical belief propagation on a three-layer factor graph.
+\item[Figure 3] L1 beats SuSiE 27--2 head-to-head at weak signal with tissue-specific eQTL priors.
+\item[Figure 4] HBP and L1 vs state-of-the-art Bayesian baselines (SuSiE, FINEMAP, SuSiE-inf, FINEMAP-inf, Polyfun-proxy).
+\item[Figure 5] PIP calibration and null false-positive rate.
+\item[Figure 6] HBP fine-mapping quality scales monotonically with sample size.
+\item[Figure 7] Cross-ancestry fine-mapping: controlled 1KG simulation and real Pan-UK Biobank demonstration.
+\item[Figure 8] Multi-omics coverage ablation on real rice GWAS data.
+\item[Figure 9] Method selection decision tree.
+\end{description}
+
+\subsection*{Main-text Tables}
+\begin{description}
+\setlength{\itemsep}{2pt}
+\item[Table 1] IRRI 18-trait whole-genome scan summary ($\lambda_{GC}$, GW-sig leads, single-variant CS counts).
+\item[Table 2] Cross-species fine-mapping summary (rice / yeast / Arabidopsis / human).
+\item[Table 3] Heterogeneity-not-density empirical validation by direct intervention.
+\end{description}
+
+\subsection*{Supplementary Figures}
+\begin{description}
+\setlength{\itemsep}{2pt}
+\item[Figure S1] M1 LD-pruned epistasis preview (forthcoming paper~\#2).
+\item[Figure S2] Pan-UKB cross-ancestry fine-mapping (4 loci $\times$ 4 ancestries, real biobank data; extended panels).
+\item[Figure S3] GraphGWAS CLI command hierarchy (44 commands across 10 domains, tier-coloured by benchmark status).
+\end{description}
+
+\subsection*{Supplementary Tables}
+\begin{description}
+\setlength{\itemsep}{2pt}
+\item[Table S1] Multi-omics graph state after loading on 1000 Genomes Phase~3.
+\item[Table S2] Head-to-head benchmark: HBP, L1 and five Bayesian baselines on 1000~Genomes chr22 simulations.
+\item[Table S3] Method portfolio: recommended GraphGWAS method by scenario.
+\item[Table S4] GraphGWAS platform benchmark-status table (all method classes).
+\end{description}
+
+\subsection*{Supplementary Notes}
+\begin{description}
+\setlength{\itemsep}{2pt}
+\item[Note S1] Mathematical proofs (Theorems 1--5): M1 search-space reduction, HBP Banach contraction, L1 causal-variant ranking, null PIP bound, CLGF EM convergence.
+\item[Note S2] Reproducibility guide: every figure and table regeneratable from a single command.
+\item[Note S3] The GraphGWAS platform: scope beyond fine-mapping, with benchmark-status table disclosing which method classes are rigorously validated in this paper versus implemented but awaiting follow-up manuscripts.
+\end{description}
+
+\clearpage
+
+% ===========================================================================
+% SUPPLEMENTARY MATERIALS
+% ===========================================================================
+\input{supplementary}
+
+\end{document}

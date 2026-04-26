@@ -649,9 +649,16 @@ fetch from Pan-UKB EUR for the four phenotypes (b37~$\rightarrow$~b38
 liftover via pyliftover, 12-worker parallelism over phenocode
 $\times$ chromosome). \textbf{321 leads fine-mapped across 3 traits
 (BMI, LDL, TG)}; the Pan-UKB Height sumstats are heavily flagged
-\texttt{low\_confidence} genome-wide and returned 0 leads per
-chromosome (an upstream Pan-UKB QC peculiarity, noted but not
-worked around in this paper).
+\texttt{low\_confidence} genome-wide under the genome-scan
+clustering filter we applied (greedy 500~kb-window clustering on
+\texttt{not low\_confidence} variants returned 0 leads per
+chromosome). The locus-targeted Height/HMGA2 query reported in
+\S\ref{sec:cross_anc} bypasses this clustering by querying a
+specific 500~kb window directly --- HMGA2 sumstats themselves are
+not low-confidence, but the genome-wide GW-sig variants outside
+known canonical Height loci are. We treat the genome-wide-scan
+result as the authoritative Pan-UKB Height view and note this is
+an upstream Pan-UKB QC peculiarity, not worked around in this paper.
 
 \textbf{Genome-wide L1 fine-mapping recovered the textbook
 canonical genes for lipid metabolism at single-variant resolution},
