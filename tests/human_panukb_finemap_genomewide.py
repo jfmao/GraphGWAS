@@ -30,15 +30,22 @@ from graphgwas.panukb import fetch_sumstats_locus
 
 ANN = Path("/mnt/data/GraphGWAS/data/annotations")
 LD_VCF_DIR = Path("/mnt/data/GraphPop/data/raw/1000g")
-OUT_DIR = Path("/mnt/data/GraphGWAS/results/human_finemap_gw")
+# CACHE_VERSION env var: "v1" = GTEx+STRING (default), "v2" = + cCRE+prior_score
+CACHE_VERSION = os.environ.get("CACHE_VERSION", "v1")
+CACHE_PREFIX = "human_graph_cache_v2_chr" if CACHE_VERSION == "v2" \
+               else "human_graph_cache_chr"
+OUT_DIR_NAME = f"human_finemap_gw_{CACHE_VERSION}"
+OUT_DIR = Path(f"/mnt/data/GraphGWAS/results/{OUT_DIR_NAME}")
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
-PHENOS = [
+_ALL_PHENOS = [
     {"phenocode":"21001","trait_type":"continuous","modifier":"irnt","label":"BMI"},
     {"phenocode":"50",   "trait_type":"continuous","modifier":"irnt","label":"Height"},
     {"phenocode":"30780","trait_type":"biomarkers","modifier":"irnt","label":"LDL"},
     {"phenocode":"30870","trait_type":"biomarkers","modifier":"irnt","label":"TG"},
 ]
+# Skip Height: Pan-UKB EUR has all-low_confidence for chr22 + most chrs after liftover
+PHENOS = [p for p in _ALL_PHENOS if p["label"] != "Height"]
 GW_THRESHOLD = 5e-8
 WINDOW_BP = 500_000
 MAX_LEADS_PER_CHROM = 5
@@ -187,8 +194,9 @@ def fm_lead(label, lead, ss, full_cache):
     window_cache = {k: full_cache[k] for k in var_df["variant_id"].values
                     if k in full_cache}
     l1 = l1_finemap_from_sumstats(
-        variants, z, R_sq, z_func=None, alpha=1.0,
+        variants, z, R_sq, z_func=None, alpha=0.7,
         r2_smooth=0.3, credible_set_coverage=0.95, chr_name=chrom,
+        graph_cache=window_cache,
     )
     hbp = hbp_finemap_from_sumstats(
         variants, z, R_sq, graph_cache=window_cache,
@@ -259,7 +267,7 @@ def main():
     tasks = []
     for p in PHENOS:
         for chrom in chroms:
-            cache_path = ANN / f"human_graph_cache_chr{chrom}.json"
+            cache_path = ANN / f"{CACHE_PREFIX}{chrom}.json"
             tasks.append((p, chrom, str(cache_path)))
     print(f"Launching {len(tasks)} (phenotype × chromosome) tasks "
           f"with {args.workers} workers")

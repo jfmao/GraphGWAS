@@ -1181,6 +1181,249 @@ def fast_hbp_finemap(
 
 
 # ===================================================================
+# Sumstats-only entry paths (for Pan-UKB and other summary-stat sources)
+# ===================================================================
+
+def hbp_finemap_from_sumstats(
+    variants: list[dict],
+    z_stats: np.ndarray,
+    R_sq: np.ndarray,
+    graph_cache: dict,
+    n_rounds: int = 5,
+    alpha: float = 0.6,
+    damping: float = 0.5,
+    r2_smooth: float = 0.3,
+    credible_set_coverage: float = 0.95,
+    eqtl_cache: dict | None = None,
+    chr_name: str = "chr22",
+) -> list[FinemapCandidate]:
+    """HBP fine-mapping from pre-computed z-scores and LD matrix.
+
+    Use when individual dosages are not available (e.g. Pan-UKB or any
+    other summary-statistics release). Downstream logic is identical to
+    `fast_hbp_finemap`; only the statistical inputs are externally supplied.
+
+    Args:
+        variants: list of dicts with at least `variantId`, `chr`, `pos`;
+            optionally `ref`, `alt`, `af_total`.
+        z_stats: length-n array of per-variant z-scores (BETA / SE).
+        R_sq: n × n squared-correlation (r²) matrix aligned to `variants`.
+            If your LD source gives signed correlation, pass `r**2`.
+        graph_cache: {variantId: {genes, pathways, ppi}} — the HBP
+            message-passing adjacency source, same format used by
+            `fast_hbp_finemap`.
+        Other args: see `fast_hbp_finemap`.
+
+    Returns:
+        list of FinemapCandidate sorted by combined score.
+    """
+    n_var = len(variants)
+    if n_var < 3:
+        return []
+    z_stats = np.asarray(z_stats, dtype=np.float64)
+    R_sq = np.asarray(R_sq, dtype=np.float64)
+    assert z_stats.shape == (n_var,), "z_stats length must match variants"
+    assert R_sq.shape == (n_var, n_var), "R_sq must be n × n"
+
+    unique_stats, n_nb = _ld_deconvolve(z_stats, R_sq, r2_smooth)
+
+    vids = [v["variantId"] for v in variants]
+    vid_idx = {vid: i for i, vid in enumerate(vids)}
+
+    gene_set: set = set()
+    pathway_set: set = set()
+    vid_genes: dict[str, list] = {}
+    for vid in vids:
+        info = graph_cache.get(vid)
+        if not info:
+            continue
+        for gene in info.get("genes", []):
+            gene_set.add(gene)
+            vid_genes.setdefault(vid, []).append(
+                (gene, info.get("pathways", []), info.get("ppi", []))
+            )
+        pathway_set.update(info.get("pathways", []))
+
+    genes = sorted(gene_set)
+    pathways = sorted(pathway_set)
+    n_genes = len(genes)
+    n_pathways = len(pathways)
+
+    if n_genes == 0:
+        pip = _softmax(unique_stats)
+        return _build_candidates(
+            variants, pip, z_stats, np.zeros(n_var), unique_stats,
+            unique_stats, n_nb, chr_name, credible_set_coverage,
+        )
+
+    gene_idx = {g: i for i, g in enumerate(genes)}
+    pw_idx = {p: i for i, p in enumerate(pathways)}
+
+    B_vg = np.zeros((n_var, n_genes))
+    for vid, entries in vid_genes.items():
+        i = vid_idx.get(vid)
+        if i is None:
+            continue
+        eqtl_weight = 1.0
+        if eqtl_cache:
+            eq = eqtl_cache.get(vid)
+            if eq:
+                eqtl_weight = 1.0 + np.log1p(eq.get("composite", 0))
+        for gene, _, _ in entries:
+            j = gene_idx[gene]
+            B_vg[i, j] = max(B_vg[i, j], eqtl_weight)
+
+    B_gp = np.zeros((n_genes, n_pathways))
+    for vid, entries in vid_genes.items():
+        for gene, pws, _ in entries:
+            gi = gene_idx[gene]
+            for pw in pws:
+                if pw in pw_idx:
+                    B_gp[gi, pw_idx[pw]] = 1.0
+
+    W_gg = np.zeros((n_genes, n_genes))
+    for vid, entries in vid_genes.items():
+        for gene, _, ppis in entries:
+            gi = gene_idx[gene]
+            for ppi_gene in ppis:
+                if ppi_gene in gene_idx:
+                    gj = gene_idx[ppi_gene]
+                    W_gg[gi, gj] = 1.0
+                    W_gg[gj, gi] = 1.0
+
+    variant_belief = _softmax(unique_stats)
+    variant_prior = np.zeros(n_var)
+
+    for _ in range(n_rounds):
+        gene_score = B_vg.T @ variant_belief
+        if W_gg.any():
+            row_sum = W_gg.sum(axis=1)
+            row_sum = np.where(row_sum > 0, row_sum, 1.0)
+            W_norm = W_gg / row_sum[:, np.newaxis]
+            gene_score = 0.7 * gene_score + 0.3 * (W_norm @ gene_score)
+        pathway_score = B_gp.T @ gene_score
+
+        gene_prior = B_gp @ pathway_score
+        variant_prior = B_vg @ gene_prior
+        vp_sum = variant_prior.sum()
+        if vp_sum > 0:
+            variant_prior = variant_prior / vp_sum
+
+        new_belief = alpha * _softmax(unique_stats) + (1 - alpha) * variant_prior
+        new_belief = new_belief / new_belief.sum()
+        variant_belief = damping * variant_belief + (1 - damping) * new_belief
+        variant_belief = variant_belief / variant_belief.sum()
+
+    pip = variant_belief
+    z_func = variant_prior * z_stats.max() if variant_prior.max() > 0 else np.zeros(n_var)
+
+    # Phase 0 schema extension: per-variant continuous prior_score
+    # (CADD, MotifBreakR Δ-PWM, DeepSEA effect, ABC contact strength, ...)
+    # If any variant has prior_score, re-mix into the final belief and z_func.
+    has_prior = False
+    prior_extra = np.zeros(n_var)
+    for i, vid in enumerate(vids):
+        info = graph_cache.get(vid)
+        if info is not None:
+            ps = info.get("prior_score")
+            if ps is not None:
+                prior_extra[i] = float(ps)
+                has_prior = True
+    if has_prior and prior_extra.max() > 0:
+        prior_extra = prior_extra / prior_extra.max() * z_stats.max()
+        z_func = 0.7 * z_func + 0.3 * prior_extra
+        # Also re-mix into PIP so the prior actually changes the credible set
+        boosted = alpha * unique_stats + (1 - alpha) * (z_func + 0.5 * prior_extra)
+        new_pip = _softmax(boosted)
+        # Blend with BP-derived belief so we don't fully overwrite
+        pip = 0.5 * pip + 0.5 * new_pip
+        pip = pip / pip.sum()
+
+    return _build_candidates(
+        variants, pip, z_stats, z_func, unique_stats,
+        alpha * unique_stats + (1 - alpha) * z_func,
+        n_nb, chr_name, credible_set_coverage,
+    )
+
+
+def l1_finemap_from_sumstats(
+    variants: list[dict],
+    z_stats: np.ndarray,
+    R_sq: np.ndarray,
+    z_func: np.ndarray | None = None,
+    alpha: float = 0.5,
+    r2_smooth: float = 0.3,
+    credible_set_coverage: float = 0.95,
+    chr_name: str = "chr22",
+    annotations_map: dict | None = None,
+    graph_cache: dict | None = None,
+) -> list[FinemapCandidate]:
+    """L1 Bayesian fine-mapping from pre-computed z-scores and LD matrix.
+
+    Summary-stats entry point mirroring `dual_graph_finemap` without the
+    Neo4j/phenotype dependencies. The functional annotation score
+    `z_func` is supplied by the caller (compute once from the graph or
+    from any other annotation source).
+
+    Args:
+        variants: list of dicts with at least `variantId`, `chr`, `pos`;
+            optionally `ref`, `alt`, `af_total`.
+        z_stats: length-n array of per-variant z-scores.
+        R_sq: n × n squared-correlation (r²) matrix.
+        z_func: length-n array of functional annotation scores, already
+            rescaled to match z_stats's dynamic range. Pass None or zeros
+            to fall back to a pure-statistical softmax (α = 1 effectively).
+        alpha: blend of statistical (α) vs functional (1−α). Default 0.5.
+        r2_smooth: LD deconvolution threshold (default 0.3).
+        credible_set_coverage: credible-set PIP sum target (default 0.95).
+        chr_name: chromosome label for output.
+        annotations_map: {variantId: [annotation_strings]} (optional).
+
+    Returns:
+        list of FinemapCandidate sorted by combined score.
+    """
+    n_var = len(variants)
+    if n_var < 3:
+        return []
+    z_stats = np.asarray(z_stats, dtype=np.float64)
+    R_sq = np.asarray(R_sq, dtype=np.float64)
+    assert z_stats.shape == (n_var,), "z_stats length must match variants"
+    assert R_sq.shape == (n_var, n_var), "R_sq must be n × n"
+
+    if z_func is None:
+        z_func = np.zeros(n_var)
+    else:
+        z_func = np.asarray(z_func, dtype=np.float64)
+        assert z_func.shape == (n_var,), "z_func length must match variants"
+
+    # Phase 0 schema extension: per-variant prior_score from graph_cache
+    # (CADD, MotifBreakR ΔPWM, DeepSEA effect, ABC contact strength, ...)
+    if graph_cache:
+        prior_extra = np.zeros(n_var)
+        has = False
+        for i, v in enumerate(variants):
+            info = graph_cache.get(v.get("variantId"))
+            if info is not None:
+                ps = info.get("prior_score")
+                if ps is not None:
+                    prior_extra[i] = float(ps)
+                    has = True
+        if has and prior_extra.max() > 0:
+            prior_extra = prior_extra / prior_extra.max() * z_stats.max()
+            z_func = z_func + 0.5 * prior_extra
+
+    unique_stats, n_nb = _ld_deconvolve(z_stats, R_sq, r2_smooth)
+    combined = alpha * unique_stats + (1 - alpha) * z_func
+    pip = _softmax(combined)
+
+    return _build_candidates(
+        variants, pip, z_stats, z_func, unique_stats, combined,
+        n_nb, chr_name, credible_set_coverage,
+        annotations_map=annotations_map,
+    )
+
+
+# ===================================================================
 # Design A: Cross-Locus Graph Fine-Mapping (CLGF)
 # ===================================================================
 
