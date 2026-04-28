@@ -93,7 +93,21 @@
 
 ## REMAINING for NG submission
 
-- [ ] Methods §4 prose expansion (~1500 words; currently terse stubs)
+- [x] Methods §4 prose expansion (~1950 words; 10 subsections; 2026-04-22)
+- [x] Epistasis demotion — §2.7 to teaser, Fig 5 → Supplementary Fig S1 (2026-04-22)
+- [x] Pan-UKB cross-ancestry extension (§2.10b) — **PRELIMINARY RESULTS IN**
+  - [x] Integration plan drafted (`docs/PANUKB_INTEGRATION_PLAN.md`)
+  - [x] `src/python/graphgwas/panukb.py` — tabix-based sumstats fetcher + Hail LD slicer (lazy import)
+  - [x] Sumstats-only entry paths: `l1_finemap_from_sumstats`, `hbp_finemap_from_sumstats`
+  - [x] Unit tests `tests/test_sumstats_finemap.py` — 6/6 pass; full suite 78/78
+  - [x] Hail 0.2.138 installed in `hail311` env (Python 3.11); S3 read blocked by missing hadoop-aws JARs — deferred
+  - [x] Phenotype manifest downloaded, 4 loci × 4 ancestries selected
+  - [x] End-to-end demo: Pan-UKB sumstats (tabix HTTPS) + GRCh37→38 liftover + 1KG-matched LD → HBP
+  - [x] `tests/benchmark_panukb_finemap.py` — all 16 cells pass
+  - [x] Supplementary Fig S2 generated (`figS2_panukb_cross_ancestry.{png,pdf}`)
+  - [x] §2.10b replacement text drafted with concrete numbers
+  - [ ] (Post-submission) Replace 1KG LD with Pan-UKB in-sample LD once hadoop-aws is wired
+  - [ ] (Post-submission) Layer multi-omics functional prior on top of sumstats
 - [ ] Author list + affiliations (placeholders in cover letter + manuscript)
 - [ ] Reviewer suggestions (3-5 names for cover letter)
 - [ ] Final manual proofread

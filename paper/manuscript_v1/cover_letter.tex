@@ -1,0 +1,187 @@
+%----------------------------------------------------------------------------------------
+% Cover letter for: "Relational biological structure improves fine-mapping of causal
+% GWAS variants under weak signal" — submission to Nature Genetics
+%
+% Format follows the conventions of the companion GraphMana / GraphPop cover letters
+% from the same author group (April 2026), which themselves follow standard Springer
+% Nature cover-letter style.
+%----------------------------------------------------------------------------------------
+
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[top=0.85in,bottom=0.85in,left=1in,right=1in]{geometry}
+\usepackage{parskip}
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage[hidelinks,colorlinks=true,urlcolor=blue,linkcolor=blue]{hyperref}
+
+\setlength{\parindent}{0pt}
+\setlist[itemize]{leftmargin=1.6em,topsep=0.2em,itemsep=0.2em,parsep=0pt}
+
+\begin{document}
+
+%----------------------------------------------------------------------------------------
+% Sender header
+%----------------------------------------------------------------------------------------
+
+\textbf{Jian-Feng Mao, Ph.D.}\\
+Professor, Department of Plant Physiology\\
+Ume\aa{} Plant Science Centre, Ume\aa{} University\\
+SE-901 87 Ume\aa{}, Sweden\\
+Email: \href{mailto:jianfeng.mao@umu.se}{jianfeng.mao@umu.se} \quad$\cdot$\quad ORCID: \href{https://orcid.org/0000-0000-0000-0000}{0000-0000-0000-0000}
+
+\vspace{0.4em}
+\noindent\rule{\textwidth}{0.4pt}
+
+\begin{flushright}
+28 April 2026
+\end{flushright}
+
+\vspace{0.6em}
+
+The Editors\\
+\textit{Nature Genetics}\\
+Springer Nature\\
+London, United Kingdom
+
+\vspace{0.8em}
+
+\textbf{Re: Submission of ``Relational biological structure improves fine-mapping of causal
+GWAS variants under weak signal'' as an Article}
+
+\vspace{0.4em}
+
+Dear Editors,
+
+We are submitting ``Relational biological structure improves fine-mapping of causal GWAS
+variants under weak signal'' for consideration as an \textbf{Article} at \textit{Nature Genetics}.
+Because the contribution is a methodological reframing of how multi-omics annotations should
+enter fine-mapping --- backed by cross-ancestry biobank and cross-species empirical results that
+include canonical-lipid-gene recovery in Pan-UK Biobank and crop-genomics-canonical-gene
+recovery on the 3{,}000 Rice Genomes panel --- we believe \textit{Nature Genetics} is the
+natural venue.
+
+Genome-wide association studies have catalogued tens of thousands of trait-associated loci, but
+linkage disequilibrium leaves the actual causal variant statistically indistinguishable from
+correlated neighbours. Fine-mapping is the post-GWAS step that resolves this. Existing Bayesian
+fine-mappers (SuSiE, FINEMAP, PolyFun, and the recent infinitesimal extensions reported by
+Wu \emph{et al.}\ in this journal in 2026) have converged on a common architecture in which
+multi-omics annotations enter as a per-variant scalar weight vector. That representation
+decouples cleanly from the statistical machinery, but it also collapses the relational structure
+that should be the most informative signal --- and constructing the weight vector itself depends
+on a stratified-LD-score-regression pipeline that is feasible in human biobanks and effectively
+unavailable elsewhere. Five concrete shortcomings follow.
+
+\textbf{Challenges GraphGWAS addresses}
+\begin{itemize}
+\item \textbf{Flattened annotation priors} --- gene, tissue, pathway, regulatory-element and
+protein--protein-interaction context that connects each variant to its biological neighbourhood
+is collapsed to a single per-variant number; the relational structure that should break LD ties
+is discarded before the inference runs.
+\item \textbf{Annotation-pipeline bottleneck} --- the scalar prior requires stratified LD-score
+regression over a curated functional-category catalogue (Baseline 2.2 in human uses 96
+categories), which assumes a large GWAS, pre-curated categories, and an ancestry-matched LD
+reference --- prerequisites met in human biobanks and absent in crop, livestock, and model-organism GWAS.
+\item \textbf{Per-locus speed at biobank scale} --- runtimes of 1--3 seconds per locus for
+vanilla SuSiE/FINEMAP, plus repeated reconstruction of each locus's multi-omics neighbourhood
+from separate BED, GTF and TSV files, make annotation-aware biobank-scale fine-mapping
+practically painful.
+\item \textbf{Cross-ancestry brittleness} --- ancestry-private variants and substantially
+different LD across ancestries are not handled by single-population fine-mappers; ancestry-by-
+ancestry pipelines are typically rebuilt by downstream users.
+\item \textbf{No cross-species portability} --- the Baseline-functional-category framework is
+human-specific; a researcher fine-mapping yeast, \emph{Arabidopsis}, or rice GWAS must rebuild
+the pipeline from scratch with annotations that are sparse, fragmented and not pre-harmonised.
+\end{itemize}
+
+We address this with a typed factor graph that carries the multi-omics neighbourhood through
+inference rather than collapsing it to a scalar, and with two fine-mapping methods that exploit
+that representation directly.
+
+\textbf{Key novelties of this work}
+\begin{itemize}
+\item \textbf{Hierarchical belief propagation (HBP)} --- message passing on a three-layer
+variant--gene--pathway factor graph with PPI coupling, with proved geometric convergence via a
+Banach contraction argument (Theorem 2). The full multi-omics neighbourhood enters every
+update.
+\item \textbf{Graph-augmented fine-mapping (GAFM)} --- an annotation-adaptive Bayesian
+complement that LD-deconvolves z-statistics and combines them with a multi-layer functional
+score, with a proof that the causal variant ranks first under mild LD-decay assumptions
+(Theorem 3). At weak signal with tissue-specific eQTL priors, GAFM beats SuSiE 27 to 2
+head-to-head ($p < 10^{-5}$).
+\item \textbf{Speed at parity accuracy} --- on a uniform 6-method $\times$ 3-scenario benchmark
+on 1000 Genomes chromosome~22 (90 simulations), HBP and GAFM match the rank-\#1 rate of SuSiE,
+FINEMAP, SuSiE-inf and FINEMAP-inf within three percentage points at 5--40$\times$ the speed
+(median 0.07--0.12\,s per locus versus 0.22--3.1\,s for the baselines).
+\item \textbf{Pan-UK Biobank sumstats-streaming entry path} --- per-locus tabix-over-HTTPS
+fetching and on-the-fly GRCh37$\to$GRCh38 lifting, applied unchanged to BMI, LDL,
+triglycerides and height across four Pan-UKB ancestries (EUR $N{=}420{,}531$;
+CSA, AFR, EAS), recovering \emph{LDLR}, \emph{APOE}, \emph{LPL}, \emph{GCKR} and \emph{ANGPTL3}
+at single-variant resolution.
+\item \textbf{Cross-species portability without algorithmic change} --- the same code
+fine-maps the 1011 Yeast Genomes panel (35 traits, 245 leads), the 1001 \emph{Arabidopsis}
+Genomes panel (14 traits, 54 leads) and the 3{,}000 Rice Genomes panel (18 IRRI traits, 72
+leads); on rice, 24 of 72 fine-mapped leads fall within 250\,kb of a Ren \emph{et al.}\ (2023)
+catalogued causal gene, including \emph{Rc} (4.5\,kb) and \emph{TGW6} (12.3\,kb).
+\end{itemize}
+
+A direct-intervention experiment establishes the central methodological claim. Adding a coarse
+nine-class ENCODE regulatory-element flag to an otherwise uniform human cache flips the rate at
+which HBP narrows the credible set tighter than GAFM from \textbf{0\% to 88\%} on the same 321
+human Pan-UKB leads, with no other change to GWAS sumstats, LD references, or the fine-mapping
+algorithm. Across all 692 leads in the four-species replication, the same intervention raises
+the HBP-tighter-than-GAFM rate from 41\% to 92\%. Density alone is therefore insufficient even
+at $10^7$-variant scale; the operative quantity is per-variant discriminative information,
+which the typed-graph representation exposes directly to inference.
+
+Graph-native fine-mapping has practical implications beyond benchmarks: it removes the
+annotation-curation bottleneck that has prevented systematic fine-mapping in non-model
+species --- crops, livestock, and model organisms. The 3{,}000 Rice Genomes recovery of \emph{Rc}, \emph{TGW6}, \emph{An-1},
+\emph{BG1}, \emph{GAD1/RAE2} and \emph{OsER1} from the same code base that produces
+single-variant credible sets at \emph{LDLR} and \emph{LPL} on Pan-UK Biobank is a concrete
+demonstration of this portability on the canonical crop-genomics benchmark species.
+
+A companion manuscript on graph-native higher-order epistasis (LD-pruned co-occurrence
+pairwise-epistasis; LPCE) is in preparation; we will alert the journal upon its submission so
+the two papers can be considered together if the editorial team finds it useful. Two further
+methodological papers from the same author group are being submitted concurrently to
+\textit{Nature Methods} on the underlying data-management (GraphMana) and population-genetics
+computation (GraphPop) substrate; those papers do not overlap with the fine-mapping
+contribution reported here.
+
+\textbf{Code and data availability.}
+Source code is released under the MIT licence at
+\href{https://github.com/jfmao/GraphGWAS}{https://github.com/jfmao/GraphGWAS}. A staged Zenodo
+deposit (graph-database dumps for human 1000 Genomes with multi-omics annotations and yeast
+1011, multi-omics graph caches with the heterogeneity-intervention extension for all four
+species, benchmark JSON outputs, Pan-UK Biobank per-locus fine-mapping outputs, and the full
+3{,}000 Rice Genomes IRRI 18-trait summary statistics) is ready for upload and will receive a
+DOI on acceptance.
+
+\textbf{Suggested and non-preferred reviewers.}
+Suggested and non-preferred reviewers (with affiliations, contact details, and brief rationale)
+are provided in the submission portal ``Reviewer suggestions'' fields. We suggest reviewers
+with combined expertise in statistical fine-mapping methodology, multi-omics annotation
+integration, biobank-scale and cross-ancestry GWAS, and crop / model-organism genomics; we
+have flagged close collaborators and recent co-authors as non-preferred.
+
+No part of this work has been published or submitted elsewhere. All authors have read and
+approved the manuscript. The authors declare no competing interests.
+
+\vspace{0.6em}
+
+Sincerely,
+
+\vspace{1.4em}
+
+\textbf{Jian-Feng Mao, Ph.D.}\\
+Corresponding author, on behalf of all authors (Estaji, Zhao, Chen, Nie, and Mao)\\
+Ume\aa{} Plant Science Centre, Department of Plant Physiology, Ume\aa{} University\\
+SE-901 87 Ume\aa{}, Sweden\\
+Email: \href{mailto:jianfeng.mao@umu.se}{jianfeng.mao@umu.se}
+
+\vspace{1em}
+
+\textit{Enclosures: manuscript, supplementary information, reviewer suggestions (submission portal).}
+
+\end{document}

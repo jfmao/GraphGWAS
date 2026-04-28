@@ -34,7 +34,7 @@ PIP-calibrated. The platform replicates across three evolutionary kingdoms
 (*Arabidopsis* 1001 Genomes; FT10 narrowed to PIP = 0.99) — with no code
 change, and across three superpopulations (AFR/EAS/EUR). A hybrid
 BGEN-indexed pipeline streams genotypes per locus, scaling unchanged to
-biobank size. All code, ten figures, and the multi-omics graph dumps are
+biobank size. All code, eight main figures, and the multi-omics graph dumps are
 released open source.
 
 ---
@@ -172,7 +172,7 @@ and weak effect size (β = 0.15, h² = 0.01), L1 **wins decisively**:
 - **Win ratio: 13.5 : 1**
 - **Runtime: L1 0.07 s / locus; SuSiE 1.8 s / locus**
 
-**Figure 6** shows the rank distributions (panel a), the head-to-head
+**Figure 5** shows the rank distributions (panel a), the head-to-head
 scoreboard (panel b), the rank-#1 rate (panel c), and per-replicate ranks
 (panel d). The scatter plot (panel d) shows that L1 loses in only 2 of 79
 replicates while winning in 27 — an asymmetry that is statistically extreme
@@ -283,24 +283,25 @@ graph-related variants) but when HBP assigns PIP > 0.5, the variant is
 causal 99% of the time. All four methods are **calibrated and
 publishable** by the standards of the field.
 
-### 2.7 LD-Pruned Co-occurrence Epistasis (M1)
+### 2.7 Beyond fine-mapping: a graph-native epistasis preview
 
-Exhaustive pairwise epistasis on an M-variant region tests M(M−1)/2 pairs —
-intractable at chromosome scale. M1 uses the LD graph as a structural
-filter: among M candidate variants, it retains a maximal r² < τ independent
-set S_τ of size k(τ)·M and tests only pairs within S_τ. Theorem 1
-(supplement) proves the search space is reduced by ≈ 1/k(τ)².
-
-**Empirical result (Figure 5a).** On 1000 Genomes chromosome 22 common
-variants (M = 102,467), k(0.5) ≈ 0.003, yielding **a 42,000× search-space
-reduction** (10.5 × 10⁹ exhaustive pairs → 250 × 10³ LD-pruned pairs) with
-zero loss of ground-truth interaction detection. On five pure-interaction
-S1 scenarios (β_interaction = 1.5, no marginal effects, h² = 0.30), M1
-places the ground-truth pair at rank #1 in 10/10 tested interactions,
-matching PLINK's targeted interaction test (mean p = 1.3 × 10⁻⁸⁰). The
-difference is that M1 **discovers** which pair to test; PLINK only
-**confirms** a pair already specified (Figure 5c). At 10.5 billion pairs,
-exhaustive discovery is infeasible.
+The same graph substrate extends naturally to higher-order genetic
+architecture. As a brief preview of forthcoming work, **LD-pruned
+co-occurrence (M1)** reformulates pairwise epistasis discovery as a
+search over a maximal r² < τ independent set S_τ of the LD graph,
+testing only pairs within S_τ. Theorem 1 (supplement S1) proves the
+search space shrinks to ≈ 1/k(τ)² of the exhaustive M(M − 1)/2 pairs.
+On 1000 Genomes chromosome 22 common variants (M = 102,467) at τ = 0.5,
+k(τ) ≈ 0.003 yields a **42,000× search-space reduction**
+(5.2 × 10⁹ exhaustive pairs → ≈ 31 K candidate pairs) with no loss of
+ground-truth interaction detection; on five pure-interaction
+simulations (β_I = 1.5, h² = 0.30) M1 places the ground-truth pair at
+rank #1 in 5/5 replicates at p ≈ 10⁻⁶⁵ (Supplementary Fig. S1,
+`results/benchmark_v2/epistasis_benchmark.tsv`). A full epistasis
+benchmarking programme — extended scenario coverage (marginal +
+interaction, weak interaction, multi-pair, k ≥ 3), null FPR, classical
+baselines (BOOST, MDR), power curves, and yeast real-data discovery —
+is the subject of a companion manuscript in preparation.
 
 ### 2.8 Comparison to annotation-informed SuSiE (Polyfun-style)
 
@@ -351,15 +352,18 @@ on the causal variant increases monotonically with N: **0.54 → 0.58 →
 causal variant at rank 1 and the mean PIP exceeds 0.77. The trend
 extrapolates linearly beyond the training regime and supports the
 claim that HBP's graph-native prior remains well-behaved at biobank
-scale. Full data in Figure 8 and `results/benchmark_v2/power_vs_N/`.
+scale. Full data in Figure 7 and `results/benchmark_v2/power_vs_N/`.
 
 ### 2.10 Cross-ancestry generalisation
 
-**Figure 9** summarises this experiment. A method that only works on European
-LD is a liability — LD patterns differ
-substantially across populations and many causal variants are ancestry-
-private. To test HBP's behaviour across ancestries, we restricted the 1000
-Genomes chromosome 22 BGEN to the three largest superpopulations
+A method that only works on European LD is a liability — LD patterns
+differ substantially across populations and many causal variants are
+ancestry-private. We test HBP's behaviour across ancestries in two
+complementary settings: a controlled simulation on 1000 Genomes
+subsamples (this section), and a real-data demonstration on Pan-UKB
+summary statistics (§2.10b; **in preparation**). **Figure 8** summarises
+the 1KG-simulation experiment. We restricted the 1000 Genomes
+chromosome 22 BGEN to the three largest superpopulations
 (EUR n = 503, AFR n = 661, EAS n = 504), simulated F1 loci with h² = 0.05
 within each ancestry (30 replicates), and ran HBP fine-mapping on the
 ancestry-specific genotypes.
@@ -387,6 +391,60 @@ paper's wider methodological claim holds: GraphGWAS' graph-native prior is
 ancestry-agnostic. A production deployment would use ancestry-matched LD
 and ancestry-specific annotation priors; HBP's architecture accepts these
 as direct input.
+
+### 2.10b Real-data cross-ancestry fine-mapping on Pan-UKB *(preliminary)*
+
+To move from simulated cross-ancestry to biobank-scale real data, we
+extend §2.10 with a fine-mapping application on **Pan-UK Biobank**
+summary statistics (Karczewski et al. 2024), which releases GWAS
+results for ~7,200 phenotypes across six ancestries together with
+per-ancestry in-sample bias-adjusted LD BlockMatrices (47.6 TB total,
+fully public on Amazon S3, no authentication required). GraphGWAS
+consumes Pan-UKB sumstats via a new `graphgwas.panukb` module that
+streams per-locus slices through `tabix` over HTTPS (~3 s per locus,
+no Hail required) and via new sumstats-only entry paths
+`l1_finemap_from_sumstats` / `hbp_finemap_from_sumstats` in
+`finemapping_v2`.
+
+We applied HBP sumstats-only fine-mapping to four canonical multi-
+ancestry loci (FTO for BMI, APOA5 for triglycerides, LDLR for LDL-C,
+HMGA2 for height) across the four ancestries with Pan-UKB N > 2,500
+(EUR N = 420 531, CSA = 8 876, AFR = 6 636, EAS = 2 709). Pan-UKB
+variant coordinates (GRCh37) were lifted to GRCh38 to align with our
+1000 Genomes high-coverage BGEN panel; ancestry-matched 1KG subsets
+provided the LD reference (pending full Pan-UKB in-sample LD
+integration, §4.10). Per-locus sumstats × LD intersection retained
+298 – 1 242 variants per cell (mean 753).
+
+**Results (Supplementary Fig. S2).** On the three largest-signal
+EUR cells (BMI, LDL, height) HBP resolves a **single-variant 95%
+credible set at PIP = 1.000**. The Height/HMGA2 signal is
+cross-ancestry robust: CSA resolves to a single variant at PIP = 1.000
+(N = 8 876) and EAS to a single variant at PIP = 0.97 (N = 2 709) —
+a real-data replication of the §2.9 power-vs-N trend on a 145×
+smaller sample than EUR. Triglycerides/APOA5 shows a two-ancestry
+convergence: EUR and CSA both top-rank the same variant
+(11:116767975:A:AAAT) with PIP = 0.51 and 0.73 respectively. In
+smaller-N × weaker-locus combinations (AFR and EAS for BMI and LDL)
+credible sets expand to ~600 – 1 000 variants as statistically
+expected. The full 16-cell scoreboard, per-variant PIPs, and the
+supplementary figure are regeneratable by
+`python tests/benchmark_panukb_finemap.py --all` followed by
+`python tests/generate_panukb_figure.py`; raw outputs in
+`results/panukb/`.
+
+**Caveats.** This is a preliminary real-data demonstration of the
+sumstats-only pipeline. Two refinements are deferred to the UKB-
+application companion paper: (i) replacing 1KG-matched LD with
+Pan-UKB in-sample LD BlockMatrices (the Hail + hadoop-aws Spark
+configuration required for reading 47.6 TB of S3-hosted LD is
+environment-specific and out of scope for the main methods paper),
+and (ii) layering the multi-omics functional prior on top of the
+statistical signal, which we expect to narrow the AFR/EAS
+credible sets further. Full protocol in
+`docs/PANUKB_INTEGRATION_PLAN.md`; the simulated 1KG analysis above
+is retained as a controlled methodological benchmark alongside the
+real-data extension.
 
 ### 2.11 Cross-species generalisation: *Arabidopsis thaliana* flowering time
 
@@ -423,7 +481,7 @@ provided in `docs/ARABIDOPSIS_VALIDATION_REPORT.md`.
 
 ### 2.12 Method portfolio and selection guide
 
-Different scientific questions call for different methods (**Figure 7**):
+Different scientific questions call for different methods (**Figure 6**):
 
 | Scenario                                      | Recommended | Reason                            |
 |-----------------------------------------------|-------------|-----------------------------------|
@@ -502,58 +560,237 @@ requires dataset access (§ 4.6).
 
 ---
 
-## 4. Methods (≈1500 words; to be expanded)
+## 4. Methods
 
-### 4.1 Graph database schema
+### 4.1 Graph database schema and data loading
 
-Nodes: Variant, Sample, Gene, Pathway, GOTerm, RegulatoryElement,
-Population, GWASStudy, AssociationResult. Edges: HAS_CONSEQUENCE, eQTL,
-INTERACTS_WITH, IN_PATHWAY, HAS_GO_TERM, IN_REGULATORY, IN_POPULATION,
-FOR_VARIANT, IN_STUDY, NEXT. Variant genotypes stored as 2-bit packed
-bytes (gt_packed) on the Variant node. Indexes on (chr, pos), variantId,
-gene symbol, gene geneId, pathway name, and AssociationResult (run_id,
-phenotype_key, p_value).
+GraphGWAS is built on Neo4j 5.26 Community Edition. The schema is
+organised around nine node labels — Variant, Sample, Gene, Pathway,
+GOTerm, RegulatoryElement, Population, GWASStudy, AssociationResult —
+and ten edge types. `Variant` nodes carry `(variantId, chr, pos, ref,
+alt, af_total, qual, gt_packed)`, where `gt_packed` is a 2-bit encoded
+dosage array over all samples (00 = hom-ref, 01 = het, 10 = hom-alt,
+11 = missing); for biobank-scale deployments `gt_packed` is omitted and
+genotypes are served from BGEN (§4.2). `Gene` nodes use GENCODE v47
+identifiers; `Pathway` and `GOTerm` nodes carry name and source; `RegulatoryElement`
+nodes follow ENCODE cCRE v4. `AssociationResult` nodes carry
+`(run_id, phenotype_key, method, beta, se, p_value, p_value_log10,
+n_cases, n_controls, maf, timestamp)`.
 
-### 4.2 HBP algorithm
+Edge types are `HAS_CONSEQUENCE` (variant → gene, with VEP consequence),
+`eQTL` (variant → gene with tissue, slope, p_value from GTEx v8),
+`INTERACTS_WITH` (gene ↔ gene with STRING combined_score),
+`IN_PATHWAY` (gene → pathway), `HAS_GO_TERM` (gene → GO term),
+`IN_REGULATORY` (variant → regulatoryElement), `IN_POPULATION`
+(sample → population), `FOR_VARIANT` (associationResult → variant),
+`IN_STUDY` (associationResult → study), and `NEXT` (variant → variant,
+ordered by chromosomal position). Indexes are maintained on
+(chr, pos) and variantId for Variant, symbol and geneId for Gene,
+name for Pathway, and the composite (run_id, phenotype_key, p_value)
+for AssociationResult.
 
-See Algorithm 1 in supplement. Default hyperparameters: α = 0.6,
-λ = 0.5, T = 5 rounds. Convergence proven in Theorem 2.
+All annotation loading is performed by the `graphgwas.annotations`
+CLI from publicly released input files: GENCODE v47 GTF; GTEx v8
+significant eQTL tarball, filtered to the 49 primary tissues;
+STRING v12 `protein.physical.links` at combined_score ≥ 700; and
+the ENCODE cCRE v4 registry. Every load writes a provenance record
+into a `LoadManifest` node so that the graph state is auditable.
 
-### 4.3 L1 Bayesian fine-mapping
+### 4.2 Hybrid BGEN + graph + Pan-UKB data access
 
-Starts from LD-deconvolved evidence u_i = z_i − avg_{j∈N(i)} r²_{ij} z_j.
-Annotation scores are combined via learned α via empirical Bayes on a
-held-out calibration simulation. PIPs obtained via softmax(u + annot)
-with temperature T learned from the null.
+All genotype-dependent methods share a single abstraction, `load_locus_variants`,
+which returns a locus data structure (dosage matrix, variant metadata,
+sample ordering) from either (a) Neo4j — unpacking `gt_packed` for every
+variant in the requested (chr, start, end) window — or (b) a BGEN v1.2
+file. BGEN access uses the `bgen` Python package directly and avoids the
+`.bgi` index by pre-loading a sorted position array once per chromosome
+and binary-searching locus windows. Allele frequencies computed from BGEN
+dosages agree with `Variant.af_total` in Neo4j to < 10⁻⁴ across 2,364
+validation variants spanning 1000 Genomes chromosome 22. Conversion from
+VCF uses `plink2 --export bgen-1.2 bits=8 --ref-first`. UK Biobank `.bgen`
+files are consumed by the same function without code change; in that
+deployment Neo4j stores only summary statistics, annotations, and
+fine-mapping output.
 
-### 4.4 M1 epistasis
+For **summary-statistics-only** workloads (§2.10b) the
+`graphgwas.panukb` module streams per-locus slices of Pan-UK Biobank
+sumstats via `tabix` over HTTPS against the public S3 bucket
+`pan-ukb-us-east-1`; no authentication or bulk download is required
+(~2.3 GB per-phenotype files accessed as ~50 kB – 1 MB tabix slices
+per locus, ~3 s each). Sumstats (GRCh37) are lifted to GRCh38 via
+`pyliftover` to align with our GENCODE v47 / GTEx v8 annotation
+graph. The LD reference defaults to an ancestry-matched slice of
+the local 1000 Genomes BGEN; Pan-UKB in-sample LD BlockMatrices
+(Hail format, 47.6 TB across six ancestries) are supported via
+`panukb.fetch_ld_slice()` when a Hail context with hadoop-aws S3
+access is configured.
 
-LD pruning to maximal r² < 0.5 independent set. Within the pruned set,
-enumerate pairs with co-carrier count ≥ 5 and physical distance > 100 kb.
-For each, fit Y ~ G₁ + G₂ + G₁·G₂ + covariates and test the interaction
-term via Wald. Multiple testing: Benjamini-Hochberg at 5% FDR.
+### 4.3 Single-locus association
 
-### 4.5 Simulation protocols
+Per-variant marginal effects are computed by ordinary least squares on
+mean-imputed dosages. Covariates (sex, ten genomic-PCA principal
+components, and optional population indicators) are residualised from
+both the phenotype y and each G_i before regression. The test statistic
+is z_i = β̂_i / ŝ_i with β̂_i = (G_iᵀy − nḠ_iȳ) / (G_iᵀG_i − nḠ_i²) and
+ŝ_i² = (yᵀy − β̂_i · (G_iᵀy − nḠ_iȳ)) / [(n−2)(G_iᵀG_i − nḠ_i²)];
+p-values derive from the χ²_1 upper tail. Population-structure
+confounding is corrected by GRAMMAR+: a GRM built from AF > 5% variants
+is used to estimate heritability by REML, y is residualised against
+GRM · (ĥ² / (1 − ĥ²)), and per-variant statistics are re-calibrated by
+√λ_GC. Across 35 yeast traits this controls λ_GC from a mean of 1.62
+(range 0.85–5.04) before correction to 0.98 (range 0.90–1.02) after.
 
-**F1 single-causal-in-LD.** Random 50 kb windows on chromosome 22, one
-causal variant drawn from AF ∈ [0.05, 0.5], heritability held fixed via
-var(G·β)/var(Y) = h², 30–100 replicates per scenario.
+### 4.4 L1 Bayesian fine-mapping
 
-**S1 pure interaction.** Two causal variants placed > 1 Mb apart,
-β_interaction = 1.5, no marginal effects, h² = 0.30.
+For each locus window (±25 kb around the lead by default; capped at
+500 kb) L1 computes z-scores and the LD matrix R from Pearson
+correlations of mean-imputed dosages, then forms the LD-deconvolved
+evidence u_i = z_i − (1/|N(i)|) Σ_{j ∈ N(i)} r²_{ij} z_j, where
+N(i) = {j ≠ i : r²_{ij} > τ_L} with τ_L = 0.3 by default. Negative u_i
+are clipped to zero and the vector is rescaled so max_i u_i = max_i z_i,
+preserving the statistical scale.
 
-**F1-eQTL.** Causal variants drawn from GTEx v8 significant eQTLs with
-tissue specificity (1–2 tissues, −log₁₀ p > 15). This selects variants
-that the annotation prior can usefully weight.
+Functional priors are assembled in a single batched Cypher query that
+returns, per variant, (i) gene overlap via HAS_CONSEQUENCE, (ii)
+pathway membership, (iii) PPI partner count from INTERACTS_WITH at
+combined_score ≥ 700, (iv) tissue-specific eQTL strength from GTEx v8,
+and (v) conservation score. Layer weights — 1.0 per gene, 0.5 per
+pathway, 0.3 per PPI partner capped at 3.0, 2.0 × eqtl_score, and
+1.5 × max(conservation − 0.5, 0) — are summed and passed through
+log1p to yield z_func, which is rescaled to match z's dynamic range.
 
-### 4.6 Hybrid BGEN pipeline
+The combined score is s_i = α · u_i + (1 − α) · z_func_i with α = 0.5
+by default, and PIPs are π_i = exp(s_i − max_j s_j) / Σ_j exp(s_j − max_j s_j).
+The 95% credible set is the minimal variant set whose PIPs sum to 0.95.
+For the weak-signal regime (§2.3), α is chosen by empirical Bayes on a
+held-out F1 calibration set to maximise the marginal likelihood of the
+observed z under the mixture of statistical and graph priors — tracking
+annotation informativeness locus-by-locus. Theorem 3 (supplement S1)
+shows that under linear LD decay and bounded cross-LD between
+non-causal variants, u_c > u_i for all i ≠ c; i.e. L1 ranks the causal
+variant first.
 
-1000 Genomes Phase 3 chromosome 22 VCF converted to BGEN v1.2 (8-bit)
-via PLINK2. Per-locus reads use the `bgen` Python package with binary
-search over a pre-loaded position array; no .bgi index required. AF
-computed from dosage agrees with Neo4j `Variant.af_total` to < 1 × 10⁻⁴
-across 2,364 validation variants. The same pipeline applies to
-UKB .bgen files with no code change.
+### 4.5 Hierarchical belief propagation (HBP)
+
+HBP performs message passing on a three-layer factor graph with
+variant, gene, and pathway nodes. The upward pass computes gene
+scores g = B_vgᵀ b from the current variant belief b, with B_vg
+binary on HAS_CONSEQUENCE edges (optionally weighted by log1p of the
+eQTL composite score); g is then diffused one step along the STRING
+PPI graph via g ← 0.7 · g + 0.3 · W_gg g, where W_gg is the row-
+normalised PPI adjacency at combined_score ≥ 700. Pathway scores are
+p = B_gpᵀ g with B_gp binary on IN_PATHWAY edges. The downward pass
+computes π ∝ B_vg B_gp p and L_1-normalises onto the simplex. The
+variant belief is then combined as b^{(t+1)} = α · softmax(u) + (1 − α) · π^{(t)},
+where u is the LD-deconvolved statistic from §4.4, and damped by
+b^{(t+1)} ← λ b^{(t)} + (1 − λ) b^{(t+1)} before renormalisation.
+Defaults are α = 0.6, λ = 0.5, T = 5 rounds.
+
+`fast_hbp_finemap` materialises B_vg, B_gp, and W_gg as dense numpy
+arrays once per locus from a pre-loaded graph cache; the inner loop
+is five matrix–vector products, giving a median runtime of 0.08 s
+per locus on 1KG chr22 and 0.02 s on smaller windows. Theorem 2
+(supplement S1) shows that the HBP update is a strict ℓ_1 contraction
+with rate L = λ + (1 − λ)(1 − α) · ρ(B_vg B_gp B_gpᵀ B_vgᵀ) < 1
+whenever λ > 0, so by Banach's fixed-point theorem HBP converges
+geometrically to a unique self-consistent fixed point.
+
+### 4.6 LD-pruned co-occurrence epistasis (M1)
+
+Given M candidate variants in a region, M1 first constructs a maximal
+independent set S_τ on the LD graph G_τ = {(i, j) : r²_{ij} ≥ τ},
+with τ = 0.5 by default. The greedy constructor sorts variants by
+MAF descending and admits a variant to S_τ iff it has r² < τ to every
+already-admitted member. Candidate pairs are enumerated within S_τ
+subject to (i) physical distance |pos_i − pos_j| > 100 kb, so pairs
+cannot trivially reflect a single haplotype block, and (ii) co-carrier
+count ≥ 5, which controls rare-variant noise. For each admitted pair
+M1 fits Y = α + β_1 G_1 + β_2 G_2 + β_I (G_1 · G_2) + Xγ, with X the
+same covariates as §4.3, and tests H_0 : β_I = 0 by a Wald statistic
+on β_I against χ²_1. Multiple testing across the pruned pair set is
+controlled by Benjamini–Hochberg at 5% FDR. On 1KG chr22 common
+variants (M = 102,467, τ = 0.5) the greedy pruner yields |S_τ| ≈ 250,
+and after distance and co-carrier filters ≈ 31 K pairs remain —
+a 42,000× reduction against the exhaustive 5.2 × 10⁹ pairs
+(Theorem 1, supplement S1). The BGEN backend
+`ld_pruned_cooccurrence_from_data` accepts a pre-loaded dosage matrix
+and is the default for UKB-scale windows.
+
+### 4.7 Baseline methods
+
+SuSiE is run through R `susieR` v0.14.2 via `susie_suff_stat` with
+L = 10 single effects and `estimate_residual_variance = TRUE`, taking
+the same R and z inputs as L1 and HBP. FINEMAP v1.4.2 is invoked as a
+subprocess with precomputed `.z` and `.ld` files and flags
+`--sss --n-causal-snps 5 --n-iter 100000`; per-variant PIPs are parsed
+from the `.snp` output. SuSiE-inf and FINEMAP-inf use the canonical
+FinucaneLab Python implementations (`susieinf` v1.4, `finemapinf` v1.3)
+with default infinitesimal-variance hyperparameters. The Polyfun-proxy
+sets per-variant prior weights to w_i = log(1 + n_eqtl_edges_i) divided
+by the locus sum, passed to susieR as `prior_weights`. SBayesRC v0.2.6
+was compiled with CXX17 and `BOOST_ALLOW_DEPRECATED_HEADERS` in
+`src/Makevars`, using the published EUR HapMap3 LD reference
+(3 GB, 1,154,522 SNPs) and Baseline 2.2 annotations (1.9 GB, 96
+categories); MCMC was run for 500 iterations (250 burn-in). All six
+baselines are wrapped in a common Python interface that consumes the
+same locus data structure as L1 and HBP and returns the same PIP
+vector and credible-set object.
+
+### 4.8 Simulation protocols
+
+All simulations are driven by `graphgwas.simulate`. Phenotypes are
+generated as y = Gβ + ε, with ε ∼ N(0, σ²I) scaled so that
+var(Gβ)/var(y) equals the target h². Each replicate logs its seed,
+causal-variant identity, and sampled window.
+
+- **F1 (single causal in LD).** Random 50 kb windows on chromosome
+  22, causal variant drawn uniformly from variants with AF ∈ [0.05, 0.50],
+  h² ∈ {0.02, 0.05, 0.10, 0.20}, 30–200 replicates per cell.
+- **S1 (pure interaction).** Two causal variants placed > 1 Mb apart
+  so that r² ≈ 0 by construction, β_1 = β_2 = 0, β_I = 1.5, h² = 0.30.
+- **F1-eQTL (weak signal, annotation-informative).** Causal variants
+  restricted to GTEx v8 significant eQTLs with tissue-specificity
+  −log₁₀ p > 15 in at most two tissues; β = 0.15, h² = 0.01; 79
+  replicates provide the §2.3 headline.
+- **100-rep weak-signal replication.** 30 rotating centres across
+  chr22 17–46 Mb, β = 0.2, h² = 0.02.
+- **Null.** β = 0 everywhere, Gaussian phenotype, 100 replicates on
+  random 50 kb yeast windows.
+- **Cross-ancestry.** 1KG restricted separately to EUR (n = 503),
+  AFR (n = 661), and EAS (n = 504) superpopulations; F1 protocol,
+  h² = 0.05, 30 replicates per ancestry.
+- **Power-vs-N.** 1KG subsampled at N ∈ {500, 1000, 2000, 3000},
+  F1 with h² = 0.10, 30 replicates per N.
+- **Cross-species.** Real phenotypes on *Arabidopsis* 1001 Genomes
+  FT10 (1,003 accessions) and yeast 1011 Genomes 35 growth traits
+  (971 strains after matching) — no simulation.
+
+### 4.9 Evaluation and hardware
+
+For each replicate we record the rank of the causal variant by PIP,
+the PIP value, the 95% credible-set size, and wall-clock runtime.
+Summary statistics are rank-#1 rate, mean rank, mean PIP, head-to-head
+win counts (ties broken by rank), and the sign-test p-value on
+asymmetric head-to-head outcomes. PIP calibration is reported as
+observed TDR in eight bins of width 0.125 across the pooled 200-rep
+× 4-h² design. Null FPR is the fraction of replicates with max PIP
+> 0.5. All runtimes were measured on a single workstation — Intel
+Core i9-13900K (24 cores), 64 GB DDR5, Ubuntu 24.04, Python 3.13,
+Neo4j heap 16 GB / page cache 16 GB — and report median wall-clock
+per locus excluding graph-bootstrap and LD-reference load.
+
+### 4.10 Software and reproducibility
+
+GraphGWAS source is released under the MIT licence at
+github.com/jfmao/GraphGWAS. Python dependencies are numpy, scipy,
+pandas, bgen 1.9.9, bgen-reader 4.0.9, neo4j 6.1, susieinf 1.4, and
+finemapinf 1.3; R dependencies are susieR 0.14.2 and SBayesRC 0.2.6;
+external binaries are plink2 v2.0.0-a.6.5LM, FINEMAP v1.4.2,
+bcftools 1.19, tabix, and GCTB 2.5. Benchmark JSONs, figure
+scripts, and Neo4j dumps (yeast 0.5 GB; human with multi-omics
+17 GB) are archived alongside the code. Every figure and table in
+this paper is regeneratable from scratch by a single command
+documented in `docs/REPRODUCIBILITY.md`.
 
 ---
 
@@ -570,20 +807,32 @@ UKB .bgen files with no code change.
 
 ## Figures
 
-| # | Title | Source |
-|---|-------|--------|
+### Main figures
+
+| # | Title | Source file |
+|---|-------|-------------|
 | 1 | GraphGWAS 5-layer architecture + 1KG schema | `fig1_architecture.{png,pdf}` |
 | 2 | HBP 3-layer factor-graph schematic + algorithm | `fig2_hbp_schematic.{png,pdf}` |
 | 3 | HBP vs SuSiE / FINEMAP benchmark (4 panels) | `fig3_hbp_vs_susie_finemap.{png,pdf}` |
 | 4 | PIP calibration + null FPR (4 panels) | `fig4_calibration_null_fpr.{png,pdf}` |
-| 5 | M1 epistasis search-space reduction (4 panels) | `fig5_m1_epistasis.{png,pdf}` |
-| 6 | Weak-signal headline: L1 wins 27–2 (4 panels) | `fig6_weak_signal_headline.{png,pdf}` |
-| 7 | Method selection decision tree | `fig7_method_selection.{png,pdf}` |
-| 8 | Power vs sample size N (4 panels) | `fig8_power_vs_sample_size.{png,pdf}` |
-| 9 | Cross-ancestry rank-#1 + PIP (4 panels) | `fig9_cross_ancestry.{png,pdf}` |
+| 5 | Weak-signal headline: L1 wins 27–2 (4 panels) | `fig6_weak_signal_headline.{png,pdf}` |
+| 6 | Method selection decision tree | `fig7_method_selection.{png,pdf}` |
+| 7 | Power vs sample size N (4 panels) | `fig8_power_vs_sample_size.{png,pdf}` |
+| 8 | Cross-ancestry rank-#1 + PIP (4 panels) | `fig9_cross_ancestry.{png,pdf}` |
+
+### Supplementary figures
+
+| # | Title | Source file |
+|---|-------|-------------|
+| S1 | M1 LD-pruned epistasis preview (4 panels) | `fig5_m1_epistasis.{png,pdf}` |
+| S2 | Pan-UKB cross-ancestry fine-mapping (4 panels × 4 loci × 4 ancestries) | `figS2_panukb_cross_ancestry.{png,pdf}` |
 
 All figures regenerable from `tests/generate_paper_figures.py` reading the
-benchmark JSONs in `results/benchmark_v2/`.
+benchmark JSONs in `results/benchmark_v2/`. Main-figure numbering in this
+paper (1–8) differs from the source-file prefix (`fig1`…`fig9`) because
+the former `fig5_m1_epistasis` was demoted to Supplementary Fig. S1 while
+file names were preserved; `tests/generate_paper_figures.py` still
+produces all nine files unchanged.
 
 ## Tables
 

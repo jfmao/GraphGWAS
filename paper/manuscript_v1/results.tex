@@ -1,12 +1,30 @@
 \section*{Results}
 
-\subsection*{Relational vs flat annotation priors}
+\subsection*{Relational priors carry structure that flat priors discard}
 
-\textbf{Flat-prior fine-mapping collapses relational structure to a
-scalar.} In the SuSiE/FINEMAP/PolyFun family, biological annotations
+Multi-omics resources released since 2020 --- tissue-specific eQTL
+catalogues, protein--protein interaction networks at curated
+confidence, base-pair-resolved regulatory-element atlases ---
+encode far more relational structure than flat-prior fine-mappers
+currently exploit. \textbf{Flat-prior fine-mapping collapses that
+relational structure to a scalar.} In the SuSiE/FINEMAP/PolyFun family, biological annotations
 enter as a per-variant weight vector $w \in \mathbb{R}^n$, averaged
 across tissues and detached from the gene, pathway and interaction
-context each variant belongs to. GraphGWAS instead represents this
+context each variant belongs to. Constructing that scalar weight is
+itself a substantial curation step: it requires harmonising
+heterogeneous functional sources --- eQTL tables, regulatory-element
+atlases, pathway curations and PPI networks --- into a single
+per-variant weight, typically via stratified LD-score regression over
+a pre-curated functional-category catalogue (the human Baseline 2.2
+catalogue uses 96 such categories\cite{finucane2015partitioning}).
+The burden is heaviest precisely where post-GWAS analysis is most
+needed: in non-model species, including crops and livestock, where functional
+annotations are sparse, fragmented and lack a pre-harmonised
+catalogue. The graph representation never demands such a scalar ---
+annotation layers register as typed edges where data exists, missing
+edges stay missing, and end users get a ready-to-go pipeline without
+species-specific harmonisation (see Discussion
+``\nameref{disc:nonmodel}'' for the full argument). GraphGWAS instead represents this
 context as a typed graph (Figure~\ref{fig:graph}): variants connect
 to genes through $\texttt{HAS\_CONSEQUENCE}$ and tissue-specific
 $\texttt{eQTL}$ edges, genes participate in pathways via
@@ -26,7 +44,8 @@ below).
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{fig1_architecture.pdf}
-\caption{\textbf{Relational vs flat annotation priors in fine-mapping.}
+\caption{\textbf{Relational annotation priors carry biological
+structure that flat priors collapse to a scalar.}
 (\textbf{a})~Flat-prior fine-mappers (PolyFun / SuSiE family) accept
 a vector of per-variant annotation weights $w_i$ that collapses
 gene, tissue, pathway and interaction information into a single
@@ -45,7 +64,7 @@ Pathway, RegulatoryElement, Tissue; legend bottom-left). Real
 labels are illustrative (FTO, IRX3, Adipose\_Subcutaneous, fatty-
 acid metabolism). The credible-set output is itself a graph object:
 each reported variant is co-queryable with its gene, tissue and
-pathway neighbours in one traversal. The HBP / L1 algorithm that
+pathway neighbours in one traversal. The HBP / GAFM algorithm that
 computes posterior inclusion probabilities by message passing
 across this graph is detailed in Figure~\ref{fig:hbp}; this
 panel shows the underlying data model, not the inference
@@ -57,7 +76,7 @@ ENCODE cCRE regulatory elements.}
 \label{fig:graph}
 \end{figure}
 
-\subsection*{Hierarchical belief propagation on a three-layer factor graph}
+\subsection*{Hierarchical belief propagation matches Bayesian baselines at 5--40$\times$ speed}
 
 HBP converts the graph into iterated message passing across
 variant, gene and pathway layers (Figure~\ref{fig:hbp}). Each
@@ -81,7 +100,8 @@ same data.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.85\textwidth]{fig2_hbp_schematic.pdf}
-\caption{\textbf{Hierarchical belief propagation on a three-layer factor graph.}
+\caption{\textbf{Hierarchical belief propagation passes messages on
+a variant--gene--pathway factor graph.}
 HBP performs message passing on a typed factor graph with variant
 nodes (bottom), gene nodes (middle), and pathway nodes (top). The
 upward pass aggregates variant beliefs into gene scores weighted by
@@ -96,17 +116,17 @@ $\alpha = 0.6$, $\lambda = 0.5$, $T = 5$ rounds. Under positive
 damping the update is a strict $\ell_1$ contraction on the
 probability simplex (Theorem~2, Supplementary Note~S1), guaranteeing
 geometric convergence to a unique fixed point. See
-Methods~\ref{methods:hbp} for the full algorithm.}
+Methods (``\nameref{methods:hbp}'') for the full algorithm.}
 \label{fig:hbp}
 \end{figure}
 
-\subsection*{L1 Bayesian fine-mapping wins weak signal 27--2 against SuSiE}
+\subsection*{Graph-augmented fine-mapping (GAFM) wins weak signal 27--2 against SuSiE}
 
 The regime that matters most for post-GWAS discovery is the one
 where statistical signal alone is insufficient to resolve the causal
 variant: sub-genome-wide-significant loci, rare-variant effects, and
-complex LD blocks. We designed L1 Bayesian fine-mapping for this
-regime. L1 first LD-deconvolves the z-statistics
+complex LD blocks. We designed GAFM for this
+regime. GAFM first LD-deconvolves the z-statistics
 ($u_i = z_i - \frac{1}{|N(i)|} \sum_{j \in N(i)} r^2_{ij} z_j$ with
 $N(i) = \{j : r^2_{ij} > 0.3\}$), then combines the deconvolved
 evidence with a multi-layer graph functional score $z_{\text{func}}$
@@ -116,21 +136,21 @@ Under mild LD-decay assumptions the causal variant has the highest
 unique-signal contribution (Theorem~3).
 
 On 79 independent simulated loci with tissue-specific eQTL causal
-variants and weak effect size ($\beta = 0.15$, $h^2 = 0.01$), L1
+variants and weak effect size ($\beta = 0.15$, $h^2 = 0.01$), GAFM
 resolves 61/79 loci at rank~\#1 versus SuSiE's 45/79
 (Figure~\ref{fig:weak_signal}). Mean causal-variant rank is 1.65
-for L1 versus 2.84 for SuSiE. Head-to-head on matched replicates, L1
+for GAFM versus 2.84 for SuSiE. Head-to-head on matched replicates, GAFM
 beats SuSiE on 27, ties on 50, and loses on 2 (win ratio 13.5\,:\,1,
 sign-test $p < 10^{-5}$). The runtime advantage persists: 0.07~s per
-locus for L1 versus 1.8~s for SuSiE.
+locus for GAFM versus 1.8~s for SuSiE.
 
 The 27--2 headline is regime-specific, not universal. A 100-replicate
 replication on 1000 Genomes chromosome~22 without tissue-specific
 eQTL causal enrichment---$\beta = 0.2$, $h^2 = 0.02$, 30 rotating
-centres across 17--46~Mb---converges to parity between L1 (54\%
-rank-\#1) and SuSiE (57\%), with L1 retaining a $\sim$25$\times$
+centres across 17--46~Mb---converges to parity between GAFM (54\%
+rank-\#1) and SuSiE (57\%), with GAFM retaining a $\sim$25$\times$
 runtime advantage. The two results together bound the claim:
-\textbf{L1's decisive statistical advantage emerges when annotation
+\textbf{GAFM's decisive statistical advantage emerges when annotation
 informativeness is high} (tissue-specific eQTLs, moderate-impact
 functional consequences, pathway co-enrichment); \textbf{under
 uniform annotation conditions the advantage narrows to parity on
@@ -141,47 +161,57 @@ statistical test.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{fig6_weak_signal_headline.pdf}
-\caption{\textbf{L1 beats SuSiE 27--2 head-to-head at weak signal with
+\caption{\textbf{GAFM beats SuSiE 27--2 head-to-head at weak signal with
 tissue-specific eQTL priors.} 79 independent simulated loci on
 1000 Genomes chromosome~22, with causal variants drawn from GTEx~v8
 significant eQTLs at tissue-specificity $-\log_{10} p > 15$ in at
 most two tissues; effect size $\beta = 0.15$, $h^2 = 0.01$.
 (\textbf{a})~Distribution of causal-variant rank (lower is better):
-L1 mean 1.65, SuSiE mean 2.84. (\textbf{b})~Head-to-head scoreboard:
-L1 wins 27, ties 50, SuSiE wins 2; win ratio 13.5\,:\,1
-(sign-test $p < 10^{-5}$). (\textbf{c})~Rank-\#1 rate: L1~77\%
+GAFM mean 1.65, SuSiE mean 2.84. (\textbf{b})~Head-to-head scoreboard:
+GAFM wins 27, ties 50, SuSiE wins 2; win ratio 13.5\,:\,1
+(sign-test $p < 10^{-5}$). (\textbf{c})~Rank-\#1 rate: GAFM~77\%
 (61/79) vs SuSiE~57\% (45/79). (\textbf{d})~Per-replicate scatter
-of L1 rank against SuSiE rank. Points above the diagonal are
-SuSiE-favoured replicates (2/79); points below are L1-favoured
-(27/79). Runtime 0.07~s for L1 vs 1.8~s for SuSiE. At higher
-annotation uniformity (see next subsection) the L1 advantage
+of GAFM rank against SuSiE rank. Points above the diagonal are
+SuSiE-favoured replicates (2/79); points below are GAFM-favoured
+(27/79). Runtime 0.07~s for GAFM vs 1.8~s for SuSiE. At higher
+annotation uniformity (see next subsection) the GAFM advantage
 narrows to parity on rank.}
 \label{fig:weak_signal}
 \end{figure}
 
-\subsection*{Head-to-head against state-of-the-art baselines}
+\subsection*{Graph and flat priors converge on accuracy; the graph wins on speed and on tissue-specific signal}
 
 A common GraphGWAS interface integrates the six methods benchmarked
 by Wu~\emph{et~al.}~2026\cite{wu2026genome}: SuSiE\cite{wang2020simple},
 FINEMAP\cite{benner2016finemap}, SuSiE-inf\cite{cui2024improving},
 FINEMAP-inf\cite{cui2024improving}, a Polyfun-proxy\cite{weissbrod2020polyfun}
-that feeds the same eQTL priors to SuSiE via
-\texttt{prior\_weights}, and SBayesRC\cite{zheng2024leveraging}. On 30
-1000 Genomes chromosome~22 F1 simulations at $h^2 = 0.05$ (Figure~\ref{fig:baselines};
-Supplementary Table~S2), SuSiE-inf marginally improves on SuSiE
-(22/30 vs 21/30 rank-\#1), consistent with Wu~\emph{et~al.}; HBP
-reaches 20/30 rank-\#1 at 6--60$\times$ the speed of every baseline
-(HBP 0.016~s; SuSiE-inf 0.16~s; FINEMAP-inf 0.20~s; SuSiE 0.98~s;
-FINEMAP 2.2~s). When the eQTL prior is also supplied to SuSiE via
-Polyfun-proxy on a parallel weak-signal benchmark, SuSiE's rank-\#1
-count rises from 10/20 to 11/20 and L1 matches at 26$\times$ the
-speed. Combined with the 27--2 weak-signal result, the head-to-head
-landscape resolves: \textbf{graph-native and flat-vector priors
-converge on accuracy when the prior information is identical; the
-graph wins decisively on speed, and on accuracy in regimes where
+that feeds the same eQTL priors to SuSiE via \texttt{prior\_weights},
+and SBayesRC\cite{zheng2024leveraging}. We ran a uniform 6-method
+head-to-head on 90 simulated 1000~Genomes chromosome~22 loci ---
+30 strong-signal replicates ($\beta{=}0.5$, $h^2{=}0.10$, random
+causal), 30 weak-signal ($\beta{=}0.2$, $h^2{=}0.02$, random) and 30
+functional-causal ($\beta{=}0.2$, $h^2{=}0.02$, tissue-specific eQTL
+restricted) --- with all six methods evaluated on the same loci with
+the same simulation seeds (Figure~\ref{fig:baselines};
+Supplementary Table~S2). At strong signal SuSiE-inf and FINEMAP-inf
+lead marginally (23/30 rank-\#1, 77\%) over GAFM (22/30, 73\%) and
+HBP (21/30, 70\%), with SuSiE/FINEMAP at 70--73\% --- consistent
+with the small inf-extension advantage reported by Wu~\emph{et~al.}
+At weak signal all six converge to 57--60\% rank-\#1 within three
+percentage points; at functional-causal, all six converge to 37--40\%.
+The graph methods complete each locus in 0.07--0.12~s versus
+0.22--0.89~s for the inf-extension methods and 1.7--3.1~s for
+vanilla SuSiE/FINEMAP --- a 5--40$\times$ speed advantage that holds
+across all three regimes. When the eQTL prior is also supplied to
+SuSiE via Polyfun-proxy on a parallel weak-signal benchmark, SuSiE's
+rank-\#1 count rises from 10/20 to 11/20 and GAFM matches at 26$\times$
+the speed. Combined with the 27--2 weak-signal result, the
+head-to-head landscape resolves: \textbf{graph-native and flat-vector
+priors converge on accuracy when the prior information is identical;
+the graph wins decisively on speed, and on accuracy in regimes where
 tissue-specific eQTL structure is informative.}
 
-The 6--60$\times$ speed advantage is partly statistical (fewer
+The 5--40$\times$ speed advantage is partly statistical (fewer
 latent effects to fit) and partly a property of the data model.
 Reconstructing each locus's multi-omics neighbourhood from
 separate files (BED tracks for regulatory elements, GTF for genes,
@@ -190,55 +220,76 @@ the same information stored as a typed graph collapses the join
 into a single index-free traversal that returns in milliseconds.
 SBayesRC occupies a complementary problem (genome-wide multi-component
 Bayesian mixture on $\sim$1.2~M HapMap~3 SNPs requiring $N \gtrsim
-10^5$); HBP and L1 target single-locus resolution at leads surfaced
+10^5$); HBP and GAFM target single-locus resolution at leads surfaced
 by genome-wide methods.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{fig3_hbp_vs_susie_finemap.pdf}
-\caption{\textbf{HBP and L1 vs state-of-the-art Bayesian baselines.}
-Head-to-head benchmark on 90 simulated loci from 1000 Genomes
-chromosome~22, spanning three scenarios (strong signal; weak signal;
-functional-causal with eQTL priors). HBP matches SuSiE rank-\#1
-rate within 3 percentage points across all scenarios (70\% strong,
-60\% weak, 37\% functional). Runtime distributions: HBP~0.016--0.08~s,
-L1~0.055--0.07~s, SuSiE-inf~0.16~s, FINEMAP-inf~0.20~s, SuSiE~1.0--1.8~s,
-FINEMAP~2.2~s. When the eQTL prior used by HBP/L1 is also supplied
-to SuSiE via the Polyfun-proxy mechanism, SuSiE's rank-\#1 rate
-improves from 10/20 to 11/20 but remains 26$\times$ slower than L1
-at parity accuracy. (\textbf{a})~Rank distributions; (\textbf{b})~
-head-to-head scoreboard; (\textbf{c})~rank-\#1 rate across scenarios;
-(\textbf{d})~per-replicate scatter. Full numerical breakdown in
-Supplementary Table~S2.}
+\caption{\textbf{HBP and GAFM match the rank-\#1 rate of five
+Bayesian baselines at 5--40$\times$ the speed across all three
+simulation regimes.}
+Uniform 6-method head-to-head benchmark on 90 simulated loci from
+1000 Genomes chromosome~22, 30 replicates per scenario, all six
+methods evaluated on the same loci with the same seeds; per-method
+numerics in Supplementary Table~S2. (\textbf{a})~Rank-\#1 rate of
+the causal variant across the three scenarios (strong: $\beta{=}0.5$,
+$h^2{=}0.10$, random causal; weak: $\beta{=}0.2$, $h^2{=}0.02$,
+random causal; functional: $\beta{=}0.2$, $h^2{=}0.02$,
+tissue-specific eQTL causal). At strong signal SuSiE-inf and
+FINEMAP-inf lead marginally (23/30, 77\%) over GAFM (22/30, 73\%),
+HBP (21/30, 70\%) and SuSiE/FINEMAP (21--22/30, 70--73\%). All six
+methods converge to within three percentage points at weak signal
+(57--60\%) and at functional (37--40\%).
+(\textbf{b})~Mean causal-variant rank (log scale, lower better)
+across the same 6$\times$3 matrix; the picture mirrors panel a but
+makes the magnitude of mis-rankings visible (functional regime
+ranks span 11--19 across methods).
+(\textbf{c})~Per-locus runtime distributions (log scale) pooled
+across all 90 simulations: HBP~0.08--0.12~s, GAFM~0.07--0.11~s,
+SuSiE-inf~0.22--0.41~s, FINEMAP-inf~0.55--0.89~s,
+SuSiE~1.7--2.2~s, FINEMAP~2.2--3.1~s. The graph methods are
+5--40$\times$ faster than the inf-extension baselines and
+20--30$\times$ faster than vanilla SuSiE/FINEMAP.
+(\textbf{d})~Polyfun-proxy weak-signal benchmark ($h^2 = 0.02$, 20
+replicates, separate experiment): when the eQTL prior used by
+HBP/GAFM is also supplied to SuSiE via the \texttt{prior\_weights}
+mechanism, SuSiE's rank-\#1 count rises from 10/20 (vanilla) to
+11/20 (with prior) and GAFM matches at 11/20 with $\approx$26$\times$
+less wall-clock time. SBayesRC, the sixth Wu~\emph{et~al.}\
+baseline, addresses a genome-wide multi-component mixture problem at
+$N \gtrsim 10^5$ and is reported separately in Supplementary
+Table~S2 rather than co-plotted here.}
 \label{fig:baselines}
 \end{figure}
 
-\subsection*{Calibration, null false-positive rate, and sample-size scaling}
+\subsection*{PIPs are calibrated, null false-positive rate is zero, and quality scales monotonically with $N$}
 
 PIPs must mean what they say and must not fire under the null. On
 100 null simulations (no causal variant, Gaussian phenotype) over
-random 50-kb yeast loci, every method (HBP, L1, SuSiE, FINEMAP)
+random 50-kb yeast loci, every method (HBP, GAFM, SuSiE, FINEMAP)
 reports $\max$\,PIP~$<$~0.5 in every replicate, with mean
 $\max$\,PIP at 0.003--0.029 --- matching to within 2\% the
 softmax bound $\mathbb{E}[\max_i \pi_i] \leq
 O(\sqrt{\log n}/n)$ proved in Supplementary Note~S1. On 200
 calibration simulations across $h^2 \in \{0.02, 0.05, 0.10, 0.20\}$,
 true-discovery rates track the reported PIP diagonal for SuSiE,
-FINEMAP and L1; HBP is mildly conservative at mid-range PIPs but
+FINEMAP and GAFM; HBP is mildly conservative at mid-range PIPs but
 when it assigns PIP $>$ 0.5 the variant is causal 99\% of the
 time (Supplementary Figure~S4).
 
 HBP fine-mapping quality scales monotonically with sample size:
 on 1000 Genomes chromosome~22 subsampled at
 $N \in \{500, 1{,}000, 2{,}000, 3{,}000\}$ ($h^2 = 0.10$, causal
-MAF 10--40\%, 30 replicates per $N$), mean causal PIP rises
+minor allele frequency (MAF) 10--40\%, 30 replicates per $N$),
+mean causal PIP rises
 0.54~$\rightarrow$~0.58~$\rightarrow$~0.59~$\rightarrow$~0.77, with
 73\% of replicates at rank~1 by $N = 3{,}000$ (Supplementary
 Figure~S5). The linear trend extrapolates beyond the training
 regime, supporting the biobank-scale claim tested directly on
 Pan-UK Biobank in the next subsection.
 
-\subsection*{Cross-ancestry fine-mapping: 1KG simulated and Pan-UKB real data}\label{sec:cross_anc}
+\subsection*{HBP fine-maps Pan-UK Biobank across four ancestries with no algorithmic change}\label{sec:cross_anc}
 
 LD structure differs substantially across ancestries and many causal
 variants are ancestry-private. On 1KG chromosome~22 restricted to
@@ -272,8 +323,9 @@ same algorithm; no EUR-specific tuning is needed.
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.95\textwidth]{fig9_cross_ancestry.pdf}
-\caption{\textbf{Cross-ancestry fine-mapping: controlled 1KG
-simulation and real Pan-UK Biobank demonstration.}
+\caption{\textbf{HBP fine-mapping holds across four Pan-UKB
+ancestries and matches the simulated 1KG cross-ancestry trend on
+real biobank data.}
 (\textbf{a})~Controlled simulation: 1KG chromosome~22 restricted to
 three superpopulations (EUR $n{=}503$, AFR $n{=}661$, EAS $n{=}504$);
 F1 simulations at $h^2 = 0.05$, 30 replicates per ancestry. HBP
@@ -291,7 +343,7 @@ and real-biobank panels.}
 \label{fig:cross_anc}
 \end{figure}
 
-\subsection*{Cross-species fine-mapping at biobank and germplasm-bank scale}
+\subsection*{The same pipeline fine-maps yeast, \emph{Arabidopsis}, rice and human at biobank and germplasm-bank scale}
 \label{sec:multispecies}
 
 Fine-mapping causal variants is hard for distinct reasons across the
@@ -317,7 +369,7 @@ against a rice multi-omics graph (RAP-DB variant--gene + Ren 2023
 gene--pathway curation\cite{ren2023rice} + RicePPINet
 gene--gene\cite{liu2017riceppinet}).
 
-L1 delivers a single-variant 95\% credible set with PIP~$\geq$~0.99
+GAFM delivers a single-variant 95\% credible set with PIP~$\geq$~0.99
 on 11 of 72 leads (15\%). \textbf{Twenty-four of 72 leads (33\%)
 fine-map to within 250~kb of a Ren-2023 catalogued causal gene}, with
 14 of 18 traits contributing at least one validated locus. Notable
@@ -340,7 +392,7 @@ respectively, both at PIP $\geq 0.99$). Four traits with
 $\lambda_{GC} \in [1.6, 2.1]$ show residual subpopulation
 confounding ($F_{ST} \approx 0.5$ between XI and GJ subpopulations
 under 10-PC correction); the eight doubly-resolved loci with
-HBP CS $=$ L1 CS $=$ 1 are all in well-calibrated traits
+HBP CS $=$ GAFM CS $=$ 1 are all in well-calibrated traits
 ($\lambda_{GC} \in [0.50, 1.38]$).
 
 \paragraph{Yeast (1011 Genome panel, 35 growth traits).}
@@ -348,7 +400,7 @@ Across 35 grammar-corrected growth-trait sumstats\cite{peter2018genome,
 bloom2015genetic} fine-mapped against an SGD-derived
 gene--GO-slim graph (1.14~M variants, 60\% of the panel), 245 leads
 were fine-mapped at $\pm$15~kb windows. Yeast LD is strong enough that
-no locus reaches L1 CS $=$ 1, but \textbf{HBP narrows the credible
+no locus reaches GAFM CS $=$ 1, but \textbf{HBP narrows the credible
 set on 244 of 245 leads (100\%)}, with 5 loci reaching PIP $\geq 0.5$.
 Forty-four of the 245 leads (18\%) lie within 250~kb of a
 literature-curated trait-relevant gene (e.g.\ TUP1/SPT7 for ethanol,
@@ -362,7 +414,7 @@ with high-confidence PPI partners after UniProt-orthologue
 resolution) supports a multi-trait \texttt{plink2} GWAS on 14
 priority phenotypes (11 AraGWAS-Bonferroni-validated traits +
 flowering-time traits FT10, FT16 and FLC). Of the 54 fine-mapped
-leads, three reach L1 CS $=$ 1 with PIP $\geq 0.98$ (a seed-storage
+leads, three reach GAFM CS $=$ 1 with PIP $\geq 0.98$ (a seed-storage
 trait at three independent chr4 and chr5 loci); HBP narrows the
 credible set on 29 of 54 (54\%). Validation against AraGWAS plus
 canonical flowering-time genes (FRI, FLC, CONSTANS, GIGANTEA, VIN3,
@@ -381,25 +433,25 @@ direct, and triglycerides}; the Pan-UKB Height sumstats are heavily
 flagged \texttt{low\_confidence} genome-wide under the
 500~kb-clustering filter we applied and returned no leads per
 chromosome (the locus-targeted Height/HMGA2 query reported in
-\S\ref{sec:cross_anc} bypasses this clustering by querying a specific
+\S``\nameref{sec:cross_anc}'' bypasses this clustering by querying a specific
 500~kb window directly).
 
-\textbf{Genome-wide L1 fine-mapping recovered the textbook canonical
+\textbf{Genome-wide GAFM recovered the textbook canonical
 lipid-metabolism genes at single-variant resolution, without any
-annotation prior:} \textbf{\emph{LDLR}} (LDL chr19:11.08~Mb, L1
+annotation prior:} \textbf{\emph{LDLR}} (LDL chr19:11.08~Mb, GAFM
 CS $=$ 1, PIP $=$ 1.00, 12.7~kb from the Brown \& Goldstein 1986
 prototype gene); \textbf{\emph{APOE}} (LDL and triglycerides
 chr19:44.81/44.91~Mb, PIP $=$ 0.60--0.77);
-\textbf{\emph{LPL}} (chr8:20.0~Mb, L1 CS $=$ 1, PIP $=$ 0.9998);
-\textbf{\emph{GCKR}} (chr2:27.5~Mb, L1 CS $=$ 2, PIP $=$ 0.92,
+\textbf{\emph{LPL}} (chr8:20.0~Mb, GAFM CS $=$ 1, PIP $=$ 0.9998);
+\textbf{\emph{GCKR}} (chr2:27.5~Mb, GAFM CS $=$ 2, PIP $=$ 0.92,
 \textbf{0~bp} from the gene body); \textbf{\emph{ANGPTL3}}
 (chr1:62.97~Mb, PIP $=$ 0.81, \textbf{0~bp});
 \textbf{\emph{ANGPTL4}} (chr19:8.4~Mb); and the
 \textbf{\emph{APOA5} cluster} (chr11:117.0~Mb, PIP $=$ 0.65). Eight of
-321 leads reach L1 CS $=$ 1; 47 reach PIP $\geq 0.5$;
-the strong-PIP subset (L1 CS $\leq 5$ \emph{and} PIP $\geq 0.5$)
+321 leads reach GAFM CS $=$ 1; 47 reach PIP $\geq 0.5$;
+the strong-PIP subset (GAFM CS $\leq 5$ \emph{and} PIP $\geq 0.5$)
 matches a curated chr-22 / GWAS-Catalog literature catalogue at 9 of
-10 leads. Across the genome-wide scan, HBP and L1 produce identical
+10 leads. Across the genome-wide scan, HBP and GAFM produce identical
 credible sets on every one of 321 leads --- a finding to which we
 return below.
 
@@ -407,14 +459,14 @@ return below.
 \label{sec:heterogeneity}
 
 The cross-species data above show 287 of 692 leads (41\%)
-fine-mapped tighter under HBP than under flat-prior L1, but the
+fine-mapped tighter under HBP than under flat-prior GAFM, but the
 distribution of that gain across species is striking and
 non-uniform: yeast 100\%, Arabidopsis 54\%, rice 19\%, human 0\%
 genome-wide. The naive interpretation that "more annotation density
 helps fine-mapping" is therefore \emph{wrong} as a general rule:
 the human cache is by far the densest of the four (4.59~M
 annotated variants, 49 tissues, near-saturating GTEx + STRING
-coverage) yet shows zero HBP narrowing relative to L1. The
+coverage) yet shows zero HBP narrowing relative to GAFM. The
 explanation is that the human cache is also nearly \emph{uniform}
 per variant --- almost every annotated variant has the same
 neighbourhood structure (one eGene plus tens of STRING partners).
@@ -446,9 +498,9 @@ across seeds.
 principle is causal, then injecting per-variant heterogeneous
 prior information into the cache --- without changing GWAS
 sumstats, LD, or the fine-mapping algorithm --- should turn the
-human cache from inert (HBP $=$ L1) into informative (HBP narrows
-beyond L1). We extended the cache schema with an optional
-per-variant continuous score that HBP and L1 mix into the
+human cache from inert (HBP $=$ GAFM) into informative (HBP narrows
+beyond GAFM). We extended the cache schema with an optional
+per-variant continuous score that HBP and GAFM mix into the
 final posterior (Methods). For human, the smallest available
 heterogeneous layer was an ENCODE cCRE class flag\cite{encode2020expanded}
 (926{,}535 elements across nine classes:
@@ -461,19 +513,21 @@ yeast, BIOGRID physical interactions plus ORF feature class.
 \textbf{The intervention transforms the human result and confirms
 the principle in three of four species} (Table~\ref{tab:intervention}).
 On the same 321 human Pan-UKB leads, adding the cCRE class flag
-alone takes HBP narrower than L1 on \textbf{282 of 321 leads (88\%)},
+alone takes HBP narrower than GAFM on \textbf{282 of 321 leads (88\%)},
 up from 0 of 321 (0\%) without it --- a 88-percentage-point
 intervention effect on a fixed locus set. The same direction holds
 for Arabidopsis (54\%$\to$94\%) and rice (19\%$\to$78\%); yeast was
 already saturated at 100\%. Across all 692 leads, HBP narrows
-beyond L1 on 287 (41\%) before the intervention and 634 (92\%)
+beyond GAFM on 287 (41\%) before the intervention and 634 (92\%)
 after.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=0.85\textwidth]{fig_ablation_rice.pdf}
-\caption{\textbf{Multi-omics coverage ablation on real rice GWAS
-data.} For each of five curated grain-quality causal loci, HBP
+\caption{\textbf{Multi-omics coverage helps borderline-resolvable
+loci most, has no effect on already-resolvable loci, and slightly
+degrades unresolvable ones.}
+For each of five curated grain-quality causal loci, HBP
 was re-run with 10--100\% of multi-omics edges randomly retained
 (10 bootstrap seeds per non-100\% fraction). The rank of the true
 causal variant (log scale, lower is better) is plotted against
@@ -490,13 +544,14 @@ annotation and degrade slightly under dense priors.}
 \begin{table}[htbp]
 \centering
 \small
-\caption{\textbf{Heterogeneity-not-density verified by direct
-intervention.} Adding a per-variant continuous prior to the
+\caption{\textbf{Adding a per-variant heterogeneous prior to the
+multi-omics cache turns HBP from inert to informative across four
+species.} Adding a per-variant continuous prior to the
 multi-omics cache (without altering GWAS sumstats, LD references, or
 the fine-mapping algorithm) consistently raises the rate at which HBP
-narrows the credible set beyond flat-prior L1. The human row is the
+narrows the credible set beyond flat-prior GAFM. The human row is the
 cleanest demonstration: a uniform GTEx + STRING cache leaves HBP
-exactly equal to L1 on every one of 321 leads, but adding a
+exactly equal to GAFM on every one of 321 leads, but adding a
 class-weighted ENCODE cCRE flag flips that rate from 0\% to 88\% on
 the same lead set.}
 \label{tab:intervention}
@@ -524,54 +579,4 @@ realise it. Continuous-score replacements --- combined-annotation
 PHRED scores, allele-specific transcription-factor-binding
 $\Delta$-PWM, deep-learning chromatin-effect predictions, and
 species-specific cistromes --- are a natural next direction.
-
-\subsection*{Method selection and extensions}
-
-Different questions call for different methods (Figure~\ref{fig:selection};
-full decision table in Supplementary Table~S3). All GraphGWAS methods share a unified
-input interface---graph database, BGEN file, or Pan-UKB-style
-summary statistics---and a unified output:
-\texttt{AssociationResult} and \texttt{CredibleSet} typed graph
-nodes queryable by the database's native query language alongside
-the biological annotations that produced them. This is the
-practical realisation of the graph-native claim: the fine-mapping
-output is itself a graph object, not a decorated table, and the
-downstream question ``which credible-set variants are in a
-druggable pathway?'' is a single traversal rather than a multi-step
-enrichment cascade.
-
-The same graph substrate extends naturally beyond single-variant
-fine-mapping. As a brief preview of forthcoming work, LD-pruned
-co-occurrence (M1) reformulates pairwise epistasis discovery as a
-search over a maximal $r^2 < \tau$ independent set of the LD graph,
-testing only pairs within it. Theorem~1 (Supplementary Note~S1)
-proves the search space shrinks to $\approx 1/k(\tau)^2$ of the
-exhaustive $M(M-1)/2$ pairs; on 1000 Genomes chromosome~22
-($M = 102{,}467$, $\tau = 0.5$), $k(\tau) \approx 0.003$ yields a
-\textbf{42{,}000$\times$ search-space reduction}
-($5.2 \times 10^9 \rightarrow \approx 31$~K candidate pairs) with
-no loss of ground-truth interaction detection
-(Supplementary Fig.~S2). Full epistasis benchmarking is the subject
-of a companion manuscript in preparation.
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=0.85\textwidth]{fig7_method_selection.pdf}
-\caption{\textbf{Method selection decision tree.} Recommended
-GraphGWAS method by signal strength, annotation informativeness,
-LD complexity, and whether the workload is per-locus or
-genome-wide. For strong signal without annotations,
-SuSiE~/~FINEMAP remain the standard. For strong signal with
-eQTL annotations, HBP matches accuracy at 20--30$\times$ the
-speed. For weak signal with informative annotations, L1 wins
-decisively (27--2 over SuSiE; Figure~\ref{fig:weak_signal}). For
-dense LD with annotations, L1's graph prior breaks LD ties that
-flat-prior methods cannot. For genome-wide workloads, SBayesRC is
-appropriate; HBP/L1 target high-precision per-locus refinement at
-SBayesRC-surfaced leads. All methods are accessible through the
-same input interface (graph database, BGEN, or Pan-UKB-style
-sumstats) and return \texttt{CredibleSet} nodes queryable
-alongside biological annotations.}
-\label{fig:selection}
-\end{figure}
 

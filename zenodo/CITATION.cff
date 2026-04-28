@@ -1,0 +1,73 @@
+cff-version: 1.2.0
+message: "If you use GraphGWAS, please cite both the software and the accompanying paper."
+title: "GraphGWAS: relational fine-mapping of causal GWAS variants on a multi-omics knowledge graph"
+abstract: >
+  GraphGWAS is a graph-native fine-mapping platform. Annotations register
+  as typed edges on a labelled-property graph database; fine-mapping is
+  computed by message passing (HBP) or annotation-adaptive Bayesian
+  scoring (GAFM) over the variant--gene--pathway factor graph rather
+  than as regression with flattened scalar weights. This Zenodo deposit
+  contains the source-code release, pre-built graph-database dumps,
+  benchmark JSON outputs, multi-omics graph caches, IRRI 3kRG
+  summary statistics, cross-species lead lists, Pan-UK Biobank
+  per-locus fine-mapping outputs, simulation seeds, and figure source
+  data accompanying the manuscript.
+type: software
+version: "0.1.0"
+date-released: "2026-04-27"
+license: MIT
+repository-code: "https://github.com/jfmao/GraphGWAS"
+keywords:
+  - fine-mapping
+  - GWAS
+  - graph database
+  - Pan-UKB
+  - cross-ancestry
+  - multi-omics
+  - belief propagation
+  - hierarchical belief propagation
+  - GAFM
+  - LPCE
+  - cross-species
+authors:
+  - family-names: Estaji
+    given-names: Ehsan
+    affiliation: "Umeå Plant Science Centre, Department of Plant Physiology, Umeå University, Sweden"
+    email: ehsan.estaji@umu.se
+  - family-names: Zhao
+    given-names: Shi-Wei
+    affiliation: "Umeå Plant Science Centre, Department of Plant Physiology, Umeå University, Sweden"
+    email: shi-wei.zhao@umu.se
+  - family-names: Chen
+    given-names: Zhao-Yang
+    affiliation: "Umeå Plant Science Centre, Department of Plant Physiology, Umeå University, Sweden"
+    email: zhao-yang.chen@umu.se
+  - family-names: Nie
+    given-names: Shuai
+    affiliation: "Rice Research Institute, Guangdong Academy of Agricultural Sciences, Guangzhou, China"
+    email: nieshuai@gdaas.cn
+  - family-names: Mao
+    given-names: Jian-Feng
+    affiliation: "Umeå Plant Science Centre, Department of Plant Physiology, Umeå University, Sweden"
+    email: jianfeng.mao@umu.se
+preferred-citation:
+  type: article
+  title: "Relational biological structure improves fine-mapping of causal GWAS variants under weak signal"
+  status: in-preparation
+  year: 2026
+  journal: "Nature Genetics"
+  authors:
+    - family-names: Estaji
+      given-names: Ehsan
+    - family-names: Zhao
+      given-names: Shi-Wei
+    - family-names: Chen
+      given-names: Zhao-Yang
+    - family-names: Nie
+      given-names: Shuai
+    - family-names: Mao
+      given-names: Jian-Feng
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.PLACEHOLDER-ASSIGN-ON-UPLOAD"
+    description: "Zenodo deposit (this artifact)"

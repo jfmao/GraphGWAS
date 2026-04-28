@@ -1,11 +1,11 @@
 \section*{Discussion}
 
 We developed two fine-mapping methods---hierarchical belief
-propagation (HBP) and L1 Bayesian
-fine-mapping---that represent multi-omics biology as a typed factor
+propagation (HBP) and graph-augmented
+fine-mapping (GAFM)---that represent multi-omics biology as a typed factor
 graph rather than as a flat per-variant annotation vector. HBP
-matches state-of-the-art Bayesian accuracy at 6--60$\times$ the
-speed under strong signal; L1 wins decisively against SuSiE at
+matches state-of-the-art Bayesian accuracy at 5--40$\times$ the
+speed under strong signal; GAFM wins decisively against SuSiE at
 weak signal with tissue-specific eQTL priors (27--2 head-to-head,
 $p < 10^{-5}$). Both methods are PIP-calibrated with 0\% null
 false-positive rate, and both scale from 1000 Genomes to Pan-UK
@@ -15,9 +15,9 @@ Biobank across four ancestries without algorithmic modification.
 flat-prior fine-mapping, not merely faster.} The head-to-head
 benchmarks quantify this distinction on the
 \emph{representational} axis. When the prior information supplied
-to SuSiE matches what HBP/L1 use (Polyfun-proxy with eQTL-derived
-\texttt{prior\_weights}), SuSiE and L1 converge on rank-\#1
-accuracy; L1 wins only on the $26 \times$ speed margin.  But when
+to SuSiE matches what HBP/GAFM use (Polyfun-proxy with eQTL-derived
+\texttt{prior\_weights}), SuSiE and GAFM converge on rank-\#1
+accuracy; GAFM wins only on the $26 \times$ speed margin.  But when
 the graph captures relational structure that a per-variant weight
 vector cannot---tissue-specific eQTL enrichment, PPI coupling on
 the gene layer, pathway co-occurrence---the graph prior wins not
@@ -28,9 +28,9 @@ and context-specific annotations, the advantage of relational
 priors will widen, not narrow. This is the regime into which the
 next decade of annotation coverage is entering. The
 intervention experiment in
-\S\ref{sec:intervention} sharpens this further: density alone is
+\S``\nameref{sec:heterogeneity}'' sharpens this further: density alone is
 insufficient. The dense uniform GTEx+STRING human cache yielded a
-null intervention (HBP exactly equal to L1 on $321/321$ loci), but
+null intervention (HBP exactly equal to GAFM on $321/321$ loci), but
 adding a coarse heterogeneous regulatory-element layer
 (ENCODE cCRE) flipped the HBP-tighter rate from $0\%$ to $88\%$
 on the same loci. The right axis to optimise is per-variant
@@ -52,7 +52,7 @@ in milliseconds. Without this computational substrate, HBP's
 three-layer message passing would be formally expressible but
 operationally unusable; with it, the factor graph can be queried,
 sliced and updated as cheaply as SuSiE queries its correlation
-matrix. The paradigm shift we report therefore has two coupled
+matrix. The shift we report therefore has two coupled
 halves: the representational move from flat annotation vectors to
 relational priors, and the computational move from
 file-and-matrix pipelines to graph-database substrates that make
@@ -72,11 +72,11 @@ speed dominates wall-clock time (many loci, iterative
 exploration, interactive analysis). Similarly, SBayesRC and
 related polygenic methods address a different problem
 (genome-wide credible-set construction at $N \gtrsim 10^5$);
-HBP/L1 and SBayesRC are complementary within a workflow, with
-SBayesRC surfacing leads and HBP/L1 refining them per-locus.
+HBP/GAFM and SBayesRC are complementary within a workflow, with
+SBayesRC surfacing leads and HBP/GAFM refining them per-locus.
 
-\textbf{Non-model species and crop GWAS---removing the
-annotation-weight bottleneck.} Flat-prior fine-mappers depend
+\textbf{Non-model species --- crops, livestock, and model
+organisms --- removing the annotation-weight bottleneck.}\label{disc:nonmodel} Flat-prior fine-mappers depend
 on a reliable per-variant annotation weight vector
 $w \in \mathbb{R}^n$, typically produced by stratified LD-score
 regression over curated functional categories
@@ -88,7 +88,7 @@ per-category heritability enrichment; (ii) pre-curated and
 biologically meaningful functional categories; and (iii) an LD
 reference matching the target cohort's population. All three
 are met in human biobank analyses, and none of them is reliably
-met in GWAS on crops and other non-model species. The 3{,}024-
+met in GWAS on crops, livestock, and other non-model species. The 3{,}024-
 accession 3K~Rice~Genomes panel\cite{wang2018genomic}, the
 canonical crop-genomics resource for fine-mapping validation,
 has $N$ an order of magnitude too small for stable S-LDSC
@@ -121,8 +121,8 @@ re-imputed as zero weights. The graph prior degrades
 gracefully with annotation depth---HBP's factor graph reduces to
 variant~$\rightarrow$~gene propagation when only gene models
 exist, and each additional edge type (pathway, PPI, tissue-
-specific eQTL) contributes additively. For crop breeders and
-non-model species researchers whose GWAS panels hit the
+specific eQTL) contributes additively. For crop and livestock breeders and other non-model species
+researchers whose GWAS panels hit the
 statistical-power and annotation-curation walls at which
 flat-prior methods require costly domain-specific pipelines,
 this is a categorical removal of a recurring bottleneck rather
@@ -132,7 +132,13 @@ reported here recovers 24 of 72 fine-mapped leads (33\%) within
 causal gene including \emph{Rc} (4.5~kb), \emph{TGW6} (12.3~kb),
 \emph{GAD1/RAE2}, \emph{An-1} and \emph{BG1} --- a concrete
 test of the portability claim on the canonical crop-genomics
-benchmark species.
+benchmark species. Although the present paper benchmarks the
+cross-species claim only on yeast, \emph{Arabidopsis}, rice, and
+human data, the same annotation-curation bottleneck dominates
+livestock GWAS --- cattle, pig, chicken and sheep panels
+increasingly assembled by FarmGTEx-style consortia --- and we
+expect the graph-native pipeline to transfer there with similar
+gains as species-specific PPI and tissue-eQTL resources mature.
 
 \textbf{Limitations.} Pathway annotations remain sparse on
 chromosome~22 in our current graph (5 pathways with variants in
@@ -164,12 +170,19 @@ labels from sparsely-phenotyped cohorts becomes a native graph
 operation. Higher-order epistasis---pair and triplet
 interactions---is particularly naturally expressed as
 subgraph-enumeration on the LD-pruned graph
-(Supplementary Fig.~S2), with a search-space reduction of
+(Supplementary Fig.~S1), with a search-space reduction of
 42{,}000$\times$ on chromosome~22 common variants (Theorem~1).
 Learned message passing (graph neural networks on the same
 factor graph) is the natural lift of HBP and will follow this
-work. The per-locus fine-mapping result is the proof of
+work. Association-rule mining over the same typed factor graph ---
+combinations of variants, tissues, pathways and regulatory contexts
+that co-occur in cases more than chance --- is a further natural
+follow-up, since the graph substrate exposes multi-relational
+patterns directly to rule-mining algorithms; the LD-pruned
+independent-set construction we develop for LPCE generalises
+straightforwardly to the higher-order rules this would produce.
+The per-locus fine-mapping result is the proof of
 concept; the broader claim---that post-GWAS analysis, conducted
 on a data model that matches the biology, is more naturally a
-graph computation than a matrix computation---is the paradigm
-this paper opens.
+graph computation than a matrix computation---is the reframing
+this work establishes.

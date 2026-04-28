@@ -7,7 +7,7 @@ Figures (per docs/PAPER_DRAFT_OUTLINE.md):
   3. HBP vs SuSiE/FINEMAP benchmark (4 panels)
   4. PIP calibration + null FPR (4 panels)
   5. M1 epistasis search reduction (4 panels)
-  6. Weak-signal headline: L1 wins 27-2 (4 panels)
+  6. Weak-signal headline: GAFM wins 27-2 (4 panels)
 
 Usage: python tests/generate_paper_figures.py
 """
@@ -32,6 +32,9 @@ C = dict(
     l1="#2ca02c",
     susie="#d62728",
     finemap="#9467bd",
+    susie_inf="#ff7f0e",
+    finemap_inf="#8c564b",
+    polyfun="#e377c2",
     muted="#7f7f7f",
     win="#2ca02c",
     loss="#d62728",
@@ -65,88 +68,102 @@ def save(fig, name):
 # ===================================================================
 
 def figure_3():
-    print("Figure 3 — HBP vs SuSiE/FINEMAP")
+    print("Figure 3 — HBP vs five Bayesian baselines + Polyfun-proxy")
     data = json.loads((ROOT / "hbp_h2h" / "hbp_h2h_50rep.json").read_text())
-    scenarios = ["strong", "weak", "functional"]
-    methods = [("hbp", "HBP", C["hbp"]), ("l1", "L1", C["l1"]),
-               ("fm", "FINEMAP", C["finemap"]), ("su", "SuSiE", C["susie"])]
+    inf_h2h = json.loads((ROOT / "inf_methods" / "inf_methods_h2h.json").read_text())
+    poly = json.loads((ROOT / "polyfun_proxy" / "polyfun_proxy.json").read_text())
 
-    fig, axes = plt.subplots(2, 2, figsize=(10, 7.5))
+    scenarios = ["strong", "weak", "functional"]
+    # Six methods now uniformly available across all three scenarios.
+    # The first four come from data (hbp_h2h_50rep.json, fields hbp_/l1_/fm_/su_*),
+    # the last two from inf_h2h (inf_methods_h2h.json, fields susie_inf_/finemap_inf_*).
+    methods6 = [
+        ("hbp",         "HBP",         C["hbp"],         data),
+        ("l1",          "GAFM",        C["l1"],          data),
+        ("susie_inf",   "SuSiE-inf",   C["susie_inf"],   inf_h2h),
+        ("finemap_inf", "FINEMAP-inf", C["finemap_inf"], inf_h2h),
+        ("su",          "SuSiE",       C["susie"],       data),
+        ("fm",          "FINEMAP",     C["finemap"],     data),
+    ]
+
+    fig, axes = plt.subplots(2, 2, figsize=(12, 8.5))
     ax_a, ax_b, ax_c, ax_d = axes.flatten()
 
-    # Panel A: rank-1 rate
+    # ---- Panel A: rank-1 rate across 3 scenarios, all 6 methods uniformly
     x = np.arange(len(scenarios))
-    width = 0.2
-    for i, (k, label, color) in enumerate(methods):
+    width = 0.135
+    for i, (k, label, color, src) in enumerate(methods6):
         rates = []
         for scen in scenarios:
-            reps = data[scen]
+            reps = src[scen]
             n1 = sum(1 for r in reps if r.get(f"{k}_rank") == 1)
-            rates.append(100 * n1 / len(reps))
-        ax_a.bar(x + i * width - 1.5 * width, rates, width, label=label, color=color)
+            rates.append(100 * n1 / len(reps) if reps else 0)
+        ax_a.bar(x + (i - 2.5) * width, rates, width, label=label, color=color)
     ax_a.set_xticks(x)
     ax_a.set_xticklabels([s.capitalize() for s in scenarios])
-    ax_a.set_ylabel("Rank-1 rate (%)")
-    ax_a.set_title("a  Rank-#1 rate per scenario")
-    ax_a.legend(ncol=4, loc="upper right", fontsize=8)
+    ax_a.set_ylabel("Rank-#1 rate (%)")
+    ax_a.set_title("a  Rank-#1 rate across scenarios (six methods)")
+    ax_a.legend(ncol=6, loc="upper center", bbox_to_anchor=(0.5, 1.0),
+                fontsize=7.5, columnspacing=0.8)
     ax_a.set_ylim(0, 100)
 
-    # Panel B: mean rank
-    for i, (k, label, color) in enumerate(methods):
+    # ---- Panel B: mean causal-variant rank (lower=better), 6 methods × 3 scenarios
+    for i, (k, label, color, src) in enumerate(methods6):
         means = []
         for scen in scenarios:
-            reps = data[scen]
-            rs = [r[f"{k}_rank"] for r in reps if r.get(f"{k}_rank") is not None]
-            means.append(np.mean(rs) if rs else 0)
-        ax_b.bar(x + i * width - 1.5 * width, means, width, label=label, color=color)
+            reps = src[scen]
+            ranks = [r[f"{k}_rank"] for r in reps if r.get(f"{k}_rank") not in (None, -1)]
+            means.append(np.mean(ranks) if ranks else 0)
+        ax_b.bar(x + (i - 2.5) * width, means, width, label=label, color=color)
     ax_b.set_xticks(x)
     ax_b.set_xticklabels([s.capitalize() for s in scenarios])
     ax_b.set_ylabel("Mean causal rank (lower = better)")
-    ax_b.set_title("b  Mean rank per scenario")
+    ax_b.set_title("b  Mean causal-variant rank across scenarios")
+    ax_b.set_yscale("log")
+    ax_b.set_ylim(0.9, None)
 
-    # Panel C: runtime (log scale)
-    runtimes = {k: [] for k, _, _ in methods}
-    for scen in scenarios:
-        for r in data[scen]:
-            for k, _, _ in methods:
+    # ---- Panel C: per-locus runtime, all 6 methods (log scale)
+    runtimes = {label: [] for _, label, _, _ in methods6}
+    for k, label, color, src in methods6:
+        for scen in scenarios:
+            for r in src[scen]:
                 t = r.get(f"{k}_time")
                 if t is not None:
-                    runtimes[k].append(t)
-    box_data = [runtimes[k] for k, _, _ in methods]
-    bp = ax_c.boxplot(box_data, labels=[m[1] for m in methods], patch_artist=True,
-                      showfliers=False)
-    for patch, (_, _, color) in zip(bp["boxes"], methods):
-        patch.set_facecolor(color)
+                    runtimes[label].append(t)
+    runtime_order = ["HBP", "GAFM", "SuSiE-inf", "FINEMAP-inf", "SuSiE", "FINEMAP"]
+    runtime_colors = {"HBP": C["hbp"], "GAFM": C["l1"], "SuSiE": C["susie"],
+                      "FINEMAP": C["finemap"], "SuSiE-inf": C["susie_inf"],
+                      "FINEMAP-inf": C["finemap_inf"]}
+    box_data = [runtimes[k] for k in runtime_order]
+    bp = ax_c.boxplot(box_data, labels=runtime_order, patch_artist=True, showfliers=False)
+    for patch, k in zip(bp["boxes"], runtime_order):
+        patch.set_facecolor(runtime_colors[k])
         patch.set_alpha(0.7)
     ax_c.set_yscale("log")
-    ax_c.set_ylabel("Runtime per locus (s)")
-    ax_c.set_title("c  Per-locus runtime (log)")
+    ax_c.set_ylabel("Runtime per locus (s, log)")
+    ax_c.set_title("c  Per-locus runtime, six methods")
+    ax_c.tick_params(axis="x", rotation=30)
+    for tick in ax_c.get_xticklabels():
+        tick.set_horizontalalignment("right")
 
-    # Panel D: head-to-head HBP vs SuSiE
-    h2h = {scen: {"hbp_wins": 0, "ties": 0, "su_wins": 0} for scen in scenarios}
-    for scen in scenarios:
-        for r in data[scen]:
-            h, s = r.get("hbp_rank"), r.get("su_rank")
-            if h is None or s is None:
-                continue
-            if h < s:
-                h2h[scen]["hbp_wins"] += 1
-            elif h > s:
-                h2h[scen]["su_wins"] += 1
-            else:
-                h2h[scen]["ties"] += 1
-    hbp_w = [h2h[s]["hbp_wins"] for s in scenarios]
-    ties = [h2h[s]["ties"] for s in scenarios]
-    su_w = [h2h[s]["su_wins"] for s in scenarios]
-    ax_d.bar(x, hbp_w, color=C["hbp"], label="HBP wins")
-    ax_d.bar(x, ties, bottom=hbp_w, color=C["tie"], label="Ties")
-    ax_d.bar(x, su_w, bottom=[h + t for h, t in zip(hbp_w, ties)],
-             color=C["susie"], label="SuSiE wins")
-    ax_d.set_xticks(x)
-    ax_d.set_xticklabels([s.capitalize() for s in scenarios])
-    ax_d.set_ylabel("Replicates")
-    ax_d.set_title("d  HBP vs SuSiE head-to-head")
-    ax_d.legend(loc="upper right", fontsize=8)
+    # ---- Panel D: Polyfun-proxy weak-signal comparison + HBP/SuSiE H2H bars
+    psum = poly["summary"]
+    bars_d = [
+        ("GAFM",          psum["l1"]["rank_1"], psum["l1"]["n"], C["l1"]),
+        ("SuSiE+prior", psum["susie_annotated"]["rank_1"], psum["susie_annotated"]["n"], C["polyfun"]),
+        ("SuSiE",       psum["susie_vanilla"]["rank_1"], psum["susie_vanilla"]["n"], C["susie"]),
+    ]
+    rates_d = [100 * b[1] / b[2] for b in bars_d]
+    cols_d = [b[3] for b in bars_d]
+    labs_d = [b[0] for b in bars_d]
+    ax_d.bar(np.arange(len(bars_d)), rates_d, color=cols_d)
+    ax_d.set_xticks(np.arange(len(bars_d)))
+    ax_d.set_xticklabels(labs_d, fontsize=9)
+    ax_d.set_ylabel("Rank-#1 rate (%)")
+    ax_d.set_title(r"d  Weak signal ($h^2{=}0.02$): GAFM vs SuSiE+Polyfun-proxy")
+    ax_d.set_ylim(0, 100)
+    for i, v in enumerate(rates_d):
+        ax_d.text(i, v + 2, f"{bars_d[i][1]}/{bars_d[i][2]}", ha="center", fontsize=8)
 
     save(fig, "fig3_hbp_vs_susie_finemap")
 
@@ -165,10 +182,11 @@ def figure_4():
 
     # Panel A: TDR vs PIP bins
     pip_summary = pip.get("summary", {})
-    methods_pip = [("L1", C["l1"]), ("HBP", C["hbp"]),
-                   ("FINEMAP", C["finemap"]), ("SuSiE", C["susie"])]
-    for method_name, color in methods_pip:
-        bins = pip_summary.get(method_name, [])
+    # Display name (paper-facing) -> JSON key (historical / Python-prefix)
+    methods_pip = [("GAFM", "L1", C["l1"]), ("HBP", "HBP", C["hbp"]),
+                   ("FINEMAP", "FINEMAP", C["finemap"]), ("SuSiE", "SuSiE", C["susie"])]
+    for method_name, json_key, color in methods_pip:
+        bins = pip_summary.get(json_key, [])
         if not bins:
             continue
         # drop the 0.0-0.05 bin (dominated by non-causal variants; uninformative)
@@ -187,7 +205,7 @@ def figure_4():
 
     # Panel B: Null max PIP distribution
     null_results = null.get("results", [])
-    methods_null = [("L1", "l1_max_pip", C["l1"]), ("HBP", "hbp_max_pip", C["hbp"]),
+    methods_null = [("GAFM", "l1_max_pip", C["l1"]), ("HBP", "hbp_max_pip", C["hbp"]),
                     ("FINEMAP", "fm_max_pip", C["finemap"]), ("SuSiE", "su_max_pip", C["susie"])]
     for label, key, color in methods_null:
         vals = [r[key] for r in null_results if r.get(key) is not None]
@@ -205,16 +223,17 @@ def figure_4():
 
     # Panel C: Observed mean max PIP (from summary) vs theoretical bound from Theorem 4
     null_summary = null.get("summary", {})
-    method_keys = [("L1", C["l1"]), ("HBP", C["hbp"]),
-                   ("FINEMAP", C["finemap"]), ("SuSiE", C["susie"])]
-    mean_mx = [null_summary.get(m, {}).get("mean_max_pip", 0) for m, _ in method_keys]
-    p95_mx = [null_summary.get(m, {}).get("p95_max_pip", 0) for m, _ in method_keys]
+    # (display name, JSON key, color)
+    method_keys = [("GAFM", "L1", C["l1"]), ("HBP", "HBP", C["hbp"]),
+                   ("FINEMAP", "FINEMAP", C["finemap"]), ("SuSiE", "SuSiE", C["susie"])]
+    mean_mx = [null_summary.get(jk, {}).get("mean_max_pip", 0) for _, jk, _ in method_keys]
+    p95_mx = [null_summary.get(jk, {}).get("p95_max_pip", 0) for _, jk, _ in method_keys]
     x = np.arange(len(method_keys))
     width = 0.35
     ax_c.bar(x - width/2, mean_mx, width, label="Mean max PIP",
-             color=[c for _, c in method_keys], alpha=0.85)
+             color=[c for _, _, c in method_keys], alpha=0.85)
     ax_c.bar(x + width/2, p95_mx, width, label="P95 max PIP",
-             color=[c for _, c in method_keys], alpha=0.5,
+             color=[c for _, _, c in method_keys], alpha=0.5,
              edgecolor="black", linewidth=0.5)
     ax_c.set_xticks(x)
     ax_c.set_xticklabels([m[0] for m in method_keys])
@@ -230,7 +249,7 @@ def figure_4():
               bbox=dict(boxstyle="round", fc="#eaffef", ec="black", lw=0.5))
 
     # Panel D: CS size under null (as fraction of locus)
-    cs_frac_keys = [("L1", "l1_cs_size", C["l1"]), ("HBP", "hbp_cs_size", C["hbp"]),
+    cs_frac_keys = [("GAFM", "l1_cs_size", C["l1"]), ("HBP", "hbp_cs_size", C["hbp"]),
                     ("FINEMAP", "fm_cs_size", C["finemap"]), ("SuSiE", "su_cs_size", C["susie"])]
     for label, key, color in cs_frac_keys:
         fracs = []
@@ -294,13 +313,17 @@ def figure_5():
         if v is None or v < 0:
             v = 500  # cap missing/no-detection at a large rank
         method_ranks.setdefault(meth, []).append(float(v))
-    ordered = [("M1", C["hbp"]), ("M2", C["l1"]),
-               ("M3", C["finemap"]), ("M4", C["muted"])]
-    labels = [m for m, _ in ordered if m in method_ranks]
-    colors_b = [c for m, c in ordered if m in method_ranks]
-    ranks = [np.mean(method_ranks[m]) for m in labels]
+    # Display labels are plain-English short forms; data keys (M1..M4)
+    # remain the internal taxonomy slot in the JSON.
+    ordered_keys = [("M1", "LPCE",     C["hbp"]),
+                    ("M2", "Motif",    C["l1"]),
+                    ("M3", "DiffSub",  C["finemap"]),
+                    ("M4", "DarkPair", C["muted"])]
+    labels = [disp for k, disp, _ in ordered_keys if k in method_ranks]
+    colors_b = [c for k, _, c in ordered_keys if k in method_ranks]
+    ranks = [np.mean(method_ranks[k]) for k, _, _ in ordered_keys if k in method_ranks]
     if not ranks:
-        labels, ranks, colors_b = (["M1", "M3", "M4"],
+        labels, ranks, colors_b = (["LPCE", "DiffSub", "DarkPair"],
                                    [1.0, 1.0, 290.4],
                                    [C["hbp"], C["l1"], C["finemap"]])
     ax_b.bar(range(len(labels)), ranks, color=colors_b)
@@ -317,7 +340,7 @@ def figure_5():
               weight="bold", transform=ax_c.transAxes)
     table_data = [
         ["Task",               "Test 1 pair", "Discover pair"],
-        ["Tool",               "PLINK2",      "GraphGWAS M1"],
+        ["Tool",               "PLINK2",      "GraphGWAS LPCE"],
         ["Candidate pairs",    "10.5B",       "250K"],
         ["Ground truth rank",  "—",           "#1 (10/10 reps)"],
         ["Interaction p",      "1.3e-80",     "~1e-64"],
@@ -334,7 +357,7 @@ def figure_5():
             cell.set_text_props(weight="bold")
 
     # Panel D: Motif-filtered pair distribution
-    ax_d.set_title("d  Motif-filtered pair outcomes (M2)")
+    ax_d.set_title("d  Motif-filtered pair outcomes")
     labels2 = ["Same pathway", "Same gene", "Other"]
     vals = [628, 120, 92631]  # illustrative from report (628 significant; rest motif-filtered)
     colors2 = [C["l1"], C["hbp"], C["muted"]]
@@ -345,11 +368,11 @@ def figure_5():
 
 
 # ===================================================================
-# Figure 6: Weak-signal headline (L1 wins 27-2)
+# Figure 6: Weak-signal headline (GAFM wins 27-2)
 # ===================================================================
 
 def figure_6():
-    print("Figure 6 — Weak-signal headline (L1 wins 27-2)")
+    print("Figure 6 — Weak-signal headline (GAFM wins 27-2)")
     data = json.loads((OUT / "100rep_l1_vs_susie_weak.json").read_text())
     # Data is a list of {'rep', 'l1_rank', 'su_rank'}
 
@@ -374,14 +397,14 @@ def figure_6():
                              widths=0.6)
     for pc, color in zip(parts["bodies"], [C["l1"], C["susie"]]):
         pc.set_facecolor(color); pc.set_alpha(0.55); pc.set_edgecolor("black")
-    ax_a.set_xticks([1, 2]); ax_a.set_xticklabels(["L1 (graph)", "SuSiE"])
+    ax_a.set_xticks([1, 2]); ax_a.set_xticklabels(["GAFM", "SuSiE"])
     ax_a.set_ylabel("Causal variant rank (lower = better)")
     ax_a.set_title(f"a  Rank distribution (n={n} reps, weak signal)")
     ax_a.set_yscale("log")
     ax_a.axhline(1, color="k", linestyle=":", lw=0.8, alpha=0.5)
 
     # Panel B: Head-to-head
-    labels = ["L1\nwins", "Ties", "SuSiE\nwins"]
+    labels = ["GAFM\nwins", "Ties", "SuSiE\nwins"]
     vals = [wins_l1, ties, wins_su]
     colors = [C["win"], C["tie"], C["loss"]]
     bars = ax_b.bar(labels, vals, color=colors)
@@ -389,10 +412,10 @@ def figure_6():
         ax_b.text(bar.get_x() + bar.get_width() / 2, v + 0.3, str(v),
                   ha="center", fontsize=11, weight="bold")
     ax_b.set_ylabel("Replicates")
-    ax_b.set_title(f"b  Head-to-head: L1 {wins_l1}, SuSiE {wins_su} (ratio {wins_l1/max(1,wins_su):.1f}:1)")
+    ax_b.set_title(f"b  Head-to-head: GAFM {wins_l1}, SuSiE {wins_su} (ratio {wins_l1/max(1,wins_su):.1f}:1)")
 
     # Panel C: Rank-1 rate
-    methods = ["L1 (graph)", "SuSiE"]
+    methods = ["GAFM", "SuSiE"]
     rates = [100 * r1_l1 / n, 100 * r1_su / n]
     colors_c = [C["l1"], C["susie"]]
     bars = ax_c.bar(methods, rates, color=colors_c)
@@ -410,11 +433,11 @@ def figure_6():
     mx = max(max(l1_ranks), max(su_ranks)) * 1.1
     ax_d.plot([1, mx], [1, mx], "k--", lw=0.8, alpha=0.5)
     ax_d.set_xscale("log"); ax_d.set_yscale("log")
-    ax_d.set_xlabel("SuSiE rank"); ax_d.set_ylabel("L1 rank")
-    ax_d.set_title("d  Per-replicate rank (green = L1 wins)")
+    ax_d.set_xlabel("SuSiE rank"); ax_d.set_ylabel("GAFM rank")
+    ax_d.set_title("d  Per-replicate rank (green = GAFM wins)")
     ax_d.set_xlim(0.8, mx); ax_d.set_ylim(0.8, mx)
     # Annotate win count
-    ax_d.text(0.98, 0.98, f"L1 wins: {wins_l1}\nTies: {ties}\nSuSiE: {wins_su}",
+    ax_d.text(0.98, 0.98, f"GAFM wins: {wins_l1}\nTies: {ties}\nSuSiE: {wins_su}",
               transform=ax_d.transAxes, ha="right", va="top",
               fontsize=9, bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="black", lw=0.5))
 
@@ -458,11 +481,11 @@ def figure_7():
     arrow(6.1, 8.1, 3.8, 7.3, "epistasis")
     arrow(7.9, 8.1, 10.2, 7.3, "single variant")
 
-    # Left branch
-    box(3, 5.5, 2.8, 0.9,
-        "M1\nLD-pruned co-occurrence\n42,000× search reduction",
-        color="#aed9a0", fontweight="bold")
-    arrow(3, 6.7, 3, 5.95)
+    # Left branch — LPCE flagged as preview / under development
+    box(3, 5.5, 3.2, 1.05,
+        "LPCE  (preview)\nLD-pruned co-occurrence\n42,000× search reduction\n[under development; full\nbenchmark in paper #2]",
+        color="#fff5d6", edge="#b58900", fontweight="bold")
+    arrow(3, 6.7, 3, 6.0)
 
     # Right branch: signal strength
     box(11, 5.5, 2.8, 0.6, "Strong statistical\nsignal (h² > 0.05)?",
@@ -474,7 +497,7 @@ def figure_7():
     box(8, 3.8, 2.6, 0.6, "eQTL / PPI annotations\navailable?", color="#fef3c7")
     arrow(10.1, 5.2, 8.7, 4.1, "yes (strong)")
 
-    box(6, 2.1, 2.8, 0.9, "HBP or L1\n20–30× faster,\ngraph-native output",
+    box(6, 2.1, 2.8, 0.9, "HBP or GAFM\n20–30× faster,\ngraph-native output",
         color="#aed9a0", fontweight="bold")
     box(8, 2.1, 1.9, 0.7, "SuSiE / FINEMAP",
         color="#e8d4f5")
@@ -486,7 +509,7 @@ def figure_7():
     arrow(11.4, 5.2, 12.0, 4.1, "no (weak)")
 
     box(11, 2.1, 2.8, 0.9,
-        "L1 Bayesian\n27–2 wins over SuSiE\n(13.5:1 at h²=0.01)",
+        "GAFM\n27–2 wins over SuSiE\n(13.5:1 at h²=0.01)",
         color="#6eb86e", fontweight="bold")
     box(13.2, 2.1, 1.5, 0.7, "SuSiE /\nFINEMAP", color="#e8d4f5")
     arrow(11.8, 3.5, 11.2, 2.55, "yes")
@@ -496,6 +519,7 @@ def figure_7():
     ax.text(0.3, 0.5,
             "• Dark green = GraphGWAS's decisive advantage\n"
             "• Light green = GraphGWAS alternative (speed + graph)\n"
+            "• Cream / orange edge = preview, under development\n"
             "• Purple = matrix-based baselines (SuSiE / FINEMAP)\n"
             "• Yellow = decision point",
             fontsize=8.5, ha="left", va="center",
@@ -525,9 +549,9 @@ def figure_1():
     layers = [
         ("Layer 5: AI Agent", "GraphRAG · LangGraph natural-language\nqueries · hypothesis generation", "#f9d7a8", 7.0),
         ("Layer 4: GNN",       "Hetero GNN · PyTorch Geometric\nmessage passing over the biology graph", "#c6e6c6", 5.6),
-        ("Layer 3: Multi-locus", "Epistasis (M1-M4) · Fine-mapping (L1, HBP, L4) · pathway diffusion", "#aed9a0", 4.2),
+        ("Layer 3: Multi-locus", "Epistasis (LPCE + further methods forthcoming) · Fine-mapping (GAFM, HBP, L4) · pathway diffusion", "#aed9a0", 4.2),
         ("Layer 2: Single-locus", "Linear/logistic/Firth regression · GRAMMAR+\nmixed-model calibration", "#b3d9ff", 2.8),
-        ("Layer 1: Data",       "Neo4j graph: variants · samples · genes · pathways\n+ BGEN for biobank genotypes", "#e8e8e8", 1.4),
+        ("Layer 1: Data",       "Graph database: variants · samples · genes · pathways\n+ BGEN for biobank genotypes", "#e8e8e8", 1.4),
     ]
     for title, body, color, y in layers:
         ax_schema.add_patch(FancyBboxPatch((0.4, y - 0.55), 9.2, 1.1,

@@ -32,9 +32,11 @@ p\_value) for AssociationResult.
 
 All annotation loading is performed by the
 \texttt{graphgwas.annotations} CLI from publicly released input
-files: GENCODE~v47 GTF; GTEx~v8 significant eQTL tarball, filtered
-to the 49 primary tissues; STRING~v12 \texttt{protein.physical.links}
-at combined score~$\geq$~700; and the ENCODE cCRE~v4 registry. Every
+files: GENCODE~v47 GTF\cite{frankish2023gencode}; GTEx~v8
+significant eQTL tarball\cite{gtex2020}, filtered to the 49 primary
+tissues; STRING~v12 \texttt{protein.physical.links} at combined
+score~$\geq$~700\cite{szklarczyk2023string}; and the ENCODE cCRE~v4
+registry\cite{encode2020expanded}. Every
 load writes a provenance record into a \texttt{LoadManifest} node
 for auditability.
 
@@ -73,29 +75,64 @@ across six ancestries) are supported via
 
 \subsection*{Single-locus association}
 
-Per-variant marginal effects are computed by ordinary least squares
-on mean-imputed dosages. Covariates (sex, ten genomic-PCA
-principal components, optional population indicators) are
+Three association tools were used across the four species,
+selected by panel size, ploidy and the practical availability of
+established pipelines. \textbf{Yeast (1011 Genome panel, 35 growth
+traits).} Per-variant marginal effects were computed by the
+internal \texttt{graphgwas.assoc} module, which fits ordinary least
+squares on mean-imputed dosages with covariates (sex, ten
+genomic-PCA principal components, optional population indicators)
 residualised from both the phenotype $y$ and each $G_i$ before
 regression. The test statistic is $z_i = \hat\beta_i / \hat s_i$
 with $\hat\beta_i = (G_i^\top y - n \bar G_i \bar y) / (G_i^\top G_i - n \bar G_i^2)$
 and $\hat s_i^2 = (y^\top y - \hat\beta_i (G_i^\top y - n \bar G_i \bar y)) / ((n-2)(G_i^\top G_i - n\bar G_i^2))$;
-p-values derive from the $\chi^2_1$ upper tail. Population-structure confounding is corrected by GRAMMAR+
-(genomic relationship-matrix mixed-model association with
-residual re-calibration)\cite{yang2011gcta}: a genetic
-relatedness matrix (GRM) built from allele frequency $> 5\%$
-variants is used to estimate heritability by restricted maximum
-likelihood (REML), $y$ is residualised against
+p-values derive from the $\chi^2_1$ upper tail. Population-structure
+confounding is corrected by GRAMMAR+ (genomic relationship-matrix
+mixed-model association with residual
+re-calibration)\cite{yang2011gcta}: a genetic relatedness matrix
+(GRM) built from allele frequency $> 5\%$ variants is used to
+estimate heritability by restricted maximum likelihood (REML), $y$
+is residualised against
 GRM~$\cdot (\hat h^2 / (1 - \hat h^2))$, and per-variant statistics
-are re-calibrated by $\sqrt{\lambda_{\text{GC}}}$.
-Across 35 yeast traits this controls $\lambda_{\text{GC}}$ from a
-mean of 1.62 (range 0.85--5.04) before correction to 0.98 (range
-0.90--1.02) after.
+are re-calibrated by $\sqrt{\lambda_{\text{GC}}}$. Across 35 yeast
+traits this controls $\lambda_{\text{GC}}$ from a mean of 1.62
+(range 0.85--5.04) before correction to 0.98 (range 0.90--1.02)
+after, and per-variant $z$-statistics agree with PLINK2 logistic on
+shared variants at $r=1.0000$ over 82{,}000 variants
+(Supplementary Table~S4).
 
-\subsection*{L1 Bayesian fine-mapping}\label{methods:l1}
+\textbf{\emph{Arabidopsis} (1001~Genomes panel, 14 priority
+traits) and rice (3{,}000 Rice Genomes panel, 18 IRRI Standard
+Evaluation System traits).} Whole-genome single-locus association
+was performed with PLINK~2.0 \cite{chang2015second}. The
+\emph{Arabidopsis} pipeline ran
+\texttt{plink2 --vcf 1001G\_chr\{1..5\}.vcf.gz --double-id
+--maf 0.01 --geno 0.05 --hwe 1e-10 --pheno phenotypes.tsv
+--linear hide-covar --covar 10pcs.tsv --out
+ara\_\{trait\}}, restricted to biallelic SNPs after GATK
+hard-filter. The rice pipeline (3{,}024 accessions, 29.6~M
+biallelic SNPs from the 3kRG pseudo-canonical VCF) ran
+\texttt{plink2 --bfile rice\_3krg --maf 0.01 --geno 0.05 --pheno
+irri\_18traits.tsv --linear hide-covar --covar
+rice\_10pcs.tsv --out rice\_\{trait\}} for each of the 18 IRRI
+trait codes. Phenotype files were prepared by the
+\texttt{graphgwas.phenotype} module, which links accession IDs
+across heterogeneous source identifiers (IRGC accession numbers
+to PLINK sample IDs for rice). Genotypic principal components
+were computed with \texttt{plink2 --pca 10}.
+
+\textbf{Human (Pan-UK Biobank).} No GWAS was run by us.
+Pre-computed Pan-UKB summary statistics from the consortium SAIGE
+mixed-model pipeline\cite{karczewski2024pan,bycroft2018uk} were
+consumed via \texttt{tabix}\cite{li2011tabix} over HTTPS and
+lifted from GRCh37 to GRCh38 with
+\texttt{pyliftover} as described in
+``\nameref{methods:panukb}''.
+
+\subsection*{Graph-augmented fine-mapping (GAFM)}\label{methods:l1}
 
 For each locus window ($\pm$25~kb around the lead by default; capped
-at 500~kb) L1 computes z-scores and the LD matrix $R$ from Pearson
+at 500~kb) GAFM computes z-scores and the LD matrix $R$ from Pearson
 correlations of mean-imputed dosages, then forms the LD-deconvolved
 evidence
 $u_i = z_i - \frac{1}{|N(i)|} \sum_{j \in N(i)} r^2_{ij} z_j$,
@@ -122,7 +159,7 @@ likelihood of the observed $z$ under the mixture of statistical and
 graph priors---tracking annotation informativeness locus-by-locus.
 Theorem~3 (Supplementary Note~S1) shows that under linear LD decay
 and bounded cross-LD between non-causal variants, $u_c > u_i$ for
-all $i \ne c$; L1 ranks the causal variant first.
+all $i \ne c$; GAFM ranks the causal variant first.
 
 \subsection*{Hierarchical belief propagation (HBP)}\label{methods:hbp}
 
@@ -154,40 +191,24 @@ $L = \lambda + (1-\lambda)(1-\alpha) \cdot \rho(B_{vg} B_{gp} B_{gp}^\top B_{vg}
 whenever $\lambda > 0$, so by Banach's fixed-point theorem HBP
 converges geometrically to a unique self-consistent fixed point.
 
-\subsection*{LD-pruned co-occurrence epistasis (M1)}
-
-Given $M$ candidate variants in a region, M1 first constructs a
-maximal independent set $S_\tau$ on the LD graph
-$G_\tau = \{(i,j): r^2_{ij} \geq \tau\}$, $\tau = 0.5$ by default.
-The greedy constructor sorts variants by MAF descending and admits
-a variant to $S_\tau$ iff it has $r^2 < \tau$ to every
-already-admitted member. Candidate pairs within $S_\tau$ are
-enumerated subject to (i) physical distance
-$|\text{pos}_i - \text{pos}_j| > 100$~kb and (ii) co-carrier count
-$\geq 5$. For each admitted pair M1 fits
-$Y = \alpha + \beta_1 G_1 + \beta_2 G_2 + \beta_I (G_1 \cdot G_2) + X\gamma$,
-with $X$ the same covariates as above, and tests $H_0: \beta_I = 0$
-by a Wald statistic on $\beta_I$ against $\chi^2_1$. Multiple
-testing uses Benjamini--Hochberg at 5\% false discovery rate (FDR). On 1KG chr22 common
-variants ($M = 102{,}467$, $\tau{=}0.5$) the greedy pruner yields
-$|S_\tau| \approx 250$, and after distance and co-carrier filters
-$\approx$~31~K candidate pairs remain---a 42{,}000$\times$ reduction
-against the exhaustive $5.2 \times 10^9$ pairs (Theorem~1).
-
 \subsection*{Baseline methods}
 
-SuSiE is run through R \texttt{susieR} v0.14.2 via
-\texttt{susie\_suff\_stat} with $L{=}10$ single effects and
+SuSiE\cite{wang2020simple,zou2022fine} is run through R
+\texttt{susieR}~v0.14.2 via \texttt{susie\_suff\_stat} with
+$L{=}10$ single effects and
 \texttt{estimate\_residual\_variance\,=\,TRUE}, on the same $R$ and
-$z$ inputs as L1 and HBP. FINEMAP v1.4.2 is invoked as a subprocess
+$z$ inputs as GAFM and HBP.
+FINEMAP\cite{benner2016finemap}~v1.4.2 is invoked as a subprocess
 with precomputed \texttt{.z} and \texttt{.ld} files and flags
 \texttt{-{-}sss -{-}n-causal-snps 5 -{-}n-iter 100000}; per-variant
 PIPs are parsed from \texttt{.snp} output. SuSiE-inf and FINEMAP-inf
-use the FinucaneLab Python implementations (\texttt{susieinf}~v1.4,
-\texttt{finemapinf}~v1.3) with default infinitesimal-variance
-hyperparameters. The Polyfun-proxy sets per-variant prior weights to
-$w_i = \log(1 + n_{\text{eqtl\_edges},i})$ normalised per locus,
-passed as \texttt{prior\_weights}. SBayesRC~v0.2.6 was compiled with
+use the FinucaneLab Python implementations
+(\texttt{susieinf}~v1.4, \texttt{finemapinf}~v1.3)\cite{cui2024improving}
+with default infinitesimal-variance hyperparameters. The
+Polyfun-proxy\cite{weissbrod2020polyfun} sets per-variant prior
+weights to $w_i = \log(1 + n_{\text{eqtl\_edges},i})$ normalised per
+locus, passed as \texttt{prior\_weights}.
+SBayesRC\cite{zheng2024leveraging}~v0.2.6 was compiled with
 CXX17 and \texttt{BOOST\_ALLOW\_DEPRECATED\_HEADERS} in
 \texttt{src/Makevars}, using the published EUR HapMap~3 LD
 reference (3~GB) and Baseline~2.2 stratified LD score regression
@@ -195,7 +216,7 @@ annotations (1.9~GB)\cite{finucane2015partitioning,buliksullivan2015ld};
 Markov chain Monte Carlo (MCMC) ran for 500 iterations
 (250 burn-in). All six baselines are wrapped in a
 common Python interface that consumes the same locus data structure
-as L1 and HBP.
+as GAFM and HBP.
 
 \subsection*{Simulation protocols}
 
@@ -238,22 +259,30 @@ phenotypes (BMI, height, LDL, triglycerides; sumstats fetched via
 
 The same end-to-end pipeline was applied to all four species, with
 only the loaded annotation graph differing:
-\textbf{rice} --- RAP-DB / MSU gene model from snpEff ANN tags on
-the 3kRG pseudo-canonical VCF + Ren 2023 269-gene grain-quality
-pathway labels + RicePPINet PPI at probability $\geq 0.7$;
-\textbf{yeast} --- SGD ORFs and GO-slim annotations from the SGD
-features catalogue, with BIOGRID 5.0.256 \emph{S. cerevisiae}
-S288c physical interactions (filtered to 263{,}403 high-confidence
-edges across 5{,}813 ORFs);
-\textbf{Arabidopsis} --- TAIR10 gene model from NCBI, Plant
-Reactome\cite{gillespie2022reactome} pathway membership, and
-STRING-\emph{Ath} v12 PPI at score $\geq 700$ resolved through
-UniProt \texttt{ARATH\_3702} idmapping (\texttt{Gene\_OrderedLocusName}
-field) to recover 20{,}192 \emph{Arabidopsis} genes with at least
+\textbf{rice} --- RAP-DB / MSU gene
+model\cite{sakai2013rapdb} from
+snpEff\cite{cingolani2012snpeff} ANN tags on the 3kRG
+pseudo-canonical VCF + Ren 2023\cite{ren2023rice} 269-gene
+grain-quality pathway labels + RicePPINet\cite{liu2017riceppinet}
+PPI at probability $\geq 0.7$;
+\textbf{yeast} --- SGD\cite{engel2014sgd} ORFs and
+GO\cite{ashburner2000go}-slim annotations from the SGD features
+catalogue, with BIOGRID\cite{oughtred2021biogrid} 5.0.256
+\emph{S.~cerevisiae} S288c physical interactions (filtered to
+263{,}403 high-confidence edges across 5{,}813 ORFs);
+\textbf{Arabidopsis} --- TAIR10\cite{berardini2015tair} gene model
+from NCBI, Plant Reactome\cite{gillespie2022reactome} pathway
+membership, and STRING-\emph{Ath} v12\cite{szklarczyk2023string}
+PPI at score $\geq 700$ resolved through
+UniProt\cite{uniprot2023} \texttt{ARATH\_3702} idmapping
+(\texttt{Gene\_OrderedLocusName} field) to recover
+20{,}192 \emph{Arabidopsis} genes with at least
 one high-confidence PPI partner;
-\textbf{human} --- per-chromosome GTEx v8 eQTL across 49 tissues
-(4.59~M annotated variants), STRING v12 \emph{Homo sapiens} PPI at
-score $\geq 700$, and GENCODE v47 ENSG--symbol resolution.
+\textbf{human} --- per-chromosome GTEx v8\cite{gtex2020} eQTL
+across 49 tissues (4.59~M annotated variants), STRING
+v12\cite{szklarczyk2023string} \emph{Homo sapiens} PPI at score
+$\geq 700$, and GENCODE v47\cite{frankish2023gencode} ENSG--symbol
+resolution.
 
 For each species, lead loci were called by greedy clustering of
 genome-wide-significant variants ($p \leq 5\times10^{-8}$) at
@@ -263,9 +292,12 @@ fine-mapped within $\pm$15--500~kb LD windows using the
 species-specific 1KG-equivalent reference panel for LD computation
 (yeast 1011G; \emph{Arabidopsis} 1001G; rice 3kRG;
 1KG NYGC GRCh38 for human). Validation used 250~kb-window overlap
-against literature catalogues: Bloom 2015 + Peter 2018 for yeast,
-AraGWAS Bonferroni hits + canonical flowering-time genes for
-\emph{Arabidopsis}, Ren 2023 for rice, and the GWAS-Catalog plus
+against literature catalogues: Bloom 2015\cite{bloom2015genetic} +
+Peter 2018\cite{peter2018genome} for yeast,
+AraGWAS\cite{togninalli2018aragwas} Bonferroni hits + canonical
+flowering-time genes for \emph{Arabidopsis},
+Ren 2023\cite{ren2023rice} for rice, and the
+GWAS-Catalog\cite{buniello2019nhgri} plus
 lipid-genetics literature for human chromosome 22 (the genome-wide
 human catalogue used here lists 36 loci across BMI, height, LDL
 direct and triglycerides, drawn from GIANT 2018, GLGC 2013, Klarin
@@ -280,7 +312,7 @@ propagation as $\textsf{PIP} = 0.5 \cdot \textsf{PIP}_{\text{BP}} +
 0.5 \cdot \mathrm{softmax}(\alpha \cdot u + (1-\alpha) \cdot
 (z_{\text{func}} + 0.5 \cdot s))$ with $s$ the per-variant
 \texttt{prior\_score} rescaled to z-score range and $u$ the
-LD-deconvolved unique signal. L1 adds the rescaled
+LD-deconvolved unique signal. GAFM adds the rescaled
 \texttt{prior\_score} directly to its $z_{\text{func}}$ mixture
 before LD deconvolution. Caches without
 \texttt{prior\_score} reproduce baseline results bit-for-bit.
@@ -338,14 +370,17 @@ dumps (Neo4j~5.26 format; yeast 0.5~GB, human with multi-omics
 figure and table is regeneratable by a single command documented in
 \texttt{docs/REPRODUCIBILITY.md}.
 
-The fine-mapping methods described in this paper (HBP, L1, CLGF)
-are one method class within the broader GraphGWAS platform.
+The fine-mapping methods rigorously benchmarked in this paper are
+HBP and GAFM; CLGF (cross-locus EM) and L4 (graph-neural-network
+fine-mapping) are implemented in the codebase but not benchmarked
+here. Together they are one method class within the broader
+GraphGWAS platform.
 A full description of the platform---including methods implemented
 for heritability estimation, multivariate and cross-trait analysis,
 polygenic risk scoring, Mendelian randomisation and
 gene--environment interaction, none of which are benchmarked in
 the present paper---together with an honest benchmark-status table
-for each method class, is provided in Supplementary Note~S3. The
+for each method class, is provided in Supplementary Note~S2. The
 44-command CLI hierarchy is visualised as Supplementary
 Figure~S3; a per-command reference manual is shipped at
 \texttt{docs/manual/index.md}, and an end-to-end vignette

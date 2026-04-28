@@ -16,6 +16,7 @@
 \usepackage{siunitx}
 \usepackage{array}
 \usepackage{longtable}
+\usepackage{enumitem}
 
 \graphicspath{{figures/}}
 
@@ -48,7 +49,7 @@
 
 \input{abstract}
 
-\keywords{fine-mapping, GWAS, graph database, Neo4j, Pan-UKB, cross-ancestry, multi-omics, belief propagation}
+\keywords{fine-mapping, GWAS, graph database, Pan-UKB, cross-ancestry, multi-omics, belief propagation}
 
 \maketitle
 
@@ -66,7 +67,7 @@
 \bmhead{Data Availability}
 
 Pan-UK Biobank summary statistics and LD reference matrices (used for
-the cross-ancestry demonstration in Results~\ref{sec:cross_anc}) are
+the cross-ancestry demonstration in Results~``\nameref{sec:cross_anc}'') are
 publicly available from the Pan-UKB project on Amazon S3 at
 \url{s3://pan-ukb-us-east-1/} (no authentication required); see
 \url{https://pan.ukbb.broadinstitute.org} for documentation. The 1000
@@ -93,17 +94,12 @@ SHA-256 manifest---is versioned alongside the source code under
 
 GraphGWAS source code is available at
 \url{https://github.com/jfmao/GraphGWAS} under the MIT licence. The
-repository includes the Python package (\texttt{graphgwas}, 34~modules
-covering import, association, fine-mapping, epistasis, heritability,
-PRS, MR, Pan-UKB integration, and the \texttt{graphgwas} CLI), the
-BGEN~+~graph hybrid reader, the sumstats-only fine-mapping entry
-paths (\texttt{l1\_finemap\_from\_sumstats},
-\texttt{hbp\_finemap\_from\_sumstats}), all benchmark scripts used in
-this paper (\texttt{tests/benchmark\_*.py}), and a single-command
-figure-regeneration pipeline
-(\texttt{tests/generate\_paper\_figures.py}). A reproducibility guide
-at \texttt{docs/REPRODUCIBILITY.md} documents regeneration of every
-figure and table from scratch.
+release accompanying this paper provides the Python package and
+command-line interface, end-to-end fine-mapping for individual-level
+genotypes and for summary statistics (including the Pan-UK Biobank
+streaming entry path), the benchmark scripts that produced every
+figure and table in the paper, and a reproducibility guide that
+regenerates every result from scratch.
 
 \bmhead{Acknowledgements}
 
@@ -126,7 +122,7 @@ head-to-head benchmarking feasible.
 \item \textbf{Competing interests:} The authors declare no competing interests.
 \item \textbf{Ethics approval and consent to participate:} Not applicable. All data used were from pre-existing, publicly released resources (Pan-UKB, 1000 Genomes, 1011 Yeast, \emph{Arabidopsis} 1001) for which participant consent was obtained by the originating consortia.
 \item \textbf{Consent for publication:} Not applicable.
-\item \textbf{Author contributions:} Conceptualization and method design: J.F.M.\ and E.E. Core fine-mapping algorithms (HBP, L1 Bayesian, CLGF) and Python implementation: E.E. LD-pruned epistasis (M1) and hybrid BGEN architecture: E.E.\ and S.W.Z. Pan-UKB integration and sumstats-only entry paths: S.W.Z.\ and E.E. Mathematical proofs (Theorems~1--5): E.E.\ and J.F.M. Multi-omics annotation graph (GENCODE/GTEx/STRING/ENCODE): S.W.Z. Benchmark scripts and calibration: E.E. Cross-species validation (yeast, Arabidopsis): Z.Y.C. Writing---original draft: J.F.M.\ and E.E. Writing---review \& editing: all authors.
+\item \textbf{Author contributions:} Conceptualization and method design: J.F.M.\ and E.E. Core fine-mapping algorithms (HBP, GAFM, CLGF) and Python implementation: E.E. LD-pruned epistasis (LPCE) and hybrid BGEN architecture: E.E.\ and S.W.Z. Pan-UKB integration and sumstats-only entry paths: S.W.Z.\ and E.E. Mathematical proofs (Theorems~1--5): E.E.\ and J.F.M. Multi-omics annotation graph (GENCODE/GTEx/STRING/ENCODE): S.W.Z. Benchmark scripts and calibration: E.E. Cross-species validation (yeast, Arabidopsis): Z.Y.C. Writing---original draft: J.F.M.\ and E.E. Writing---review \& editing: all authors.
 \end{itemize}
 
 %% References inline (Nature Portfolio convention)
@@ -142,48 +138,49 @@ head-to-head benchmarking feasible.
 \subsection*{Main-text Figures}
 \begin{description}
 \setlength{\itemsep}{2pt}
-\item[Figure 1] Relational vs flat annotation priors in fine-mapping (graph schema + counts).
-\item[Figure 2] Hierarchical belief propagation on a three-layer factor graph.
-\item[Figure 3] L1 beats SuSiE 27--2 head-to-head at weak signal with tissue-specific eQTL priors.
-\item[Figure 4] HBP and L1 vs state-of-the-art Bayesian baselines (SuSiE, FINEMAP, SuSiE-inf, FINEMAP-inf, Polyfun-proxy).
-\item[Figure 5] PIP calibration and null false-positive rate.
-\item[Figure 6] HBP fine-mapping quality scales monotonically with sample size.
-\item[Figure 7] Cross-ancestry fine-mapping: controlled 1KG simulation and real Pan-UK Biobank demonstration.
-\item[Figure 8] Multi-omics coverage ablation on real rice GWAS data.
-\item[Figure 9] Method selection decision tree.
+\item[Figure 1] Relational annotation priors carry biological structure that flat priors collapse to a scalar (graph schema + counts).
+\item[Figure 2] Hierarchical belief propagation passes messages on a variant--gene--pathway factor graph.
+\item[Figure 3] GAFM beats SuSiE 27--2 head-to-head at weak signal with tissue-specific eQTL priors.
+\item[Figure 4] HBP and GAFM match the rank-1 rate of five Bayesian baselines (SuSiE, FINEMAP, SuSiE-inf, FINEMAP-inf, Polyfun-proxy) at 5--40$\times$ the speed.
+\item[Figure 5] HBP fine-mapping holds across four Pan-UKB ancestries and matches the simulated 1KG cross-ancestry trend on real biobank data.
+\item[Figure 6] Multi-omics coverage helps borderline-resolvable loci most, has no effect on already-resolvable loci, and slightly degrades unresolvable ones.
 \end{description}
 
 \subsection*{Main-text Tables}
 \begin{description}
 \setlength{\itemsep}{2pt}
-\item[Table 1] IRRI 18-trait whole-genome scan summary ($\lambda_{GC}$, GW-sig leads, single-variant CS counts).
-\item[Table 2] Cross-species fine-mapping summary (rice / yeast / Arabidopsis / human).
-\item[Table 3] Heterogeneity-not-density empirical validation by direct intervention.
+\item[Table 1] Adding a per-variant heterogeneous prior to the multi-omics cache turns HBP from inert to informative across four species.
 \end{description}
 
 \subsection*{Supplementary Figures}
 \begin{description}
 \setlength{\itemsep}{2pt}
-\item[Figure S1] M1 LD-pruned epistasis preview (forthcoming paper~\#2).
+\item[Figure S1] LPCE LD-pruned epistasis --- under-development preview only (full benchmark in a companion manuscript in preparation).
 \item[Figure S2] Pan-UKB cross-ancestry fine-mapping (4 loci $\times$ 4 ancestries, real biobank data; extended panels).
 \item[Figure S3] GraphGWAS CLI command hierarchy (44 commands across 10 domains, tier-coloured by benchmark status).
+\item[Figure S4] PIP calibration and null false-positive rate across $h^2 \in \{0.02, 0.05, 0.10, 0.20\}$.
+\item[Figure S5] HBP fine-mapping quality scales monotonically with sample size on 1000 Genomes chromosome~22.
+\item[Figure S6] Decision tree mapping fine-mapping scenarios to the recommended GraphGWAS method (relocated from main text; lives inside Supplementary Note~S2).
 \end{description}
 
 \subsection*{Supplementary Tables}
 \begin{description}
 \setlength{\itemsep}{2pt}
 \item[Table S1] Multi-omics graph state after loading on 1000 Genomes Phase~3.
-\item[Table S2] Head-to-head benchmark: HBP, L1 and five Bayesian baselines on 1000~Genomes chr22 simulations.
+\item[Table S2] Head-to-head benchmark: HBP, GAFM and five Bayesian baselines on 1000~Genomes chr22 simulations.
 \item[Table S3] Method portfolio: recommended GraphGWAS method by scenario.
 \item[Table S4] GraphGWAS platform benchmark-status table (all method classes).
+\item[Table S5] IRRI 18-trait 3kRG whole-genome scan summary ($\lambda_{GC}$, GW-sig leads, single-variant CS counts).
+\item[Table S6] Cross-species fine-mapping summary (rice / yeast / Arabidopsis / human).
 \end{description}
 
 \subsection*{Supplementary Notes}
 \begin{description}
 \setlength{\itemsep}{2pt}
-\item[Note S1] Mathematical proofs (Theorems 1--5): M1 search-space reduction, HBP Banach contraction, L1 causal-variant ranking, null PIP bound, CLGF EM convergence.
-\item[Note S2] Reproducibility guide: every figure and table regeneratable from a single command.
-\item[Note S3] The GraphGWAS platform: scope beyond fine-mapping, with benchmark-status table disclosing which method classes are rigorously validated in this paper versus implemented but awaiting follow-up manuscripts.
+\item[Note S1] Mathematical proofs (Theorems 1--5): LPCE search-space reduction, HBP Banach contraction, GAFM causal-variant ranking, null PIP bound, CLGF EM convergence.
+\item[Note S2] Implementation and architecture of GraphGWAS: methods, decision tree (Sup Fig S6), benchmark-status disclosure, and platform scope beyond fine-mapping.
+\item[Note S3] Multi-omics coverage ablation on real rice GWAS data (extended methodology and per-locus rank trajectories).
+\item[Note S4] Cross-species ground-truth catalogs and validation criteria (yeast Bloom 2015 + Peter 2018; \emph{Arabidopsis} AraGWAS; rice Ren 2023; human GWAS-Catalog + lipid-genetics canon).
 \end{description}
 
 \clearpage

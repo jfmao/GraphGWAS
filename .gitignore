@@ -51,3 +51,22 @@ backups/
 # Development tool configuration
 CLAUDE.md
 .claude/
+
+# LaTeX build artefacts
+*.aux
+*.log
+*.out
+*.bbl
+*.blg
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+
+# Test / coverage artefacts
+.coverage
+
+# External tabix index files (Pan-UKB downloads etc.; should live outside repo)
+*.tbi
+*.tsv.bgz
+*.tsv.bgz.tbi

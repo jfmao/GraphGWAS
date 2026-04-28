@@ -49,7 +49,7 @@ def table_1_method_portfolio() -> None:
     headers = ["Method", "Type", "Graph-native",
                "Strength", "Runtime", "PIP calibrated", "Implemented"]
     rows = [
-        ["L1 Bayesian", "Fine-mapping", "Yes",
+        ["GAFM", "Fine-mapping", "Yes",
          "Weak signal + annotations", "0.07 s", "Yes (conservative)", "src/python/graphgwas/finemapping_v2.py"],
         ["HBP", "Fine-mapping", "Yes",
          "Multi-omics priors via message passing", "0.08 s", "Yes (caps PIP < 0.7)", "src/python/graphgwas/finemapping_v2.py"],
@@ -58,7 +58,7 @@ def table_1_method_portfolio() -> None:
         ["CLGF", "Fine-mapping", "Yes",
          "Cross-locus pathway sharing (EM)", "Variable",
          "—", "src/python/graphgwas/finemapping_v2.py"],
-        ["M1 co-occurrence", "Epistasis", "Yes",
+        ["LPCE co-occurrence", "Epistasis", "Yes",
          "LD-pruned discovery at 42,000× reduction", "7-10 s / locus",
          "—", "src/python/graphgwas/epistasis_v2.py"],
         ["M2 motif-filtered", "Epistasis", "Yes",
@@ -87,7 +87,7 @@ def table_2_benchmark() -> None:
     headers = ["Scenario", "Method", "Rank-#1 rate",
                "Mean rank", "Mean PIP", "Mean runtime (s)"]
     rows = []
-    methods = [("HBP", "hbp"), ("L1", "l1"),
+    methods = [("HBP", "hbp"), ("GAFM", "l1"),
                ("FINEMAP", "fm"), ("SuSiE", "su")]
     for scen in ["strong", "weak", "functional"]:
         reps = d[scen]
@@ -115,7 +115,7 @@ def table_3_pip_calibration() -> None:
     headers = ["Method", "PIP bin",
                "n variants", "n causal", "TDR", "Expected"]
     rows = []
-    for method in ["L1", "HBP", "FINEMAP", "SuSiE"]:
+    for method in ["GAFM", "HBP", "FINEMAP", "SuSiE"]:
         bins = d["summary"].get(method, [])
         for b in bins:
             if b["bin_lo"] < 0.05:  # skip the empty low-PIP bin
@@ -139,7 +139,7 @@ def table_4_null_fpr() -> None:
                "FPR @ PIP>0.5", "FPR @ PIP>0.9",
                "Mean CS size (variants)", "Mean CS / locus"]
     rows = []
-    for method in ["L1", "HBP", "FINEMAP", "SuSiE"]:
+    for method in ["GAFM", "HBP", "FINEMAP", "SuSiE"]:
         s = d["summary"].get(method, {})
         if not s:
             continue
@@ -170,7 +170,7 @@ def table_5_weak_signal_headline() -> None:
     r1_l1 = sum(1 for v in l1_ranks if v == 1)
     r1_su = sum(1 for v in su_ranks if v == 1)
 
-    headers = ["Metric", "L1 (graph)", "SuSiE", "Advantage"]
+    headers = ["Metric", "GAFM", "SuSiE", "Advantage"]
     rows = [
         ["Replicates (weak signal h²=0.01 + tissue-specific eQTL)",
          n, n, "—"],

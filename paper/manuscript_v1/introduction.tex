@@ -47,6 +47,10 @@ pathways, and stripped of their relational structure. A variant's
 connection to a particular gene in a particular tissue, participating
 in a particular pathway coupled via protein--protein interactions to
 further functional neighbourhoods, is flattened to a single weight.
+Constructing that scalar is itself a curation step that scales poorly
+to non-model species --- including crops, livestock and model
+organisms --- where functional annotations are sparse, fragmented
+and lack a pre-harmonised category catalogue.
 
 This flattening is the limiting approximation. Multi-omics resources
 released since 2020---the Genotype-Tissue Expression (GTEx) project
@@ -87,22 +91,27 @@ database traversal that can be iterated thousands of times per
 second.
 
 Doing so changes the fine-mapping
-accuracy--speed frontier. GraphGWAS is a fine-mapping platform
-built on a graph database (Neo4j~5.26 Community Edition is the
-present implementation\cite{robinson2015graph}) holding 70.7~M
-variants, 20{,}092 GENCODE~v47 genes\cite{frankish2023gencode},
-43.2~M GTEx~v8 eQTL edges, 230{,}850 STRING interactions and
-370{,}000 ENCODE regulatory elements. Its central methods ---
+accuracy--speed frontier. GraphGWAS is a fine-mapping platform built
+on a graph database\cite{robinson2015graph} into which users import
+their own genotype, summary-statistics and multi-omics data; the
+schema and algorithms are database-agnostic and the present
+reference implementation runs on Neo4j~5.26 Community Edition. The
+demonstration loadout used in this paper covers 70.7~M variants from
+the 1000 Genomes Phase~3 high-coverage release, 20{,}092 GENCODE~v47
+genes\cite{frankish2023gencode}, 43.2~M GTEx~v8 eQTL edges,
+230{,}850 STRING interactions and 370{,}000 ENCODE regulatory
+elements. Its central methods ---
 hierarchical belief propagation (HBP), with proved geometric
-convergence via a Banach contraction argument, and L1 Bayesian
-fine-mapping, with a proof that the causal variant ranks first
-under mild LD-decay assumptions --- carry the full
+convergence via a Banach contraction argument, and graph-augmented
+fine-mapping (GAFM), with a proof that the causal variant ranks
+first under mild LD-decay assumptions --- carry the full
 variant~$\rightarrow$~gene$\rightarrow$~pathway factor graph with
 PPI coupling through every update. On 90 simulated chromosome~22
-loci, HBP matches SuSiE and FINEMAP at 6--60$\times$ the speed; on
-79 weak-signal tissue-specific eQTL simulations, L1 beats SuSiE
-27--2 head-to-head (sign-test $p < 10^{-5}$). PIPs are calibrated
-with 0\% null false-positive rate across 100 simulations. A
+loci, HBP matches SuSiE and FINEMAP at 5--40$\times$ the speed; on
+79 weak-signal tissue-specific eQTL simulations, GAFM beats SuSiE
+27--2 head-to-head (sign-test $p < 10^{-5}$). Posterior inclusion
+probabilities (PIPs) are calibrated with 0\% null false-positive
+rate (FPR) across 100 simulations. A
 sumstats-only entry path consumes Pan-UK Biobank\cite{karczewski2024pan}
 directly, fine-mapping across four ancestries
 (EUR $N{=}420{,}531$; CSA, AFR, EAS) and recovering canonical
@@ -115,4 +124,4 @@ the four species, a direct intervention experiment shows that the
 operative quantity is per-variant heterogeneity of the prior, not
 annotation density --- adding even a coarse regulatory-element
 flag to the otherwise dense uniform human cache flips HBP
-narrower than flat-prior L1 from 0\% to 88\% of leads.
+narrower than flat-prior GAFM from 0\% to 88\% of leads.
