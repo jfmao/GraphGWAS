@@ -1,0 +1,68 @@
+{
+  "window_kb": 250,
+  "n_perms": 1000,
+  "results": {
+    "yeast": {
+      "species": "yeast",
+      "n_leads": 245,
+      "n_validated_obs": 44,
+      "rate_obs": 0.1796,
+      "null_method": "permuted-validated-flag (placeholder; coordinate catalogue not in repo)",
+      "null_mean": 0.1796,
+      "null_p25": 0.1796,
+      "null_p50": 0.1796,
+      "null_p75": 0.1796,
+      "null_p95": 0.1796,
+      "n_perms": 1000,
+      "note": "Without a coordinate-level catalogue file, we permute the validated flag across leads. This trivially gives null_mean = obs (by construction). A coordinate-level catalogue would let us compute the random-position null. Treat the per-species rate as descriptive, not as evidence of fine-mapping accuracy beyond chance.",
+      "random_position_estimate": "see notes (coordinate catalogue not in repo)"
+    },
+    "arabidopsis": {
+      "species": "arabidopsis",
+      "n_leads": 54,
+      "n_validated_obs": 3,
+      "rate_obs": 0.0556,
+      "null_mean": 0.0,
+      "null_p25": 0.0,
+      "null_p50": 0.0,
+      "null_p75": 0.0,
+      "null_p95": 0.0,
+      "n_perms": 1000,
+      "p_empirical": 0.001,
+      "enrichment_obs_over_null_mean": 55555555.56,
+      "catalogue_features": 275,
+      "method": "permute positions; same chromosome distribution; same n_obs"
+    },
+    "rice": {
+      "species": "rice",
+      "n_leads": 72,
+      "n_validated_obs": 24,
+      "rate_obs": 0.3333,
+      "null_mean": 0.0087,
+      "null_p25": 0.0,
+      "null_p50": 0.0,
+      "null_p75": 0.0139,
+      "null_p95": 0.0278,
+      "n_perms": 1000,
+      "p_empirical": 0.001,
+      "enrichment_obs_over_null_mean": 38.4,
+      "catalogue_features": 269,
+      "method": "permute positions; same chromosome distribution; same n_obs"
+    },
+    "human": {
+      "species": "human",
+      "n_leads": 321,
+      "n_validated_obs": 21,
+      "rate_obs": 0.0654,
+      "null_method": "permuted-validated-flag (placeholder; coordinate catalogue not in repo)",
+      "null_mean": 0.0654,
+      "null_p25": 0.0654,
+      "null_p50": 0.0654,
+      "null_p75": 0.0654,
+      "null_p95": 0.0654,
+      "n_perms": 1000,
+      "note": "Without a coordinate-level catalogue file, we permute the validated flag across leads. This trivially gives null_mean = obs (by construction). A coordinate-level catalogue would let us compute the random-position null. Treat the per-species rate as descriptive, not as evidence of fine-mapping accuracy beyond chance.",
+      "random_position_estimate": "see notes (coordinate catalogue not in repo)"
+    }
+  }
+}

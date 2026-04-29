@@ -481,10 +481,10 @@ def figure_7():
     arrow(6.1, 8.1, 3.8, 7.3, "epistasis")
     arrow(7.9, 8.1, 10.2, 7.3, "single variant")
 
-    # Left branch — LPCE flagged as preview / under development
+    # Left branch — epistasis is forthcoming work, not benchmarked here
     box(3, 5.5, 3.2, 1.05,
-        "LPCE  (preview)\nLD-pruned co-occurrence\n42,000× search reduction\n[under development; full\nbenchmark in paper #2]",
-        color="#fff5d6", edge="#b58900", fontweight="bold")
+        "(forthcoming work)\nGraph-native epistasis discovery\nis the subject of a companion\nmanuscript in preparation",
+        color="#f0f0f0", edge="#888888", fontweight="bold")
     arrow(3, 6.7, 3, 6.0)
 
     # Right branch: signal strength

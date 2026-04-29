@@ -50,12 +50,12 @@ inline in Figure~1 of the main text.}
 \cmidrule(lr){2-4}
                        & Strong & Weak & Functional &           &           & \\
 \midrule
-SuSiE                              & 21/30 (70\%) & 17/30 (57\%) & 12/30 (40\%) & 5.74 & 0.52 & 1.87\,s \\
-FINEMAP                            & 22/30 (73\%) & 17/30 (57\%) & 12/30 (40\%) & 6.20 & 0.51 & 2.28\,s \\
-SuSiE-inf                          & \textbf{23/30 (77\%)} & 17/30 (57\%) & 11/30 (37\%) & 8.00 & 0.51 & 0.26\,s \\
-FINEMAP-inf                        & \textbf{23/30 (77\%)} & 17/30 (57\%) & 12/30 (40\%) & \textbf{5.17} & 0.51 & 0.50\,s \\
-\textbf{GAFM (ours)}               & 22/30 (73\%) & \textbf{18/30 (60\%)} & 12/30 (40\%) & 6.83 & 0.49 & \textbf{0.08\,s} \\
-\textbf{HBP (ours)}                & 21/30 (70\%) & \textbf{18/30 (60\%)} & 11/30 (37\%) & 6.91 & 0.34 & \textbf{0.09\,s} \\
+SuSiE                              & 21/30 [52--83\%] & 17/30 [39--72\%] & 12/30 [24--57\%] & 5.74 & 0.52 & 1.87\,s \\
+FINEMAP                            & 22/30 [55--85\%] & 17/30 [39--72\%] & 12/30 [24--57\%] & 6.20 & 0.51 & 2.28\,s \\
+SuSiE-inf                          & \textbf{23/30 [59--88\%]} & 17/30 [39--72\%] & 11/30 [21--54\%] & 8.00 & 0.51 & 0.26\,s \\
+FINEMAP-inf                        & \textbf{23/30 [59--88\%]} & 17/30 [39--72\%] & 12/30 [24--57\%] & \textbf{5.17} & 0.51 & 0.50\,s \\
+\textbf{GAFM (ours)}               & 22/30 [55--85\%] & \textbf{18/30 [42--75\%]} & 12/30 [24--57\%] & 6.83 & 0.49 & \textbf{0.08\,s} \\
+\textbf{HBP (ours)}                & 21/30 [52--83\%] & \textbf{18/30 [42--75\%]} & 11/30 [21--54\%] & 6.91 & 0.34 & \textbf{0.09\,s} \\
 \bottomrule
 \end{tabular}
 \caption{Head-to-head fine-mapping benchmark. Six methods
@@ -64,8 +64,13 @@ evaluated on the same 90 simulated 1000~Genomes chromosome~22 loci
 ($\beta{=}0.5$, $h^2{=}0.10$, random causal); weak ($\beta{=}0.2$,
 $h^2{=}0.02$, random); functional ($\beta{=}0.2$, $h^2{=}0.02$,
 tissue-specific eQTL causal). Rank-\#1 cells are
-hits/total~(\%). Mean rank, mean PIP, and median runtime are pooled
-across the three scenarios. Polyfun-proxy (SuSiE with the same eQTL
+hits/total with the Wilson 95\% confidence interval. Mean rank,
+mean PIP, and median runtime are pooled across the three scenarios.
+At $n_{\text{rep}}=30$ per cell, three-percentage-point pairwise
+differences (e.g.\ HBP 70\%, GAFM 73\%, SuSiE-inf 77\%) lie within
+overlapping CIs and should be read as ``no significant difference
+at $\alpha=0.05$'' rather than as point-equivalence; a
+100-replicate replication is forthcoming. Polyfun-proxy (SuSiE with the same eQTL
 prior used by HBP/GAFM via \texttt{prior\_weights}) was run on a
 separate 20-replicate weak-signal benchmark and is reported in
 Figure~4d rather than co-pooled here. SBayesRC operates at
@@ -469,6 +474,59 @@ but not formally validated in the present paper. Releasing the
 full package alongside this first paper invites third-party
 benchmarks and extensions on methods that the GraphGWAS group
 itself will address in follow-up.
+
+\paragraph{Pre-registered control experiments (placebo prior, null-overlap permutation, hyperparameter sensitivity).}\label{snote:controls}%
+Three pre-registered control experiments were run on the GraphGWAS
+chr~22 testbed to bound the claims made in the main text.
+
+\textbf{Null-overlap permutation.} For each species we drew 1{,}000
+random ``leads'' matched to the chromosome distribution of the
+observed lead set and computed the 250\,kb-window overlap rate
+against the species' validation catalogue. Rice: 33.3\,\% observed
+vs 0.9\,\% null mean ($p < 0.001$, $\sim$38-fold enrichment).
+\emph{Arabidopsis}: 5.6\,\% observed vs 0.0\,\% null mean
+($p < 0.001$; catalogue too sparse for an enrichment estimate).
+Yeast and human require coordinate-level catalogue files
+(Bloom~2015 + Peter~2018 yeast loci; GWAS-Catalog + lipid-canon
+human loci) integrated into the analysis pipeline; their
+permutation rates will be reported as a follow-up.
+
+\textbf{Hyperparameter sensitivity (10 simulated chr~22 loci, $\beta=0.5$, $h^2=0.10$).}
+HBP rank-\#1 rate is robust at 70\,\% across all $\pm 33$--$50\,\%$
+perturbations of $\alpha$ (sweep 0.4--0.8), $\lambda$ (0.3--0.7),
+$T$ (3--7), and $r^2_{\text{smooth}}$ (0.2--0.4); a single dip to
+60\,\% at $r^2_{\text{smooth}}{=}0.35$. GAFM is highly
+$\alpha$-sensitive: at $\alpha=0.5$ rank-\#1 is 10\,\%; at
+$\alpha=0.9$ rank-\#1 is 70\,\%; at $\alpha=1.0$ rank-\#1 is
+70\,\%. The strong-signal Sup Table~S2 result of 73\,\% strong
+rank-\#1 was obtained at $\alpha=0.9$ (regime-specific default);
+the 27\,--\,2 weak-signal headline used $\alpha=0.5$. We disclose
+the regime-specific defaults explicitly in Methods §GAFM.
+
+\textbf{Placebo-prior control (30 simulated chr~22 loci, $\beta=0.5$, $h^2=0.10$).}
+HBP-tighter-than-GAFM rate under three cache configurations:
+(a)~baseline (no \texttt{prior\_score}): 3/30 = 10\,\%;
+(b)~informative (real cCRE-class \texttt{prior\_score} from the
+human v2 chr~22 cache): 4/30 = 13\,\%;
+(c)~placebo (5 permutations of \texttt{prior\_score} preserving the
+marginal distribution but randomising the variant-to-class
+assignment): 4/30 = 13\,\% in every permutation (zero variance).
+In this simulation regime, the +3\,pp gain over baseline is
+\emph{fully captured by heterogeneity per se}; the cCRE-class
+prior provides no additional gain over a permuted prior with the
+same marginal. The genome-wide Pan-UK Biobank intervention result
+of 0\,\%\,$\to$\,88\,\% on 321 lead loci (Table~1) therefore
+depends on enrichment of real disease-associated leads in
+cCRE-class regions, not on biological-structure information
+specific to the variant; the simulation placebo control would
+need to be repeated on real biobank leads to attribute the
+genome-wide gain to biological structure beyond heterogeneity per
+se.
+
+Full numerical outputs are deposited in \texttt{results/null\_overlap/},
+\texttt{results/hyperparam\_sensitivity/}, and
+\texttt{results/placebo\_prior/} alongside the deferred-experiments
+report at \texttt{results/deferred\_experiments\_report.md}.
 
 \paragraph{LPCE algorithm details (preview, under development).}\label{snote:lpce}%
 LPCE (LD-pruned co-occurrence pairwise-epistasis) is one of the

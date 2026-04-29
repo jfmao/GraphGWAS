@@ -1,0 +1,70 @@
+{
+  "scenario": "F1 single causal in LD on chr22, \u03b2=0.5, h\u00b2=0.10",
+  "n_sims_per_cache": 30,
+  "cache_baseline_size": 82085,
+  "cache_informative_n_with_prior": 12098,
+  "cache_human_v2_chr22": "/mnt/data/GraphGWAS/data/annotations/human_graph_cache_v2_chr22.json",
+  "results": {
+    "baseline": {
+      "n": 30,
+      "hbp_tighter": 3,
+      "hbp_equal": 25,
+      "hbp_wider": 2,
+      "hbp_tighter_rate": 0.1,
+      "mean_hbp_cs_size": 3.2666666666666666,
+      "mean_gafm_cs_size": 3.3666666666666667
+    },
+    "informative": {
+      "n": 30,
+      "hbp_tighter": 4,
+      "hbp_equal": 23,
+      "hbp_wider": 3,
+      "hbp_tighter_rate": 0.133,
+      "mean_hbp_cs_size": 3.2666666666666666,
+      "mean_gafm_cs_size": 3.3666666666666667
+    },
+    "placebo": {
+      "n_perms": 5,
+      "n_sims": 30,
+      "placebo_rates": [
+        0.13333333333333333,
+        0.13333333333333333,
+        0.13333333333333333,
+        0.13333333333333333,
+        0.13333333333333333
+      ],
+      "placebo_rate_mean": 0.133,
+      "placebo_rate_std": 0.0,
+      "placebo_rate_min": 0.133,
+      "placebo_rate_max": 0.133,
+      "per_perm": [
+        {
+          "perm": 0,
+          "hbp_tighter": 4,
+          "rate": 0.133
+        },
+        {
+          "perm": 1,
+          "hbp_tighter": 4,
+          "rate": 0.133
+        },
+        {
+          "perm": 2,
+          "hbp_tighter": 4,
+          "rate": 0.133
+        },
+        {
+          "perm": 3,
+          "hbp_tighter": 4,
+          "rate": 0.133
+        },
+        {
+          "perm": 4,
+          "hbp_tighter": 4,
+          "rate": 0.133
+        }
+      ]
+    }
+  },
+  "interpretation": "Compare HBP-tighter rates across the three cache configurations. If placebo rate is close to baseline rate, the gain genuinely requires biological structure in the prior; if placebo rate is close to informative rate, the gain reflects heterogeneity per se."
+}

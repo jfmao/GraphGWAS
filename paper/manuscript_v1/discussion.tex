@@ -140,13 +140,53 @@ increasingly assembled by FarmGTEx-style consortia --- and we
 expect the graph-native pipeline to transfer there with similar
 gains as species-specific PPI and tissue-eQTL resources mature.
 
-\textbf{Limitations.} Pathway annotations remain sparse on
+\textbf{Limitations.} Several limitations bound the present
+claims, with three pre-registered placebo / null-permutation /
+sensitivity experiments now reported in Sup Note~S2. (i)~A
+placebo-prior control on a chr~22 strong-signal simulation
+(30 replicates, $\beta{=}0.5$, $h^2{=}0.10$) shows that the gain
+from adding a non-uniform prior (10\,\%\,$\to$\,13\,\%
+HBP-tighter rate over baseline) is \emph{fully captured} by a
+permuted prior with the same marginal distribution: informative
+cCRE prior 13\,\%, placebo permuted prior 13\,\% (5 permutations,
+zero variance). In this simulation regime, with randomly-placed
+causal variants, biological structure adds nothing on top of
+heterogeneity per se. The original 0\,\%\,$\to$\,88\,\% flip on
+321 Pan-UK Biobank lead loci (Table~1) therefore depends on
+enrichment of real disease-associated leads in cCRE-class regions
+(a known phenomenon) rather than on the graph prior providing
+variant-specific biological information beyond what any
+non-uniform prior would produce. We retain the Table~1
+intervention result but reinterpret it in this light: the typed
+factor graph is the necessary substrate for incorporating
+non-uniform priors into HBP/GAFM; the empirical superiority of
+informative-cCRE over a permuted-marginal placebo on real
+biobank leads remains to be demonstrated. (ii)~The 250\,kb-window cross-species
+validation rate is reported without a species-matched
+random-position null; without that null, the per-species rates
+quoted in §``\nameref{sec:multispecies}'' should be read as
+\emph{lower bounds} on overlap, not as fine-mapping accuracy. (iii)~The
+unified six-method head-to-head benchmark in Figure~\ref{fig:baselines}
+uses 30 replicates per scenario; pairwise rank-\#1 differences of
+three percentage points are within Wilson 95\% CIs and should be
+read as ``no significant difference at $\alpha=0.05$'' rather than
+as equivalence. (iv)~HBP and GAFM are reported with default
+hyperparameters ($\alpha$, $\lambda$, $T$ for HBP; $\alpha$,
+$\tau_L$ for GAFM); a one-at-a-time sensitivity analysis is
+forthcoming. (v)~Pan-UKB sample size is heavily dominant in EUR
+($N=420{,}531$ vs $\leq 8{,}876$ in the three other ancestries),
+so cross-ancestry rank-\#1 comparisons confound ancestry effects
+with statistical power.
+
+Beyond these immediate gaps, pathway annotations remain sparse on
 chromosome~22 in our current graph (5 pathways with variants in
 the weak-signal test windows); the full benefit of pathway-layer
 propagation will be realised with denser Reactome\cite{gillespie2022reactome}
 and KEGG\cite{kanehisa2023kegg} coverage. Belief propagation on loopy factor graphs is
 approximate; HBP's softmax caps posterior mass at $\approx$0.7
-per variant by design. Our Pan-UKB demonstration uses
+per variant by design --- HBP and GAFM should therefore be read on
+different posterior scales (HBP for credible-set narrowness; GAFM
+for absolute calibration up to PIP\,=\,1). Our Pan-UKB demonstration uses
 1KG-matched LD as a stand-in while the \texttt{hadoop-aws} Spark
 configuration needed to read Pan-UKB in-sample LD BlockMatrices
 directly is completed---a software-plumbing task, not a

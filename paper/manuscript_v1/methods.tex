@@ -149,8 +149,18 @@ weights (1.0 per gene, 0.5 per pathway, 0.3 per PPI partner capped
 at 3.0, 2.0$\times$~eqtl\_score, 1.5$\times$~max(conservation~$-$~0.5, 0))
 are summed and passed through \texttt{log1p} to yield $z_{\text{func}}$,
 rescaled to match $z$'s dynamic range. The combined score is
-$s_i = \alpha \cdot u_i + (1-\alpha) \cdot z_{\text{func},i}$ with
-$\alpha{=}0.5$ by default. PIPs are the softmax:
+$s_i = \alpha \cdot u_i + (1-\alpha) \cdot z_{\text{func},i}$.
+The default $\alpha$ is regime-specific: $\alpha{=}0.9$ for the
+strong-signal six-method head-to-head benchmark
+(Sup Table~S2) and the null calibration / PIP calibration
+experiments; $\alpha{=}0.5$ for the weak-signal tissue-specific
+eQTL regime (the 27\,--\,2 GAFM-vs-SuSiE result); and
+$\alpha{=}1.0$ for the sumstats-only Pan-UK Biobank fine-mapping
+path, where no eQTL functional prior is available at runtime.
+A hyperparameter sensitivity sweep on the strong-signal scenario
+confirms that GAFM rank-\#1 rate degrades sharply for $\alpha < 0.6$
+($\alpha=0.5$: 10\%; $\alpha=0.9$: 70\%; sweep reported in Sup
+Note~S2). PIPs are the softmax:
 $\pi_i = \exp(s_i - \max_j s_j) / \sum_j \exp(s_j - \max_j s_j)$.
 The 95\% credible set is the minimal variant set whose PIPs sum to
 0.95. For the weak-signal regime, $\alpha$ is chosen by empirical
@@ -301,7 +311,18 @@ GWAS-Catalog\cite{buniello2019nhgri} plus
 lipid-genetics literature for human chromosome 22 (the genome-wide
 human catalogue used here lists 36 loci across BMI, height, LDL
 direct and triglycerides, drawn from GIANT 2018, GLGC 2013, Klarin
-2018 and Yengo 2022).
+2018 and Yengo 2022). To calibrate the validation rate against
+chance, we ran a chromosome-matched null-overlap permutation: for
+each species, draw 1{,}000 random ``leads'' matched to the
+chromosome distribution of the observed lead set and compute the
+same 250\,kb-window overlap rate against the catalogue. The
+empirical p-value of the observed rate is reported in Sup Note~S2.
+Rice (33.3\% observed vs 0.9\% null mean; $p<0.001$; 38.4-fold
+enrichment) and \emph{Arabidopsis} (5.6\% observed vs 0.0\% null
+mean; $p<0.001$; catalogue too sparse for an enrichment estimate)
+are significantly above chance; yeast and human require
+coordinate-level catalogue files that are not yet integrated in
+the present analysis.
 
 \subsection*{Heterogeneity-by-intervention experiment}\label{methods:intervention}
 

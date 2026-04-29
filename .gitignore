@@ -70,3 +70,16 @@ CLAUDE.md
 *.tbi
 *.tsv.bgz
 *.tsv.bgz.tbi
+
+# Allow the three deferred-experiment outputs (placebo, null-overlap,
+# hyperparameter sensitivity) and the consolidated report to be tracked,
+# even though the parent results/ directory is otherwise gitignored.
+!results/null_overlap/
+!results/null_overlap/*.json
+!results/null_overlap/*.tsv
+!results/hyperparam_sensitivity/
+!results/hyperparam_sensitivity/*.json
+!results/hyperparam_sensitivity/*.tsv
+!results/placebo_prior/
+!results/placebo_prior/*.json
+!results/deferred_experiments_report.md

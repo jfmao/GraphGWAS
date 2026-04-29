@@ -388,8 +388,11 @@ The two highest-confidence pigment-related leads validate against
 the same axis of variation captured by the IRRI ordinal scoring
 (spikelet pericarp at Chr7:6.07~Mb / \emph{Rc} and apiculus colour
 at Chr10:13.32~Mb / \emph{BRD2/LTBSG1}, $4.5$~kb and $28.5$~kb
-respectively, both at PIP $\geq 0.99$). Four traits with
-$\lambda_{GC} \in [1.6, 2.1]$ show residual subpopulation
+respectively, both at PIP $\geq 0.99$). The cross-species
+fine-mapping claim for rice is restricted to the 14 / 18 IRRI
+traits with $\lambda_{GC} \in [0.85, 1.20]$ (well-calibrated
+subset); the remaining four traits with $\lambda_{GC} \in
+[1.6, 2.1]$ show residual subpopulation
 confounding ($F_{ST} \approx 0.5$ between XI and GJ subpopulations
 under 10-PC correction); the eight doubly-resolved loci with
 HBP CS $=$ GAFM CS $=$ 1 are all in well-calibrated traits
@@ -455,7 +458,7 @@ matches a curated chr-22 / GWAS-Catalog literature catalogue at 9 of
 credible sets on every one of 321 leads --- a finding to which we
 return below.
 
-\subsection*{Heterogeneity, not density, makes graph priors work}
+\subsection*{A non-uniform per-variant prior, not uniform high coverage, lets the graph break LD ties}
 \label{sec:heterogeneity}
 
 The cross-species data above show 287 of 692 leads (41\%)
@@ -543,22 +546,31 @@ annotation and degrade slightly under dense priors.}
 
 \begin{table}[htbp]
 \centering
-\small
-\caption{\textbf{Adding a per-variant heterogeneous prior to the
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\caption{\textbf{Adding a non-uniform per-variant prior to the
 multi-omics cache turns HBP from inert to informative across four
-species.} Adding a per-variant continuous prior to the
-multi-omics cache (without altering GWAS sumstats, LD references, or
-the fine-mapping algorithm) consistently raises the rate at which HBP
-narrows the credible set beyond flat-prior GAFM. The human row is the
-cleanest demonstration: a uniform GTEx + STRING cache leaves HBP
-exactly equal to GAFM on every one of 321 leads, but adding a
-class-weighted ENCODE cCRE flag flips that rate from 0\% to 88\% on
-the same lead set.}
+species.} ``HBP narrows tighter than GAFM'' is the percentage of
+leads, per species, for which HBP returns a 95\% credible set with
+strictly fewer variants than the flat-prior GAFM credible set on
+the same locus data. ``Baseline cache'' = the multi-omics cache
+without the per-variant continuous \texttt{prior\_score} field;
+``+non-uniform prior'' = the same cache with a species-specific
+per-variant continuous prior added (ENCODE cCRE 9-class flag for
+human, TAIR10 feature class for \emph{Arabidopsis}, snpEff impact
+class for rice, ORF-feature class plus BIOGRID for yeast). The
+intervention does not alter GWAS sumstats, LD references, or the
+fine-mapping algorithm. The human row is the cleanest demonstration:
+a uniform GTEx + STRING cache leaves HBP exactly equal to GAFM on
+every one of 321 leads, but adding a class-weighted ENCODE cCRE
+flag flips that rate from 0\% to 88\% on the same lead set.}
 \label{tab:intervention}
-\begin{tabular}{lrrrr}
+\begin{tabular}{@{}l@{\hspace{6pt}}r@{\hspace{6pt}}r@{\hspace{6pt}}r@{\hspace{6pt}}r@{}}
 \toprule
-\textbf{Species} & \textbf{Loci} & \textbf{Baseline cache} & \textbf{+heterogeneous prior} & \textbf{$\Delta$} \\
-                 &               & \textbf{HBP-tighter}     & \textbf{HBP-tighter}             &                   \\
+\textbf{Species} & \textbf{Loci}
+                 & \shortstack[r]{\textbf{Baseline cache}\\\textbf{HBP $<$ GAFM CS}}
+                 & \shortstack[r]{\textbf{+non-uniform prior}\\\textbf{HBP $<$ GAFM CS}}
+                 & $\boldsymbol{\Delta}$ \\
 \midrule
 Human       & 321 & 0 / 321 (0\%)   & 282 / 321 (88\%) & \textbf{$+$88\,pp} \\
 Arabidopsis &  54 & 29 / 54 (54\%)  & 51 / 54 (94\%)   & $+$41\,pp \\
@@ -570,13 +582,32 @@ Yeast       & 245 & 244 / 245 (100\%) & 245 / 245 (100\%) & saturated \\
 \end{tabular}
 \end{table}
 
-These intervention results upgrade the heterogeneity-not-density
-principle from a cross-species observation to a causal claim:
-density alone is insufficient even at $10^7$-variant scale; the
-operative quantity is per-variant discriminative information, and
-even a coarse nine-class regulatory-element flag is enough to
-realise it. Continuous-score replacements --- combined-annotation
-PHRED scores, allele-specific transcription-factor-binding
-$\Delta$-PWM, deep-learning chromatin-effect predictions, and
-species-specific cistromes --- are a natural next direction.
+A pre-registered placebo-prior control on chr~22 (Sup Note~S2)
+shows that on randomly-placed simulated causal variants, an
+informative cCRE prior and a permuted-marginal placebo prior
+produce \emph{identical} HBP-tighter rates (both 13\,\%, vs 10\,\%
+baseline). The +3\,pp gain in simulation is therefore fully
+captured by heterogeneity per se; the genome-wide
+0\,\%\,$\to$\,88\,\% flip on 321 Pan-UKB lead loci (Table~1) must
+depend on enrichment of real disease-associated leads in
+regulatory regions rather than on the graph prior providing
+variant-specific biological information beyond what any
+non-uniform prior would produce. With this caveat, the
+intervention results bound the claim to a
+\emph{necessary-condition} statement:
+a uniform high-coverage cache breaks no LD ties, while introducing
+a per-variant non-uniform signal of biological structure (here, the
+ENCODE 9-class regulatory-element flag) flips HBP from inert to
+informative on 88\% of human leads. The current experiment
+contrasts a uniform cache against an informative non-uniform
+prior; a placebo-prior arm in which \texttt{prior\_score} is
+permuted across variants (preserving the marginal distribution but
+randomising which variants receive which class) is the immediate
+next test, and is required before the claim that the gain
+specifically reflects \emph{biological} discriminative information
+rather than any heterogeneous prior is fully established.
+Continuous-score replacements --- combined-annotation PHRED scores,
+allele-specific transcription-factor-binding $\Delta$-PWM,
+deep-learning chromatin-effect predictions, and species-specific
+cistromes --- are a natural further direction.
 

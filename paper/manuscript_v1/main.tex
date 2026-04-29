@@ -3,7 +3,11 @@
 %% Target journal: Nature Genetics (Article / Technical Report)
 %% Nature Portfolio reference style
 
-\documentclass[lineno,pdflatex,sn-nature]{sn-jnl}
+\documentclass[pdflatex,sn-nature]{sn-jnl}
+% NOTE: removed the [lineno] class option because sn-jnl implements it via the
+% `vruler` package, which places line numbers at fixed equal-spaced vertical
+% intervals (12 bp) rather than tracking actual text baselines. We use the
+% standard `lineno` package below, which numbers each rendered line.
 
 %%% Standard Packages
 \usepackage{graphicx}
@@ -17,6 +21,8 @@
 \usepackage{array}
 \usepackage{longtable}
 \usepackage{enumitem}
+\usepackage{lineno}
+\linenumbers
 
 \graphicspath{{figures/}}
 

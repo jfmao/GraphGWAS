@@ -1,0 +1,236 @@
+{
+  "n_reps": 10,
+  "n_eval": 10,
+  "scenario": "strong-signal F1 single causal in LD (\u03b2=0.5, h\u00b2=0.10)",
+  "defaults_hbp": {
+    "alpha": 0.6,
+    "damping": 0.5,
+    "n_rounds": 5,
+    "r2_smooth": 0.3
+  },
+  "defaults_gafm": {
+    "alpha": 0.5,
+    "r2_smooth": 0.3
+  },
+  "results": {
+    "hbp": {
+      "alpha": [
+        {
+          "value": 0.4,
+          "rank_1_rate": 0.7,
+          "n_eval": 10,
+          "wall_s": 0.77
+        },
+        {
+          "value": 0.5,
+          "rank_1_rate": 0.7,
+          "n_eval": 10,
+          "wall_s": 0.74
+        },
+        {
+          "value": 0.6,
+          "rank_1_rate": 0.7,
+          "n_eval": 10,
+          "wall_s": 0.77
+        },
+        {
+          "value": 0.7,
+          "rank_1_rate": 0.7,
+          "n_eval": 10,
+          "wall_s": 0.74
+        },
+        {
+          "value": 0.8,
+          "rank_1_rate": 0.7,
+          "n_eval": 10,
+          "wall_s": 0.78
+        }
+      ],
+      "damping": [
+        {
+          "value": 0.3,
+          "rank_1_rate": 0.7,
+          "n_eval": 10,
+          "wall_s": 0.75
+        },
+        {
+          "value": 0.4,
+          "rank_1_rate": 0.7,
+          "n_eval": 10,
+          "wall_s": 0.73
+        },
+        {
+          "value": 0.5,
+          "rank_1_rate": 0.7,
+          "n_eval": 10,
+          "wall_s": 0.76
+        },
+        {
+          "value": 0.6,
+          "rank_1_rate": 0.7,
+          "n_eval": 10,
+          "wall_s": 0.74
+        },
+        {
+          "value": 0.7,
+          "rank_1_rate": 0.7,
+          "n_eval": 10,
+          "wall_s": 0.75
+        }
+      ],
+      "n_rounds": [
+        {
+          "value": 3,
+          "rank_1_rate": 0.7,
+          "n_eval": 10,
+          "wall_s": 0.73
+        },
+        {
+          "value": 4,
+          "rank_1_rate": 0.7,
+          "n_eval": 10,
+          "wall_s": 0.79
+        },
+        {
+          "value": 5,
+          "rank_1_rate": 0.7,
+          "n_eval": 10,
+          "wall_s": 0.74
+        },
+        {
+          "value": 6,
+          "rank_1_rate": 0.7,
+          "n_eval": 10,
+          "wall_s": 0.78
+        },
+        {
+          "value": 7,
+          "rank_1_rate": 0.7,
+          "n_eval": 10,
+          "wall_s": 0.76
+        }
+      ],
+      "r2_smooth": [
+        {
+          "value": 0.2,
+          "rank_1_rate": 0.7,
+          "n_eval": 10,
+          "wall_s": 0.78
+        },
+        {
+          "value": 0.25,
+          "rank_1_rate": 0.7,
+          "n_eval": 10,
+          "wall_s": 0.76
+        },
+        {
+          "value": 0.3,
+          "rank_1_rate": 0.7,
+          "n_eval": 10,
+          "wall_s": 0.74
+        },
+        {
+          "value": 0.35,
+          "rank_1_rate": 0.6,
+          "n_eval": 10,
+          "wall_s": 0.79
+        },
+        {
+          "value": 0.4,
+          "rank_1_rate": 0.7,
+          "n_eval": 10,
+          "wall_s": 0.74
+        }
+      ]
+    },
+    "gafm": {
+      "alpha": [
+        {
+          "value": 0.3,
+          "rank_1_rate": 0.0,
+          "n_eval": 10,
+          "wall_s": 0.76
+        },
+        {
+          "value": 0.4,
+          "rank_1_rate": 0.0,
+          "n_eval": 10,
+          "wall_s": 0.73
+        },
+        {
+          "value": 0.5,
+          "rank_1_rate": 0.1,
+          "n_eval": 10,
+          "wall_s": 0.73
+        },
+        {
+          "value": 0.6,
+          "rank_1_rate": 0.5,
+          "n_eval": 10,
+          "wall_s": 0.71
+        },
+        {
+          "value": 0.7,
+          "rank_1_rate": 0.6,
+          "n_eval": 10,
+          "wall_s": 0.78
+        },
+        {
+          "value": 0.8,
+          "rank_1_rate": 0.6,
+          "n_eval": 10,
+          "wall_s": null,
+          "_note": "extended sweep"
+        },
+        {
+          "value": 0.9,
+          "rank_1_rate": 0.7,
+          "n_eval": 10,
+          "wall_s": null,
+          "_note": "extended sweep; matches benchmark default"
+        },
+        {
+          "value": 1.0,
+          "rank_1_rate": 0.7,
+          "n_eval": 10,
+          "wall_s": null,
+          "_note": "extended sweep; pure z-score, no eQTL prior"
+        }
+      ],
+      "r2_smooth": [
+        {
+          "value": 0.2,
+          "rank_1_rate": 0.0,
+          "n_eval": 10,
+          "wall_s": 0.73
+        },
+        {
+          "value": 0.25,
+          "rank_1_rate": 0.1,
+          "n_eval": 10,
+          "wall_s": 0.72
+        },
+        {
+          "value": 0.3,
+          "rank_1_rate": 0.1,
+          "n_eval": 10,
+          "wall_s": 0.7
+        },
+        {
+          "value": 0.35,
+          "rank_1_rate": 0.1,
+          "n_eval": 10,
+          "wall_s": 0.7
+        },
+        {
+          "value": 0.4,
+          "rank_1_rate": 0.1,
+          "n_eval": 10,
+          "wall_s": 0.7
+        }
+      ]
+    }
+  },
+  "finding": "GAFM \u03b1 sweep reveals a Methods-vs-code inconsistency: Methods \u00a7GAFM states '\u03b1 = 0.5 by default' but tests/benchmark_hbp_vs_susie_finemap.py uses \u03b1 = 0.9. At \u03b1 = 0.5, GAFM rank-1 = 10%; at \u03b1 = 0.9 (the actual benchmark default), GAFM rank-1 = 70%, consistent with Sup Table S2 strong-signal headline of 73%. ACTION: update Methods \u00a7GAFM to state the actual default (0.9) used in the benchmark.",
+  "hbp_finding": "HBP rank-1 is robust at 70% across all parameter perturbations of \u03b1 (\u00b133% from default 0.6), damping (\u00b140% from 0.5), n_rounds (3-7 from default 5), r2_smooth (\u00b133% from 0.3); single dip to 60% at r2_smooth=0.35. HBP defaults are validated as a stable operating point."
+}
