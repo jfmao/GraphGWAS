@@ -1,7 +1,9 @@
 # GraphGWAS — Zenodo deposit
 
-This folder contains all artifacts to be uploaded to Zenodo on acceptance
-of the accompanying Nature Genetics manuscript:
+This folder contains all artifacts to be uploaded to Zenodo alongside
+the v0.1.2 PyPI release of GraphGWAS (https://pypi.org/project/graphgwas/0.1.1/)
+and the GitHub release tag v0.1.2, accompanying the Nature Genetics
+manuscript submission:
 
 > Estaji, Zhao, Chen, Nie, Mao (2026). *Relational biological structure
 > improves fine-mapping of causal GWAS variants under weak signal*
@@ -114,11 +116,17 @@ zenodo/
 │   ├── manuscript_preprint.pdf
 │   └── README.md
 │
-└── code_snapshot/                     # tagged v0.1.0 release (git archive)
-    ├── graphgwas_v0.1.0.tar.gz        # source code at submission
+└── code_snapshot/                     # tagged v0.1.2 release (git archive)
+    ├── graphgwas_v0.1.2.tar.gz        # source code at submission
     ├── commit_sha.txt
     └── README.md
 ```
+
+After running `bash zenodo/prepare_upload.sh`, an additional `upload/`
+directory is created with one `.tar.gz` per top-level subfolder plus
+standalone PDFs and dumps. **This is what you drag into Zenodo's
+"New upload" form.** The hierarchical layout above is the working
+tree; the flat `upload/` bundle is what reviewers actually receive.
 
 ---
 
@@ -146,11 +154,11 @@ zenodo/
 
 ---
 
-## Status at paper submission (2026-04-27)
+## Status at deposit time (2026-04-30)
 
 | Item | Status | Size (approx) | Ready? |
 |---|---|---:|---|
-| Source-code tarball (v0.1.0) | Tagged on acceptance | 5 MB | ⏳ |
+| Source-code tarball (v0.1.2) | Tagged + on PyPI | 5 MB | ✓ |
 | Human 1KG + multi-omics graph dump | Generated; in `backups/` | 17 GB | ✓ (local) |
 | Yeast 1011 graph dump | Generated; in `backups/` | 0.5 GB | ✓ (local) |
 | Benchmark JSONs (all 10+ files) | Generated from `results/benchmark_v2/` | ~50 MB | ✓ (local) |
@@ -199,7 +207,7 @@ deposit.
 Citing this Zenodo record:
 
 > Estaji, E., Zhao, S.-W., Chen, Z.-Y., Nie, S. & Mao, J.-F. (2026).
-> *GraphGWAS v0.1.0: relational fine-mapping of causal GWAS variants
+> *GraphGWAS v0.1.2: relational fine-mapping of causal GWAS variants
 > on a multi-omics knowledge graph.* Zenodo.
 > https://doi.org/10.5281/zenodo.[DOI-ASSIGNED-ON-UPLOAD]
 

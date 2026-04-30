@@ -1,7 +1,7 @@
 {
   "upload_type": "software",
-  "title": "GraphGWAS v0.1.0: relational fine-mapping of causal GWAS variants on a multi-omics knowledge graph",
-  "version": "0.1.0",
+  "title": "GraphGWAS v0.1.2: relational fine-mapping of causal GWAS variants on a multi-omics knowledge graph",
+  "version": "0.1.2",
   "description": "GraphGWAS is a graph-native fine-mapping platform that carries multi-omics biological structure (genes, tissue-specific eQTLs, pathways, protein-protein interactions) through the inference as a typed factor graph rather than as flat per-variant annotation priors. Matches state-of-the-art Bayesian fine-mappers (SuSiE, FINEMAP, SuSiE-inf, FINEMAP-inf, SBayesRC) at 6-60x the speed under strong signal, and wins 27-2 head-to-head against SuSiE at weak signal with tissue-specific eQTL priors. This deposit accompanies the Nature Genetics manuscript 'Relational biological structure improves fine-mapping of causal GWAS variants under weak signal' (Estaji et al., 2026). Contents: pre-built graph-database dumps for 1000 Genomes + multi-omics (17 GB) and yeast 1011 Genomes (0.5 GB); benchmark outputs (JSON + TSV) for every figure and table in the paper; Pan-UK Biobank cross-ancestry fine-mapping outputs; figure source data; simulation seeds and per-replicate logs; and a source-code snapshot at the submission tag.",
   "license": "MIT",
   "access_right": "open",
@@ -52,6 +52,18 @@
       "identifier": "10.1038/s41588-PLACEHOLDER",
       "resource_type": "publication-article",
       "scheme": "doi"
+    },
+    {
+      "relation": "isCompiledBy",
+      "identifier": "https://github.com/jfmao/GraphGWAS/releases/tag/v0.1.2",
+      "resource_type": "software",
+      "scheme": "url"
+    },
+    {
+      "relation": "isCompiledBy",
+      "identifier": "https://pypi.org/project/graphgwas/0.1.1/",
+      "resource_type": "software",
+      "scheme": "url"
     },
     {
       "relation": "isDerivedFrom",
