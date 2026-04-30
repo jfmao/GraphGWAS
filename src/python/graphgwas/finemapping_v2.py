@@ -1,12 +1,18 @@
 """Graph-Native LD Fine-Mapping v2.
 
-Four methods for identifying causal variants within LD blocks:
-  L1: Dual-Graph Fine-Mapping (LD + functional annotations)
-  L2: LD-Regularized Association (spectral decomposition)
-  L3: Haplotype Graph Association
-  L4: Recombination-Aware Embedding
+Four methods for identifying causal variants within LD blocks. Paper-facing
+names are listed first; the historical lowercase Python prefix (kept in
+function names, JSON keys, and benchmark labels for backward compatibility)
+appears in parentheses:
 
-This module implements L1 and L4 first.
+  GAFM (Python: l1) — Graph-Augmented Fine-Mapping
+                       LD-deconvolved evidence + adaptive α + graph prior
+  L2   (Python: l2) — LD-Regularized Association (spectral decomposition)
+  L3   (Python: l3) — Haplotype Graph Association
+  L4   (Python: l4) — Recombination-Aware Embedding
+
+This module implements GAFM and L4 first. HBP (Hierarchical Belief
+Propagation) is also defined here.
 """
 
 from __future__ import annotations
@@ -216,7 +222,8 @@ def _compute_association_stats(
 
 
 # ===================================================================
-# L1: Dual-Graph Fine-Mapping (LD + Functional)
+# GAFM: Graph-Augmented Fine-Mapping (Python prefix: l1)
+# Dual-Graph implementation: LD + Functional
 # ===================================================================
 
 def dual_graph_finemap(
@@ -229,7 +236,9 @@ def dual_graph_finemap(
     credible_set_coverage: float = 0.95,
     verbose: bool = True,
 ) -> list[FinemapCandidate]:
-    """L1: Dual-Graph Fine-Mapping combining LD + functional annotations.
+    """GAFM (Graph-Augmented Fine-Mapping; Python prefix: l1).
+
+    Dual-Graph implementation combining LD + functional annotations.
 
     For each variant, computes:
     - z_stat: statistical signal from GWAS
@@ -257,7 +266,7 @@ def dual_graph_finemap(
     pheno = get_phenotype_values(conn, all_idx)
 
     if verbose:
-        print(f"L1 Dual-Graph Fine-Mapping: {chr}:{lead_pos} ±{window//1000}kb")
+        print(f"GAFM (Graph-Augmented Fine-Mapping): {chr}:{lead_pos} ±{window//1000}kb")
 
     # Step 1: Load locus variants
     variants = _load_locus_variants(conn, chr, lead_pos, window, all_idx)
@@ -942,7 +951,7 @@ def hierarchical_bp_finemap(
         print(f"  {n_var} variants, {n_genes} genes, {n_pathways} pathways")
 
     if n_genes == 0:
-        # No gene annotations — fall back to L1-style
+        # No gene annotations — fall back to GAFM-style
         pip = _softmax(unique_stats)
         return _build_candidates(
             variants, pip, z_stats, np.zeros(n_var), unique_stats,

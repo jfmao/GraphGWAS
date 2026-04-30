@@ -60,7 +60,7 @@ print({anc: len(s.variants) for anc, s in sumstats.items()})
 
 # Full pipeline with Neo4j + multi-omics graph:
 # (1) Start Neo4j with the pre-built human dump (17 GB, from Zenodo)
-# (2) Run L1 fine-mapping on a lead variant
+# (2) Run GAFM fine-mapping on a lead variant
 graphgwas finemap --chr 16 --pos 53820527 --window 100000 \
     --phenotype BMI --method l1 -o credible_set.tsv
 ```
@@ -97,7 +97,7 @@ walkthrough in [`vignettes/fine-mapping-quickstart.md`](vignettes/fine-mapping-q
 | Method | Complexity | Typical runtime / locus | Wins vs SuSiE at |
 |---|---|---|---|
 | **HBP** (three-layer factor graph + Banach contraction) | O(E × T) | 0.02–0.08 s | accuracy parity; 6–60× faster |
-| **L1** (LD-deconvolved + adaptive α + graph prior) | O(n²) | 0.07 s | 27–2 at weak signal + tissue-specific eQTL priors |
+| **GAFM** (LD-deconvolved + adaptive α + graph prior) | O(n²) | 0.07 s | 27–2 at weak signal + tissue-specific eQTL priors |
 | **CLGF** (cross-locus EM) | O(L × T) | locus-dependent | multi-locus shared-pathway evidence |
 | **L4** (MDS embedding) | O(n² + n d) | 0.1 s | multi-signal detection |
 

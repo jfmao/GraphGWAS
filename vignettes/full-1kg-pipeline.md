@@ -26,7 +26,7 @@ This vignette covers **11 steps**:
 7. [Population-structure correction](#7-population-structure-correction)
 8. [Run the genome-wide association scan](#8-run-the-genome-wide-association-scan)
 9. [Inspect the scan and select candidate loci](#9-inspect-the-scan-and-select-candidate-loci)
-10. [Fine-map the top locus with L1 and HBP](#10-fine-map-the-top-locus-with-l1-and-hbp)
+10. [Fine-map the top locus with GAFM and HBP](#10-fine-map-the-top-locus-with-gafm-and-hbp)
 11. [Interpret the credible set](#11-interpret-the-credible-set)
 
 A parallel **sumstats-only workflow** (no Neo4j, no VCF download —
@@ -476,9 +476,9 @@ EOF
 
 ---
 
-## 10. Fine-map the top locus with L1 and HBP
+## 10. Fine-map the top locus with GAFM and HBP
 
-### 10.1 Run L1 (annotation-adaptive Bayesian) on FTO
+### 10.1 Run GAFM (annotation-adaptive Bayesian) on FTO
 
 ```bash
 graphgwas finemap \
@@ -521,9 +521,9 @@ graphgwas finemap \
 # expect runtime: 0.08 s
 ```
 
-HBP typically produces a **slightly broader** credible set than L1
+HBP typically produces a **slightly broader** credible set than GAFM
 under strong signal (HBP softmax caps PIPs at ≈0.7) but will match
-L1 on rank-1 identification. Both methods should place
+GAFM on rank-1 identification. Both methods should place
 chr16:53767042:T:C at rank 1.
 
 ### 10.3 Repeat for all 5 lead loci

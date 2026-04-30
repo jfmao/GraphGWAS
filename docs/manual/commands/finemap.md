@@ -118,7 +118,7 @@ operator is a strict ℓ₁ contraction on the probability simplex with rate
 graph propagation operator. See Theorem 2 in
 [`docs/MATHEMATICAL_PROOFS.md`](../../MATHEMATICAL_PROOFS.md).
 
-L1's causal-variant ranking is guaranteed under mild LD-decay assumptions:
+GAFM's causal-variant ranking is guaranteed under mild LD-decay assumptions:
 the LD-deconvolved statistic satisfies `u_c > u_i` for all non-causal
 variants `i`. See Theorem 3.
 

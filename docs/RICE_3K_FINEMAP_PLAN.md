@@ -273,7 +273,7 @@ done
 ### Step 7 — Fine-mapping (minutes)
 
 Extract the lead variant at each *known* target locus and run
-L1 + HBP. For each trait, expect 3–8 genome-wide-significant loci
+GAFM + HBP. For each trait, expect 3–8 genome-wide-significant loci
 (many of which are the textbook ones listed in §1).
 
 ```bash
@@ -317,12 +317,12 @@ For each trait × known-gene pair:
 1. **Recovery check**: is the known causal gene in the 95% credible
    set? For textbook rice QTLs this should be **yes ≥ 90% of the time**
    — these are major-effect loci with h² > 0.3.
-2. **Credible-set size**: how many variants does L1/HBP return?
+2. **Credible-set size**: how many variants does GAFM/HBP return?
    The narrower the better. Some rice QTLs span LD blocks of hundreds
    of variants; HBP's graph prior should collapse these using the
    pathway + PPI context.
 3. **Novel candidates**: at sub-genome-wide-significant loci
-   (p ∈ [1e-6, 5e-8]), does L1's weak-signal advantage (§2.3 of the
+   (p ∈ [1e-6, 5e-8]), does GAFM's weak-signal advantage (§2.3 of the
    paper) recover additional candidates? This is the "novel
    discovery" deliverable for the rice application.
 4. **Cross-subpopulation consistency**: restrict to XI-only vs
@@ -344,14 +344,14 @@ graphgwas interpret --rice \
 
 ### Definitional recovery checks (paper-ready table)
 
-| Trait | Known-gene target (from Ren *et al.* 2023) | LOC_Os ID | Chr | Expected L1 recovery | Expected HBP recovery |
+| Trait | Known-gene target (from Ren *et al.* 2023) | LOC_Os ID | Chr | Expected GAFM recovery | Expected HBP recovery |
 |---|---|---|---|---|---|
 | Grain width | *GW2* | LOC_Os02g14720 | Chr2 | ~80% | ~85% |
 | Grain width | *GW5* / *GSE5* / *qDEC5* | LOC_Os05g09520 | Chr5 | ~75% (2 candidates in LD) | ~80% |
 | Grain length | *GS3* | LOC_Os03g407050 | Chr3 | ~95% | ~95% |
-| Grain length | *qGL3* / *GL3.1* / *OsPPKL1* | LOC_Os03g44500 | Chr3 | ~90% | ~90% |
+| Grain length | *qGL3* / *GL3.1* / *OsPPKGAFM* | LOC_Os03g44500 | Chr3 | ~90% | ~90% |
 | Grain length/width | *GL7* / *GW7* / *SLG7* | LOC_Os07g41200 | Chr7 | ~85% | ~90% |
-| Grain size | *GW8* / *OsSPL16* | LOC_Os08g41940 | Chr8 | ~85% | ~90% |
+| Grain size | *GW8* / *OsSPGAFM6* | LOC_Os08g41940 | Chr8 | ~85% | ~90% |
 | Grain size | *GS5* | LOC_Os05g06660 | Chr5 | ~90% | ~90% |
 | Grain size | *TGW6* | LOC_Os06g41850 | Chr6 | ~85% | ~85% |
 | Grain size | *BG1* | LOC_Os03g07920 | Chr3 | ~80% | ~85% |
@@ -376,7 +376,7 @@ standard ground truth, not a simulated phenotype.
 ### Novel-discovery angle
 
 The 3K RG GWAS literature is rich but not exhausted. Candidate
-targets for novel discovery using L1's weak-signal advantage:
+targets for novel discovery using GAFM's weak-signal advantage:
 
 - *DTH* loci below genome-wide significance in the full panel but
   above in within-subspecies analyses

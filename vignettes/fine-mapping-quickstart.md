@@ -174,9 +174,10 @@ loaded. To add relational priors, load the pre-built Neo4j dump
 
 - **Try other loci**: `--locus FTO | APOA5 | LDLR | HMGA2` (see
   `LOCI` in `tests/benchmark_panukb_finemap.py`)
-- **Try L1 instead of HBP** with `l1_finemap_from_sumstats` —
+- **Try GAFM instead of HBP** with `l1_finemap_from_sumstats` (Python
+  prefix `l1_` is the historical name; paper-facing name is GAFM) —
   especially interesting when your causal variant is a tissue-specific
-  eQTL, where L1 beats SuSiE 27–2 (see paper §2.3)
+  eQTL, where GAFM beats SuSiE 27–2 (see paper §2.3)
 - **Load the full Neo4j multi-omics graph** (17 GB Zenodo dump) and
   use the Cypher query layer for interpretability ("which genes in
   this credible set are drug targets?")

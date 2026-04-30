@@ -1,22 +1,18 @@
 # GraphGWAS — Mathematical Proofs (Supplement S1)
 
-> **Naming note.** The methods called **L1** and **M1** throughout this document
-> correspond to the paper-facing names **GAFM** (Graph-Augmented Fine-Mapping)
-> and **LPCE** (LD-Pruned Co-occurrence Epistasis), respectively. The lowercase
-> Python prefixes `l1_*` / `m1_*` in the codebase are preserved for backward
-> compatibility in JSON keys and benchmark scripts. Mappings:
-> - **GAFM** ≡ L1 (Theorems 3 and 4 below)
-> - **LPCE** ≡ M1 (Theorem 1 below)
-> - **HBP** is the same in both (Theorem 2 below)
+> **Codebase note.** The Python codebase preserves historical lowercase
+> prefixes `l1_*` (= GAFM) and `m1_*` (= LPCE) in function names, JSON keys,
+> and benchmark labels for backward compatibility. The paper-facing method
+> names — **GAFM**, **HBP**, **LPCE** — are used throughout this document.
 
 This document provides theoretical foundations for the three core GraphGWAS methods:
-LPCE / M1 (LD-pruned epistasis), HBP (hierarchical belief propagation), and
-GAFM / L1 (dual-graph fine-mapping). Each theorem is accompanied by a proof and
-a remark on its practical implications.
+LPCE (LD-pruned epistasis, Theorem 1), HBP (hierarchical belief propagation,
+Theorem 2), and GAFM (dual-graph fine-mapping, Theorems 3 and 4). Each theorem
+is accompanied by a proof and a remark on its practical implications.
 
 ---
 
-## Theorem 1: M1 Search Space Reduction
+## Theorem 1: LPCE Search Space Reduction
 
 **Setup**: Let $V = \{v_1, \dots, v_M\}$ be a set of $M$ variants in a genomic region.
 Let $r^2_{ij}$ denote the squared Pearson correlation between variants $v_i$ and $v_j$.
@@ -60,8 +56,8 @@ $\square$
 $M \approx 145{,}000$ common variants and $\tau = 0.5$, we measured $|S_\tau| \approx 1{,}000$,
 giving $k(\tau) \approx 0.0069$. The theoretical reduction is $1/k(\tau)^2 \approx 21{,}000$.
 
-The empirical reduction observed in the M1 algorithm is **42,000×** (10.5 billion
-exhaustive pairs → 250K pruned pairs). This exceeds the theorem's bound because M1 also
+The empirical reduction observed in the LPCE algorithm is **42,000×** (10.5 billion
+exhaustive pairs → 250K pruned pairs). This exceeds the theorem's bound because LPCE also
 filters by minimum allele count and applies functional motif constraints, further
 reducing the search space beyond pure LD pruning.
 
@@ -155,27 +151,27 @@ posterior in a controlled, contractive way.
 
 ---
 
-## Theorem 3: L1 Causal Variant Ranking
+## Theorem 3: GAFM Causal Variant Ranking
 
 **Setup**: Consider a single locus with $n$ variants $\{v_1, \dots, v_n\}$. Suppose
 $v_c$ is the unique causal variant with effect size $\beta > 0$. Let $r_{ic}$ denote
 the Pearson correlation between $v_i$ and $v_c$. The marginal z-score for variant $v_i$ is
 approximately $z_i = r_{ic} \cdot z_c$ (under standard fine-mapping assumptions).
 
-L1 computes the LD-deconvolved statistic:
+GAFM computes the LD-deconvolved statistic:
 
 $$u_i = z_i - \frac{1}{|N(i)|} \sum_{j \in N(i)} r^2_{ij} z_j$$
 
 where $N(i) = \{j : r^2_{ij} > \tau, j \ne i\}$ is the LD neighborhood of variant $v_i$.
 
-**Theorem 3 (L1 Ranks Causal #1 Under Linear LD Decay).** *Suppose LD decays linearly
+**Theorem 3 (GAFM Ranks Causal #1 Under Linear LD Decay).** *Suppose LD decays linearly
 with distance from $v_c$, i.e., $r_{ic} = 1 - d_i / D$ for distance $d_i$ from $v_c$
 and locus radius $D$. Suppose further that LD between non-causal variants is symmetric
 and lower than to $v_c$: $r^2_{ij} \le r^2_{ic} \cdot r^2_{jc}$. Then:*
 
 $$u_c > u_i \quad \forall i \ne c$$
 
-*That is, L1 ranks the causal variant first.*
+*That is, GAFM ranks the causal variant first.*
 
 **Proof Sketch.**
 
@@ -200,16 +196,16 @@ for sufficiently small $\epsilon_c$ (which holds when LD decay is non-degenerate
 
 $\square$
 
-**Remark.** This theorem provides theoretical justification for L1's heuristic
+**Remark.** This theorem provides theoretical justification for GAFM's heuristic
 LD deconvolution: under reasonable LD decay assumptions, the deconvolution
 correctly identifies the causal variant as having the highest unique signal.
-In practice, L1 achieves rank-#1 in 70% of replicates on simulated single-causal
+In practice, GAFM achieves rank-#1 in 70% of replicates on simulated single-causal
 loci with strong signal.
 
-**Remark (Connection to SuSiE).** L1's heuristic deconvolution is an approximation
+**Remark (Connection to SuSiE).** GAFM's heuristic deconvolution is an approximation
 to SuSiE's exact iterative refinement. Whereas SuSiE recomputes residuals after each
-single-effect estimation, L1 performs a single one-shot subtraction of LD-weighted
-neighbor signal. This makes L1 ~25× faster but slightly less accurate (mean rank
+single-effect estimation, GAFM performs a single one-shot subtraction of LD-weighted
+neighbor signal. This makes GAFM ~25× faster but slightly less accurate (mean rank
 3.6 vs 3.3 for SuSiE on weak signal).
 
 ---
@@ -218,11 +214,11 @@ neighbor signal. This makes L1 ~25× faster but slightly less accurate (mean ran
 
 **Setup**: Under the null hypothesis $\beta = 0$, the GWAS z-scores $z_1, \dots, z_n$
 are independent (after accounting for LD) draws from standard normal distributions.
-The L1 PIP for variant $i$ is:
+The GAFM PIP for variant $i$ is:
 
 $$\pi_i = \frac{e^{u_i / T}}{\sum_{j=1}^n e^{u_j / T}}$$
 
-where $u_i$ is the LD-deconvolved statistic and $T$ is a temperature scale (T=1 in default L1).
+where $u_i$ is the LD-deconvolved statistic and $T$ is a temperature scale (T=1 in default GAFM).
 
 **Theorem 4 (Null PIP Bound).** *Under the null, the expected maximum PIP is bounded:*
 
@@ -254,7 +250,7 @@ $\square$
 **Remark (Empirical validation).** Our null simulation benchmark on 100 yeast loci
 (window = 50kb, ~5000 variants per locus) measured:
 
-- L1 mean max PIP: **0.0036** (theoretical bound: ~0.005 for n=5000)
+- GAFM mean max PIP: **0.0036** (theoretical bound: ~0.005 for n=5000)
 - HBP mean max PIP: **0.0031**
 
 Both are within the theoretical bound, confirming that softmax-based PIPs are
@@ -322,9 +318,9 @@ The subtraction ensures CLGF only borrows information **across** loci, not withi
 
 | Theorem | Method | Key Result | Practical Implication |
 |---------|--------|-----------|----------------------|
-| 1 | M1 epistasis | Search reduction $\propto 1/k(\tau)^2$ | 42,000× empirical reduction at $\tau = 0.5$ |
+| 1 | LPCE epistasis | Search reduction $\propto 1/k(\tau)^2$ | 42,000× empirical reduction at $\tau = 0.5$ |
 | 2 | HBP | Geometric convergence with rate $L < 1$ | Converges in 5 iterations to 4 decimals |
-| 3 | L1 | Causal ranks #1 under LD decay | 70% rank-#1 rate empirically |
+| 3 | GAFM | Causal ranks #1 under LD decay | 70% rank-#1 rate empirically |
 | 4 | Softmax PIP | Null max PIP bounded by $O(\log n / n)$ | 0% FPR at PIP > 0.5 across 100 nulls |
 | 5 | CLGF | EM monotone convergence | $O(\log 1/\epsilon)$ iterations |
 
