@@ -15,8 +15,7 @@ from dataclasses import dataclass
 import json
 import numpy as np
 from scipy import stats as sp_stats
-from scipy.linalg import eigh, cho_factor, cho_solve
-import scipy.sparse as sp_sparse
+from scipy.linalg import cho_factor, cho_solve
 
 from . import config as _cfg
 from .db import GraphGWASConnection
@@ -426,7 +425,7 @@ def dual_graph_finemap(
     if verbose:
         cs_size = sum(1 for c in candidates if c.in_credible_set)
         print(f"  Credible set ({credible_set_coverage*100:.0f}%): {cs_size} variants")
-        print(f"\n  Top 5:")
+        print("\n  Top 5:")
         print(f"  {'Variant':<50s} {'z_stat':>7s} {'z_func':>7s} {'unique':>7s} {'PIP':>6s} {'CS':>3s}")
         print(f"  {'-'*82}")
         for c in candidates[:5]:
@@ -608,7 +607,7 @@ def recombination_embedding_finemap(
             pip=float(pip[i]),
             in_credible_set=bool(in_cs[i]),
             annotations=[f"cluster:{cluster_label}",
-                          f"primary" if is_primary else "secondary"],
+                          "primary" if is_primary else "secondary"],
             n_ld_neighbors=int(np.sum(R[i] > r2_threshold)) - 1,
         ))
 
@@ -617,12 +616,12 @@ def recombination_embedding_finemap(
     if verbose:
         cs_size = sum(1 for c in candidates if c.in_credible_set)
         print(f"  Credible set ({credible_set_coverage*100:.0f}%): {cs_size} variants")
-        print(f"\n  Clusters:")
+        print("\n  Clusters:")
         for c, info in sorted(cluster_info.items()):
             best = variants[info["best_z"]]
             print(f"    Cluster {c}: {info['n_members']} variants, "
                   f"top={best['variantId'][:40]} z={z_stats[info['best_z']]:.2f}")
-        print(f"\n  Top 5 candidates:")
+        print("\n  Top 5 candidates:")
         print(f"  {'Variant':<50s} {'z_stat':>7s} {'PIP':>6s} {'Cluster':>7s} {'CS':>3s}")
         print(f"  {'-'*75}")
         for c in candidates[:5]:
@@ -1358,7 +1357,10 @@ def l1_finemap_from_sumstats(
     annotations_map: dict | None = None,
     graph_cache: dict | None = None,
 ) -> list[FinemapCandidate]:
-    """L1 Bayesian fine-mapping from pre-computed z-scores and LD matrix.
+    """GAFM (Graph-Augmented Fine-Mapping) from pre-computed z-scores and LD matrix.
+
+    Paper-facing name: GAFM. Python prefix: l1 (historical, preserved for
+    backward compatibility in JSON keys and benchmark scripts).
 
     Summary-stats entry point mirroring `dual_graph_finemap` without the
     Neo4j/phenotype dependencies. The functional annotation score

@@ -50,8 +50,8 @@ By the end of this vignette you will have:
 3. A GRAMMAR+-calibrated GWAS scan that recovers all five causal
    variants at genome-wide significance.
 4. Ninety-five per-cent credible sets around each lead produced
-   by HBP (hierarchical belief propagation) and L1 Bayesian
-   fine-mapping.
+   by HBP (hierarchical belief propagation) and GAFM
+   (graph-augmented fine-mapping).
 5. A one-query graph traversal from each credible set to its
    gene, tissue and pathway context.
 

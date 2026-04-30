@@ -1,9 +1,18 @@
 # GraphGWAS — Mathematical Proofs (Supplement S1)
 
+> **Naming note.** The methods called **L1** and **M1** throughout this document
+> correspond to the paper-facing names **GAFM** (Graph-Augmented Fine-Mapping)
+> and **LPCE** (LD-Pruned Co-occurrence Epistasis), respectively. The lowercase
+> Python prefixes `l1_*` / `m1_*` in the codebase are preserved for backward
+> compatibility in JSON keys and benchmark scripts. Mappings:
+> - **GAFM** ≡ L1 (Theorems 3 and 4 below)
+> - **LPCE** ≡ M1 (Theorem 1 below)
+> - **HBP** is the same in both (Theorem 2 below)
+
 This document provides theoretical foundations for the three core GraphGWAS methods:
-M1 (LD-pruned epistasis), HBP (hierarchical belief propagation), and L1 (dual-graph
-fine-mapping). Each theorem is accompanied by a proof and a remark on its practical
-implications.
+LPCE / M1 (LD-pruned epistasis), HBP (hierarchical belief propagation), and
+GAFM / L1 (dual-graph fine-mapping). Each theorem is accompanied by a proof and
+a remark on its practical implications.
 
 ---
 

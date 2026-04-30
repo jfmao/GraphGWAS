@@ -3,10 +3,10 @@
 Reads benchmark JSONs under results/benchmark_v2/ and writes PNG + PDF to
 results/benchmark_v2/paper_figures/fig{3,4,5,6}.{png,pdf}.
 
-Figures (per docs/PAPER_DRAFT_OUTLINE.md):
+Figures (per paper/manuscript_v1/results.tex):
   3. HBP vs SuSiE/FINEMAP benchmark (4 panels)
   4. PIP calibration + null FPR (4 panels)
-  5. M1 epistasis search reduction (4 panels)
+  5. LPCE (M1) epistasis search reduction (4 panels)
   6. Weak-signal headline: GAFM wins 27-2 (4 panels)
 
 Usage: python tests/generate_paper_figures.py

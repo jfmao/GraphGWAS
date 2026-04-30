@@ -4,10 +4,39 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "graphgwas"
-version = "0.1.0"
-description = "Graph-native GWAS platform on Neo4j"
-license = {text = "MIT"}
+version = "0.1.1"
+description = "Relational fine-mapping of causal GWAS variants on a multi-omics knowledge graph"
+readme = {file = "README.md", content-type = "text/markdown"}
+license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.11"
+authors = [
+    {name = "Ehsan Estaji"},
+    {name = "Shi-Wei Zhao"},
+    {name = "Zhao-Yang Chen"},
+    {name = "Shuai Nie"},
+    {name = "Jianfeng Mao", email = "jianfeng.mao@umu.se"},
+]
+maintainers = [
+    {name = "Jianfeng Mao", email = "jianfeng.mao@umu.se"},
+]
+keywords = [
+    "gwas", "fine-mapping", "graph-database", "neo4j",
+    "multi-omics", "population-genetics", "bayesian",
+    "susie", "finemap", "polygenic",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: MacOS",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering :: Bio-Informatics",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
 dependencies = [
     "click>=8.1",
     "neo4j>=5.0",
@@ -17,9 +46,25 @@ dependencies = [
     "statsmodels>=0.14",
     "networkx>=3.0",
     "matplotlib>=3.7",
+    "requests>=2.31",
 ]
 
 [project.optional-dependencies]
+sumstats = [
+    "pysam>=0.22",
+]
+genotypes = [
+    "cyvcf2>=0.30",
+    "bgen>=1.7",
+]
+api = [
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.27",
+    "pydantic>=2.0",
+]
+mcp = [
+    "mcp>=1.0",
+]
 gnn = [
     "torch>=2.0",
     "torch-geometric>=2.4",
@@ -30,26 +75,36 @@ agent = [
     "langchain-core>=0.2",
     "langchain-anthropic>=0.1",
 ]
-api = [
-    "fastapi>=0.110",
-    "uvicorn[standard]>=0.27",
-]
-mcp = [
-    "mcp>=1.0",
+hail = [
+    "hail>=0.2.130",
 ]
 dev = [
     "pytest>=7.0",
+    "pytest-cov>=4.1",
     "ruff>=0.4",
+    "build>=1.0",
+    "twine>=4.0",
 ]
 all = [
-    "graphgwas[gnn,agent,api,mcp,dev]",
+    "graphgwas[sumstats,genotypes,api,mcp,gnn,agent,dev]",
 ]
+
+[project.urls]
+Homepage = "https://github.com/jfmao/GraphGWAS"
+Documentation = "https://github.com/jfmao/GraphGWAS/tree/main/docs"
+Repository = "https://github.com/jfmao/GraphGWAS"
+Issues = "https://github.com/jfmao/GraphGWAS/issues"
+Changelog = "https://github.com/jfmao/GraphGWAS/blob/main/CHANGELOG.md"
 
 [project.scripts]
 graphgwas = "graphgwas.cli:cli"
 
 [tool.setuptools.packages.find]
 where = ["."]
+include = ["graphgwas*"]
+
+[tool.setuptools.package-data]
+graphgwas = ["py.typed"]
 
 [tool.ruff]
 line-length = 100

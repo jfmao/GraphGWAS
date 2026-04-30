@@ -1,6 +1,6 @@
 # Rice 3K GraphGWAS fine-mapping plan
 
-**Objective**: apply GraphGWAS's HBP / L1 fine-mapping to the 3000 Rice
+**Objective**: apply GraphGWAS's HBP / GAFM fine-mapping to the 3000 Rice
 Genomes Project (3K RG) dataset and validate against textbook
 known-causal genes (e.g. *sd1*, *Hd1*, *GS3*, *GW2*, *Waxy*). Extend
 the paper's cross-species story beyond *Arabidopsis* (FT10,

@@ -16,7 +16,7 @@ Pipeline per replicate:
   4. Run:
      - SuSiE (vanilla, uniform priors)
      - SuSiE + annotation prior ("Polyfun-proxy")
-     - L1 Bayesian with same annotations
+     - GAFM (Graph-Augmented Fine-Mapping; Python prefix `l1`) with same annotations
 
 Writes results/benchmark_v2/polyfun_proxy/polyfun_proxy.{json,tsv}.
 """
@@ -165,8 +165,9 @@ def run_one_rep(reader: BgenReader, seed: int, h2: float = 0.02):
     # SuSiE with annotation prior (Polyfun-proxy)
     annotated = _run_susie(dosage, y, causal_idx, prior_weights=prior_weights)
 
-    # L1 Bayesian: build variants list and run fast_hbp_finemap (which is our
-    # graph-native fine-mapper; L1 shares core infrastructure). Use same prior.
+    # GAFM (Python prefix l1): build variants list and run fast_hbp_finemap
+    # (which is our graph-native fine-mapper; GAFM shares core infrastructure).
+    # Use same prior.
     variants = [
         {
             "variantId": f"chr22:{int(vdf.iloc[j]['pos'])}:{vdf.iloc[j]['a1']}:{vdf.iloc[j]['a2']}",
