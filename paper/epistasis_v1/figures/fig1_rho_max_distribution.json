@@ -1,0 +1,41 @@
+{
+  "params": {
+    "n_samples": 3202,
+    "n_z": 30,
+    "m_int": 100,
+    "n_target": 100,
+    "maf_min": 0.05,
+    "chr21_window": [
+      30000000,
+      35000000
+    ],
+    "chr22_window": [
+      30000000,
+      35000000
+    ],
+    "seed": 2026
+  },
+  "different_chr": {
+    "n_values": 3000,
+    "min": 0.16965417529415258,
+    "mean": 0.355534891627474,
+    "median": 0.33681265333718163,
+    "p95": 0.5495514781413445,
+    "max": 0.7753113724727012
+  },
+  "same_chr": {
+    "n_values": 3000,
+    "min": 0.1596612125414687,
+    "mean": 0.3707455838985088,
+    "median": 0.3537202175166806,
+    "p95": 0.5776211682471295,
+    "max": 0.8003448781130958
+  },
+  "yelmen_2026_reference": {
+    "different_chr_mean": 0.032,
+    "different_chr_max": 0.042,
+    "same_chr_mean": 0.035,
+    "same_chr_max": 0.849,
+    "note": "Reference values from Yelmen et al. 2026 Fig 1 caption (Estonian Biobank n=210,145, 8170 GSA SNPs on chr21+22)."
+  }
+}
