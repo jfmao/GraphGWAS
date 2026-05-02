@@ -20,9 +20,7 @@ from . import config as _cfg
 from .db import GraphGWASConnection
 from .genotype import (
     build_carrier_set,
-    build_count_table,
     get_phenotype_indices,
-    unpack_genotypes,
     variant_iterator,
 )
 

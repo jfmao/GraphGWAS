@@ -19,9 +19,7 @@ from . import config as _cfg
 from .db import GraphGWASConnection
 from .genotype import (
     get_all_indices,
-    variant_iterator,
     build_dosage,
-    build_carrier_set,
 )
 
 

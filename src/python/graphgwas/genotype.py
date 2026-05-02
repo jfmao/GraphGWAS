@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import numpy as np
 
-from .config import GT_HOM_REF, GT_HET, GT_HOM_ALT, GT_MISSING
+from .config import GT_HET, GT_HOM_ALT, GT_MISSING
 from .db import GraphGWASConnection
 
 

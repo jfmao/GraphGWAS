@@ -144,7 +144,6 @@ def _flow_permutation_worker(all_sample_nodes: list[str],
     Rebuilds Source edges with permuted case labels and computes pathway flows.
     Takes serializable network data, not nx.DiGraph (not picklable reliably).
     """
-    import networkx as nx
     from .flow import compute_pathway_flows
 
     rng = np.random.default_rng(seed)

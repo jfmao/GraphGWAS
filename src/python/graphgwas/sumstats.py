@@ -661,7 +661,7 @@ def sumstats_report(sumstats: dict,
     """
     if verbose:
         print("=" * 60)
-        print(f"  Summary Statistics Report")
+        print("  Summary Statistics Report")
         print(f"  Source: {os.path.basename(sumstats.get('source', '?'))}")
         print("=" * 60)
 
@@ -719,7 +719,7 @@ def sumstats_report(sumstats: dict,
         print(f"  Suggestive: {n_suggestive:,}")
         print(f"  Lambda GC: {lgc:.3f}")
         print(f"  Independent loci: {len(loci)}")
-        print(f"\n  Top loci:")
+        print("\n  Top loci:")
         for locus in loci[:10]:
             print(f"    chr{locus['chr']}:{locus['pos']} "
                   f"p={locus['pval']:.2e} β={locus['beta']:.4f}")
@@ -727,7 +727,7 @@ def sumstats_report(sumstats: dict,
     # Gene-level test (if annotations available)
     if gene_annotations:
         if verbose:
-            print(f"\n  Gene-level test:")
+            print("\n  Gene-level test:")
         gene_results = sumstats_gene_test(sumstats, gene_annotations,
                                           verbose=verbose)
         report["gene_results"] = gene_results[:100]

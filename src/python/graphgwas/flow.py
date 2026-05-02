@@ -21,7 +21,6 @@ from .db import GraphGWASConnection
 from .genotype import (
     build_carrier_set,
     get_phenotype_indices,
-    variant_iterator,
 )
 
 

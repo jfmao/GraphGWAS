@@ -20,7 +20,6 @@ from scipy import stats as sp_stats
 from scipy.linalg import solve_triangular, cho_factor, cho_solve
 
 from . import config as _cfg
-from .config import GT_MISSING
 from .db import GraphGWASConnection
 from .genotype import (
     build_count_table,

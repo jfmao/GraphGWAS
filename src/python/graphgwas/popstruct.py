@@ -397,7 +397,7 @@ def grammar_plus_calibrate(geno: np.ndarray,
 
     if lgc_raw <= 0 or not np.isfinite(lgc_raw):
         if verbose:
-            print(f"    GRAMMAR+ calibration: λ_GC not computable, factor=1.0")
+            print("    GRAMMAR+ calibration: λ_GC not computable, factor=1.0")
         return 1.0
 
     factor = target_lambda / lgc_raw
@@ -710,7 +710,6 @@ def _gwas_auto(geno, phenotype, kinship, n_pcs, verbose):
     3. If still inflated (>1.1): escalate to GRAMMAR+
     4. If over-corrected (<0.9): reduce PCs and retry
     """
-    from .sv import fast_gwas
 
     if verbose:
         print("  Auto mode: trying PCA first...")
@@ -725,13 +724,13 @@ def _gwas_auto(geno, phenotype, kinship, n_pcs, verbose):
     # Well calibrated?
     if 0.9 <= lgc_pca <= 1.1:
         if verbose:
-            print(f"    → PCA is well-calibrated, using PCA")
+            print("    → PCA is well-calibrated, using PCA")
         return betas_pca, pvals_pca
 
     # Still inflated?
     if lgc_pca > 1.1:
         if verbose:
-            print(f"    → Still inflated, trying GRAMMAR+ calibration on PCA results...")
+            print("    → Still inflated, trying GRAMMAR+ calibration on PCA results...")
         # Apply genomic control to PCA p-values (simpler than full GRAMMAR+)
         gc_factor = 1.0 / lgc_pca  # deflate by observed λ
         pvals_gc = _apply_gc_correction(pvals_pca, gc_factor)
@@ -743,7 +742,7 @@ def _gwas_auto(geno, phenotype, kinship, n_pcs, verbose):
 
         # If GC on PCA still not great, try full GRAMMAR+
         if verbose:
-            print(f"    → Escalating to full GRAMMAR+...")
+            print("    → Escalating to full GRAMMAR+...")
         betas_gp, pvals_gp = _gwas_grammar(geno, phenotype, kinship, n_pcs,
                                             calibrate=True, verbose=verbose)
         lgc_gp = lambda_gc(pvals_gp)

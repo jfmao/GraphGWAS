@@ -17,14 +17,12 @@ Components:
 from __future__ import annotations
 
 import numpy as np
-from scipy import stats as sp_stats
 
 from . import config as _cfg
 from .db import GraphGWASConnection
 from .genotype import (
     build_dosage,
     get_phenotype_indices,
-    variant_iterator,
 )
 
 
@@ -91,7 +89,7 @@ def classical_prs(conn: GraphGWASConnection,
         betas.append(beta)
 
     if verbose:
-        print(f"=== Classical PRS ===")
+        print("=== Classical PRS ===")
         print(f"  Variants: {len(variant_ids)} (p < {p_threshold:.0e})")
         print(f"  PRS range: [{prs.min():.4f}, {prs.max():.4f}]")
         print(f"  PRS mean(cases): {prs[:len(case_idx)].mean():.4f}, "
@@ -197,7 +195,7 @@ def graph_pruned_prs(conn: GraphGWASConnection,
                 G.add_edge(v1, v2, r2=r2_val)
 
     if verbose:
-        print(f"=== Graph-Pruned PRS ===")
+        print("=== Graph-Pruned PRS ===")
         print(f"  LD graph: {G.number_of_nodes()} variants, "
               f"{G.number_of_edges()} LD edges (r² ≥ {r2_threshold})")
 
@@ -384,10 +382,10 @@ def pathway_partitioned_prs(conn: GraphGWASConnection,
         del pr["prs_scores"]
 
     if verbose:
-        print(f"=== Pathway-Partitioned PRS ===")
+        print("=== Pathway-Partitioned PRS ===")
         print(f"  {len(pathway_results)} pathways, "
               f"{sum(p['n_variants'] for p in pathway_results)} variant-pathway links")
-        print(f"\n  Top pathways by effect size:")
+        print("\n  Top pathways by effect size:")
         for pr in pathway_results[:10]:
             print(f"    {pr['pathway']}: d={pr['cohens_d']:.3f}, "
                   f"{pr['n_variants']} variants, "
@@ -445,7 +443,7 @@ def message_passing_prs(conn: GraphGWASConnection,
         return {"method": "message_passing", "error": "PyTorch required"}
 
     if verbose:
-        print(f"=== Message-Passing PRS ===")
+        print("=== Message-Passing PRS ===")
 
     data = export_to_pyg(conn, chr, start, end,
                          max_variants=max_variants, verbose=verbose)
@@ -524,7 +522,6 @@ def prs_evaluation(prs_scores: list[float] | np.ndarray,
         auroc = 0.5
 
     # Nagelkerke R² (pseudo R² from logistic regression)
-    from scipy.special import expit
     # Fit intercept-only model
     p0 = n_cases / n
     ll_null = n_cases * np.log(p0) + n_controls * np.log(1 - p0)
@@ -565,7 +562,7 @@ def prs_evaluation(prs_scores: list[float] | np.ndarray,
         or_top = float("inf")
 
     if verbose:
-        print(f"\n  PRS Evaluation:")
+        print("\n  PRS Evaluation:")
         print(f"    AUROC:          {auroc:.4f}")
         print(f"    Nagelkerke R²:  {nagelkerke_r2:.4f}")
         print(f"    OR (top/bottom decile): {or_top:.2f}")

@@ -5,9 +5,7 @@ then activates a specific trait by setting indexed is_case/is_control flags.
 """
 
 import csv
-import sys
 
-import click
 
 from .db import GraphGWASConnection
 

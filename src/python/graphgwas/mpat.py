@@ -18,7 +18,6 @@ from .db import GraphGWASConnection
 from .genotype import (
     build_dosage,
     get_phenotype_indices,
-    variant_iterator,
     build_count_table,
     compute_z_score,
 )

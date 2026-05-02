@@ -130,7 +130,8 @@ class BgenReader:
 
 
 def _cli() -> None:
-    import argparse, time
+    import argparse
+    import time
     ap = argparse.ArgumentParser(description="BGEN reader sanity checks")
     ap.add_argument("--bgen-dir", required=True, type=Path)
     ap.add_argument("--chr", default="22")

@@ -22,7 +22,6 @@ Components:
 from __future__ import annotations
 
 import gzip
-import os
 import time
 
 import numpy as np

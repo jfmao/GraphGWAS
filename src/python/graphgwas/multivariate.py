@@ -26,7 +26,6 @@ from __future__ import annotations
 
 import numpy as np
 
-from . import config as _cfg
 from .db import GraphGWASConnection
 
 
@@ -227,7 +226,7 @@ def spectral_genetic_covariance(conn: GraphGWASConnection,
     h2_biv = float(cov_g / cov_p) if abs(cov_p) > 1e-10 else 0.0
 
     if verbose:
-        print(f"\n=== Spectral Genetic Covariance ===")
+        print("\n=== Spectral Genetic Covariance ===")
         print(f"  Traits: {trait1} × {trait2}")
         print(f"  N = {N} samples, K = {cutoff} genetic components")
         print(f"  Cov_G  = {cov_g:.6f}")
@@ -364,10 +363,10 @@ def g_matrix(conn: GraphGWASConnection,
     if verbose:
         print(f"\n=== G-Matrix ({T} traits, {N} samples) ===")
         print(f"  Genetic subspace: {cutoff} / {n_comp} components")
-        print(f"\n  Heritabilities:")
+        print("\n  Heritabilities:")
         for t, h2 in zip(trait_names, heritabilities):
             print(f"    h²({t}) = {h2:.4f}")
-        print(f"\n  Genetic Correlation Matrix:")
+        print("\n  Genetic Correlation Matrix:")
         header = "         " + "  ".join(f"{t[:8]:>8}" for t in trait_names)
         print(header)
         for i, t in enumerate(trait_names):
@@ -457,7 +456,7 @@ def multiresolution_correlation(conn: GraphGWASConnection,
         return max(-1.0, min(1.0, rg))
 
     if verbose:
-        print(f"\n=== Multi-Resolution Genetic Correlation ===")
+        print("\n=== Multi-Resolution Genetic Correlation ===")
         print(f"  Traits: {trait1} × {trait2}")
 
     # Variant-level
@@ -497,11 +496,11 @@ def multiresolution_correlation(conn: GraphGWASConnection,
     rg_gene_specific = rg_gene - rg_pathway
 
     if verbose:
-        print(f"\n--- Decomposition ---")
+        print("\n--- Decomposition ---")
         print(f"  r_G_variant  = {rg_variant:.4f}")
         print(f"  r_G_gene     = {rg_gene:.4f}")
         print(f"  r_G_pathway  = {rg_pathway:.4f}")
-        print(f"  ---")
+        print("  ---")
         print(f"  LD-driven (variant − gene)     = {rg_ld_driven:.4f}")
         print(f"  Gene-specific (gene − pathway) = {rg_gene_specific:.4f}")
         print(f"  Pathway-mediated               = {rg_pathway:.4f}")
@@ -618,7 +617,7 @@ def spectral_coherence(conn: GraphGWASConnection,
               f"(signed: {mean_genetic_signed:+.4f})")
         print(f"  Mean environmental coh. (λ ≥ τ): {mean_env_coherence:.4f} "
               f"(signed: {mean_env_signed:+.4f})")
-        print(f"\n  Per-component coherence (first 10):")
+        print("\n  Per-component coherence (first 10):")
         for k in range(min(10, len(coherence))):
             tag = "G" if k < cutoff else "E"
             print(f"    λ_{k}={eigenvalues[k]:.4f}  C={coherence[k]:.4f}  "
@@ -743,7 +742,7 @@ def flow_covariance_from_vectors(flows_trait1: list[dict],
         print(f"  r_G_flow (cosine) = {r_g_flow:.4f}")
         print(f"  Pathways: {len(shared)} shared, "
               f"{len(unique_t1)} {trait1}-only, {len(unique_t2)} {trait2}-only")
-        print(f"  Top pathway contributions:")
+        print("  Top pathway contributions:")
         for c in contributions[:5]:
             print(f"    {c['pathway']}: cov={c['covariance_contribution']:.4f} "
                   f"({c['fraction']*100:.1f}%)")
@@ -857,7 +856,7 @@ def pleiotropic_genes(conn: GraphGWASConnection,
     n_mediated = sum(1 for g in genes if g["pleiotropy_type"] == "mediated")
 
     if verbose:
-        print(f"\n=== Pleiotropic Genes ===")
+        print("\n=== Pleiotropic Genes ===")
         print(f"  Runs: {trait1_run_id} × {trait2_run_id}")
         print(f"  p < {p_threshold:.0e}")
         print(f"  Pleiotropic genes: {len(genes)} "
@@ -921,7 +920,7 @@ def gene_pleiotropy_score(conn: GraphGWASConnection,
         trait_labels = run_ids
 
     if verbose:
-        print(f"=== Gene Pleiotropy Strength Index ===")
+        print("=== Gene Pleiotropy Strength Index ===")
         print(f"  {T} traits, p < {p_threshold:.0e}")
 
     # Query: for each gene, gather per-run stats
@@ -1055,7 +1054,7 @@ def gene_pleiotropy_score(conn: GraphGWASConnection,
         print(f"  Genes with ≥1 significant trait: {len(scored_genes)}")
         multi = sum(1 for g in scored_genes if g["n_traits_significant"] >= 2)
         print(f"  Genes significant for ≥2 traits: {multi}")
-        print(f"\n  Top genes by PSI:")
+        print("\n  Top genes by PSI:")
         print(f"  {'Rank':<6}{'Gene':<15}{'PSI':<10}{'Breadth':<10}"
               f"{'Magnitude':<12}{'Mech':<8}{'Type':<12}{'Traits'}")
         print(f"  {'-'*85}")

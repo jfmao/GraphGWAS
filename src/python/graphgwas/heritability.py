@@ -99,7 +99,7 @@ def spectral_heritability(conn: GraphGWASConnection,
     h2 = float(cumulative_h2[optimal_cutoff - 1])
 
     if verbose:
-        print(f"\n=== Spectral Heritability ===")
+        print("\n=== Spectral Heritability ===")
         print(f"  h²_spectral = {h2:.4f}")
         print(f"  Optimal cutoff: {optimal_cutoff} / {len(eigenvalues)} components")
         print(f"  Eigenvalue gap at cutoff: {gaps[optimal_cutoff - 1]:.4f}"
@@ -340,11 +340,11 @@ def multiresolution_heritability(conn: GraphGWASConnection,
     h2_non_pathway = max(0.0, h2_gene - h2_pathway)
 
     if verbose:
-        print(f"\n--- Decomposition ---")
+        print("\n--- Decomposition ---")
         print(f"  h²_variant  = {h2_variant:.4f}  (total rare-variant)")
         print(f"  h²_gene     = {h2_gene:.4f}  (gene-mediated)")
         print(f"  h²_pathway  = {h2_pathway:.4f}  (pathway-mediated)")
-        print(f"  ---")
+        print("  ---")
         print(f"  h²_intergenic        = {h2_intergenic:.4f}  "
               f"(variant − gene)")
         print(f"  h²_non_pathway_genic = {h2_non_pathway:.4f}  "
@@ -412,7 +412,7 @@ def conductance_heritability(conn: GraphGWASConnection,
         chromosomes = [r["c"] for r in result]
 
     if verbose:
-        print(f"=== Conductance Heritability ===")
+        print("=== Conductance Heritability ===")
         print(f"  {n} samples ({n_case} cases), AF < {af_threshold}")
 
     # Accumulate per-sample degree and case-control cut weight
@@ -630,7 +630,7 @@ def flow_heritability(conn: GraphGWASConnection,
         print(f"\n  Total observed flow: {total_observed:.2f}")
         print(f"  Null mean flow: {null_mean:.2f}")
         print(f"  h²_flow = {h2_flow:.4f}  (p = {p_total:.4f})")
-        print(f"  Top pathway contributions:")
+        print("  Top pathway contributions:")
         for c in contributions[:5]:
             print(f"    {c['pathway']}: h²={c['h2_contribution']:.4f} "
                   f"({c['flow_fraction']*100:.1f}%)")
@@ -759,7 +759,7 @@ def gnn_heritability(conn: GraphGWASConnection,
     h2_gnn = h2_per_layer[-1]  # Full model
 
     if verbose:
-        print(f"\n--- GNN Heritability Summary ---")
+        print("\n--- GNN Heritability Summary ---")
         print(f"  Prevalence: {prevalence:.3f}")
         layer_names = ["direct (variant)", "gene-mediated", "pathway-mediated"]
         for i, (auroc, h2, inc, name) in enumerate(

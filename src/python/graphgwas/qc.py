@@ -8,13 +8,11 @@ Runs a full-genome scan computing:
 
 from __future__ import annotations
 
-import sys
 
 import numpy as np
-from scipy import stats as sp_stats
 
 from .config import (
-    HWE_P_THRESHOLD, CALL_RATE_MIN, MAC_MIN,
+    HWE_P_THRESHOLD, MAC_MIN,
     SAMPLE_MISSINGNESS_MAX, HET_RATE_SD, N_SAMPLES,
 )
 from .db import GraphGWASConnection

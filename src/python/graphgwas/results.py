@@ -6,7 +6,6 @@ and to (:GWASStudy) via IN_STUDY. All results are queryable graph objects.
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
 
 from .db import GraphGWASConnection
 

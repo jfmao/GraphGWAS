@@ -107,7 +107,7 @@ def load_met_data(conn: GraphGWASConnection,
         rows = list(reader)
 
     if verbose:
-        print(f"=== Loading MET Data ===")
+        print("=== Loading MET Data ===")
         print(f"  File: {csv_path}")
         print(f"  Rows: {len(rows)}")
 
@@ -309,7 +309,7 @@ def environment_similarity(conn: GraphGWASConnection,
     E = len(env_ids)
 
     if verbose:
-        print(f"=== Environment Similarity ===")
+        print("=== Environment Similarity ===")
         print(f"  Trial: {trial_id}, Trait: {trait}, Environments: {E}")
 
     # For each environment, collect genotype → trait value
@@ -470,7 +470,7 @@ def mega_environments(conn: GraphGWASConnection,
                         "mean_within_r_g": mean_rg}
 
     if verbose:
-        print(f"\n=== Mega-Environments ===")
+        print("\n=== Mega-Environments ===")
         print(f"  {n_clusters} mega-environments detected:")
         for ci, info in clusters.items():
             print(f"    Cluster {ci}: {info['n']} envs, "
@@ -526,7 +526,7 @@ def per_environment_gwas(conn: GraphGWASConnection,
         environments = [r["id"] for r in result]
 
     if verbose:
-        print(f"=== Per-Environment GWAS ===")
+        print("=== Per-Environment GWAS ===")
         print(f"  Trial: {trial_id}, Trait: {trait}")
         print(f"  Environments: {len(environments)}, Method: {method}")
 
@@ -681,7 +681,7 @@ def variant_reaction_norms(conn: GraphGWASConnection,
         v["rank"] = i + 1
 
     if verbose:
-        print(f"=== Variant Reaction Norms ===")
+        print("=== Variant Reaction Norms ===")
         print(f"  {len(variants)} variants with multi-env betas")
         for v in variants[:10]:
             slope_str = (f" slope={v['reaction_norm_slope']:.4f}"
@@ -799,11 +799,11 @@ def gxe_decomposition(conn: GraphGWASConnection,
             h2_per_env[env_id] = None
 
     if verbose:
-        print(f"=== G×E Decomposition ===")
+        print("=== G×E Decomposition ===")
         print(f"  Trial: {trial_id}, Trait: {trait}")
         print(f"  {G} genotypes × {E} environments, "
               f"{n_obs}/{n_total} cells observed ({balance_ratio:.1%})")
-        print(f"\n  Variance components:")
+        print("\n  Variance components:")
         print(f"    V_G   = {v_g:.4f}  ({v_g/v_total*100:.1f}%)")
         print(f"    V_E   = {v_e:.4f}  ({v_e/v_total*100:.1f}%)")
         print(f"    V_GxE = {v_gxe:.4f}  ({v_gxe/v_total*100:.1f}%)")
@@ -922,7 +922,7 @@ def design_diagnostics(conn: GraphGWASConnection,
         fiedler = 0.0
 
     if verbose:
-        print(f"=== Design Diagnostics ===")
+        print("=== Design Diagnostics ===")
         print(f"  Trial: {trial_id}")
         print(f"  {G} genotypes × {E} environments")
         print(f"  Observations: {n_obs} / {n_total} ({balance_ratio:.1%} balanced)")
@@ -933,7 +933,7 @@ def design_diagnostics(conn: GraphGWASConnection,
         print(f"  Environment diversity: mean={np.mean(list(env_diversity.values())):.0f} genotypes, "
               f"range=[{min(env_diversity.values())}, {max(env_diversity.values())}]")
         if bridge_genotypes:
-            print(f"  Top bridge genotypes (reference set candidates):")
+            print("  Top bridge genotypes (reference set candidates):")
             for g, bc in bridge_genotypes[:5]:
                 print(f"    {g}: betweenness={bc:.4f}, "
                       f"coverage={geno_coverage.get(g, 0)} envs")
@@ -1073,7 +1073,7 @@ def graph_impute_missing(conn: GraphGWASConnection,
     confidence = float(min(1.0, mean_sim * np.sqrt(len(neighbors)) / np.sqrt(k_neighbors)))
 
     if verbose:
-        print(f"=== Graph Imputation ===")
+        print("=== Graph Imputation ===")
         print(f"  Genotype: {genotype_id}, Environment: {environment_id}")
         print(f"  Imputed value: {imputed:.4f}")
         print(f"  Confidence: {confidence:.4f}")

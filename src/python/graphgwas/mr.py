@@ -161,7 +161,7 @@ def select_instruments(conn: GraphGWASConnection,
     instruments.sort(key=lambda i: i["p_exposure"])
 
     if verbose:
-        print(f"=== MR Instrument Selection ===")
+        print("=== MR Instrument Selection ===")
         print(f"  Exposure candidates: {len(exp_records)} (p < {p_threshold:.0e})")
         print(f"  LD graph: {G.number_of_nodes()} nodes, {G.number_of_edges()} edges "
               f"(r² ≥ {r2_threshold})")
@@ -463,7 +463,7 @@ def pleiotropy_test(conn: GraphGWASConnection,
     if verbose:
         n_valid = sum(1 for c in classified if c["pleiotropy_status"] == "valid")
         n_unknown = sum(1 for c in classified if c["pleiotropy_status"] == "unknown")
-        print(f"\n  Graph pleiotropy test:")
+        print("\n  Graph pleiotropy test:")
         print(f"    Valid: {n_valid}, Pleiotropic: {n_pleiotropic}, "
               f"Unknown: {n_unknown}")
         print(f"    Exposure pathways: {len(exposure_pathways)}")
@@ -555,7 +555,7 @@ def pathway_mediated_mr(conn: GraphGWASConnection,
     unassigned = [i for i in instruments if i["variant"] not in assigned_vids]
 
     if verbose:
-        print(f"\n  Pathway-Mediated MR:")
+        print("\n  Pathway-Mediated MR:")
         print(f"    {len(pathway_estimates)} pathways with instruments")
         print(f"    {len(unassigned)} instruments without pathway annotation")
         for pe in pathway_estimates[:10]:

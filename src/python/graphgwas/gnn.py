@@ -14,7 +14,6 @@ Components:
 
 from __future__ import annotations
 
-from pathlib import Path
 
 import numpy as np
 
@@ -32,11 +31,8 @@ from . import config as _cfg
 from .db import GraphGWASConnection
 from .genotype import (
     build_carrier_set,
-    build_dosage,
     get_phenotype_indices,
-    get_all_indices,
     variant_iterator,
-    unpack_genotypes,
 )
 
 
