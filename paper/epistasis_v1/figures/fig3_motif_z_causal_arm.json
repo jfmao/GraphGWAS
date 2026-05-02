@@ -1,0 +1,92 @@
+{
+  "params": {
+    "n_samples": 3202,
+    "n_z": 30,
+    "m_int": 100,
+    "n_target": 100,
+    "maf_min": 0.05,
+    "chr22_window": [
+      30000000,
+      35000000
+    ],
+    "seed": 2026
+  },
+  "motif_stats": {
+    "n_variants_total": 17021,
+    "n_variants_in_cache": 6209,
+    "n_genes_with_2plus_variants": 95,
+    "n_genes_capped": 65,
+    "max_pairs_per_gene": 500,
+    "n_motif_pairs_unique": 33843,
+    "n_causal_pool": 5986,
+    "n_null_pool": 11035
+  },
+  "lambda_var_assumed": 0.1,
+  "x_threshold": 5.45,
+  "cells": {
+    "null_random": {
+      "n": 3000,
+      "min": 0.20400547404959382,
+      "mean": 0.5447094974641309,
+      "median": 0.5378907592089879,
+      "p95": 0.8155624713109595,
+      "max": 0.9831456313839692
+    },
+    "null_motif": {
+      "n": 3000,
+      "min": 0.1779930407985098,
+      "mean": 0.46820841747070235,
+      "median": 0.4281739126632348,
+      "p95": 0.809967784730087,
+      "max": 0.9975886706869498
+    },
+    "causal_random": {
+      "n": 3000,
+      "min": 0.21527728393027054,
+      "mean": 0.578097259490293,
+      "median": 0.5723591961240703,
+      "p95": 0.8270676246583474,
+      "max": 0.9686346710151696
+    },
+    "causal_motif": {
+      "n": 3000,
+      "min": 0.18637144078643228,
+      "mean": 0.6699150235370473,
+      "median": 0.6884386577476511,
+      "p95": 0.949423387015701,
+      "max": 0.9996124849843382
+    }
+  },
+  "headline_at_mean_rho": {
+    "null_random": {
+      "rho_mean": 0.5447094974641309,
+      "mu_shift_at_rho_mean": 9.895006203453532,
+      "R_at_x5.45_lambda0.1_rho_mean": 19853119.11526804
+    },
+    "null_motif": {
+      "rho_mean": 0.46820841747070235,
+      "mu_shift_at_rho_mean": 8.47155463993432,
+      "R_at_x5.45_lambda0.1_rho_mean": 19836945.01490746
+    },
+    "causal_random": {
+      "rho_mean": 0.578097259490293,
+      "mu_shift_at_rho_mean": 10.52186177207757,
+      "R_at_x5.45_lambda0.1_rho_mean": 19853156.598013293
+    },
+    "causal_motif": {
+      "rho_mean": 0.6699150235370473,
+      "mu_shift_at_rho_mean": 12.265947357383151,
+      "R_at_x5.45_lambda0.1_rho_mean": 19853158.058465473
+    }
+  },
+  "ks_tests": {
+    "null_random_vs_null_motif": {
+      "statistic": 0.23566666666666666,
+      "p_value": 1.8524262297232654e-73
+    },
+    "causal_random_vs_causal_motif": {
+      "statistic": 0.26066666666666666,
+      "p_value": 5.732325480943272e-90
+    }
+  }
+}

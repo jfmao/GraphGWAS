@@ -206,6 +206,128 @@ def mutual_rwr_pair_scores(
     return pair_scores[:top_k]
 
 
+def gene_pair_rwr_scores(
+    A: np.ndarray,
+    gene_seed_indices: list[int] | np.ndarray,
+    alpha: float = 0.15,
+    top_gene_pairs: int = 200,
+    n_iter: int = 30,
+) -> list[tuple[int, int, float]]:
+    """Run RWR on the *gene* side of the bipartite graph and rank gene pairs.
+
+    Symmetric counterpart to :func:`mutual_rwr_pair_scores`, but with seeds
+    on genes rather than variants.  Walks gene→variant→gene; mutual score
+    between two seeded genes (g_a, g_b) is
+
+        score(a, b) = p_{g_a}[g_b] * p_{g_b}[g_a]
+
+    Use when the biological hypothesis is a *gene-pair* relationship (e.g.,
+    BCY1 × TPK1) and the variant-priority seed pool is too sparse to put
+    both genes' variants in the top-K (the §Y.4 yeast failure mode).
+    Combine with :func:`expand_gene_pairs_to_variant_pairs` to recover all
+    variant-variant cross products for testing.
+
+    Args:
+        A: variant→gene adjacency, (n_var, n_gene).
+        gene_seed_indices: gene indices to seed RWR from.  Pass all gene
+            indices for full enumeration, or a subset for targeted scans.
+        alpha: restart probability.
+        top_gene_pairs: number of top gene pairs to return.
+        n_iter: max iterations.
+
+    Returns:
+        List of (gene_i, gene_j, score) tuples, sorted by score descending.
+    """
+    n_var, n_gene = A.shape
+    seeds = list(gene_seed_indices)
+    n_seed = len(seeds)
+    if n_seed == 0:
+        return []
+    if not (0.0 < alpha <= 1.0):
+        raise ValueError(f"alpha must be in (0, 1]; got {alpha}")
+
+    var_deg = A.sum(axis=1, keepdims=True).clip(min=1e-12)
+    gene_deg = A.sum(axis=0, keepdims=True).clip(min=1e-12)
+    P_vg = A / var_deg                            # variant→gene
+    P_gv = (A / gene_deg).T                       # gene→variant
+    # Two-step gene→variant→gene transition (n_gene × n_gene)
+    M_gg = P_gv @ P_vg
+
+    E = np.zeros((n_gene, n_seed), dtype=np.float64)
+    for k, gi in enumerate(seeds):
+        E[gi, k] = 1.0
+    P = E.copy()
+    for _ in range(n_iter):
+        P = (1.0 - alpha) * (M_gg @ P) + alpha * E
+    P = P / np.clip(P.sum(axis=0, keepdims=True), 1e-12, None)
+
+    seed_arr = np.asarray(seeds)
+    P_seed = P[seed_arr, :]                       # (n_seed, n_seed)
+    mutual = P_seed * P_seed.T
+    iu = np.triu_indices(n_seed, k=1)
+    pair_idx_pairs = list(zip(iu[0], iu[1]))
+    scores = mutual[iu]
+    order = np.argsort(scores)[::-1]
+    out: list[tuple[int, int, float]] = []
+    for o in order:
+        s = float(scores[o])
+        if s <= 0:
+            break
+        ki, kj = pair_idx_pairs[o]
+        out.append((seeds[ki], seeds[kj], s))
+        if len(out) >= top_gene_pairs:
+            break
+    return out
+
+
+def expand_gene_pairs_to_variant_pairs(
+    gene_pairs: list[tuple[int, int, float]],
+    A: np.ndarray,
+    variant_ids: list[str],
+    *,
+    max_variants_per_gene: int = 50,
+) -> list[tuple[int, int, float]]:
+    """Cross-product expansion: each gene pair → all (v ∈ g_a) × (v ∈ g_b) variant pairs.
+
+    The variant indices come from ``A`` (the bipartite adjacency).  Pairs
+    are deduplicated when the same variant appears in multiple gene pairs;
+    the kept score is the maximum gene-pair score so far.
+
+    Args:
+        gene_pairs: output of :func:`gene_pair_rwr_scores`.
+        A: bipartite adjacency, (n_var, n_gene).  Same matrix used to seed
+            ``gene_pair_rwr_scores``.
+        variant_ids: list aligned with rows of A (used only for logging).
+        max_variants_per_gene: cap on per-gene variant fanout (avoids
+            quadratic blow-up on hub genes).  When exceeded, randomly
+            sample without replacement.
+
+    Returns:
+        List of (var_i, var_j, score) tuples — variant column indices into
+        the dosage matrix that built ``A``.  Sorted by score descending.
+    """
+    rng = np.random.default_rng(0)  # deterministic per-pair sampling
+    pair_score: dict[tuple[int, int], float] = {}
+    for gene_a, gene_b, s in gene_pairs:
+        vars_a = np.where(A[:, gene_a] > 0)[0]
+        vars_b = np.where(A[:, gene_b] > 0)[0]
+        if len(vars_a) > max_variants_per_gene:
+            vars_a = rng.choice(vars_a, size=max_variants_per_gene, replace=False)
+        if len(vars_b) > max_variants_per_gene:
+            vars_b = rng.choice(vars_b, size=max_variants_per_gene, replace=False)
+        for vi in vars_a:
+            for vj in vars_b:
+                if vi == vj:
+                    continue
+                key = (int(min(vi, vj)), int(max(vi, vj)))
+                # Keep best score for duplicate variant pairs
+                if key not in pair_score or pair_score[key] < s:
+                    pair_score[key] = s
+    out = [(i, j, s) for (i, j), s in pair_score.items()]
+    out.sort(key=lambda t: t[2], reverse=True)
+    return out
+
+
 def mutual_rwr_triplet_scores(
     A: np.ndarray,
     seed_indices: list[int] | np.ndarray,

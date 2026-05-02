@@ -1,5 +1,6 @@
-% PLACEHOLDER abstract — Yelmen-reframing pitch.  Final empirical numbers will
-% replace [PLACEHOLDER] tags as Phase C/D experiments produce results.
+% Yelmen-reframing pitch.  Numbers from §Y.1 (1KG chr22) + §Y.4 (yeast
+% Scenario A) + §Y.3 (MDR baseline).  Sections still placeholder will be
+% updated as Phase C/D experiments produce results.
 
 \abstract{
 Classical genome-wide association studies --- including state-of-the-art
@@ -10,19 +11,26 @@ sample size, so biobank-scale GWAS is more vulnerable, not less.
 We present GraphGWAS-Epistasis, a graph-native epistasis-detection
 toolkit that exploits a typed multi-omics knowledge graph (genes,
 tissue-specific eQTLs, pathways, protein--protein interactions) to
-build a biology-typed interaction subspace. Four detection strategies
+build a biology-typed interaction subspace. Five detection strategies
 operate on this substrate: M1 LD-pruned co-occurrence with explicit
 interaction tests; M2 motif-filtered pairs (same-gene, PPI-partner,
 same-pathway); M3 differential subgraph analysis between cases and
-controls; and M4 dark-matter / synthetic-incompatibility detection.
-On simulated phenotypes derived from [PLACEHOLDER --- 1KG chr21+22 /
-Estonian Biobank if access granted], feeding the detected interactions
-back into the LMM as covariates collapses the spurious-significance
-regime from [PLACEHOLDER]\,\% to [PLACEHOLDER]\,\%. The same graph-typed
-interaction subspace yields a closed-form $\rho_{\max}$ diagnostic that
-flags bias-prone target SNPs before testing. Three higher-order methods
-(M5 random walk, M6 GNN-attention, M7 persistent homology) extend the
-framework to $k\geq 3$ interactions that pairwise tests cannot
-formulate. The toolkit is released as part of the GraphGWAS Python
-package; all benchmarks reproduce from a single command.
+controls; M4 dark-matter / synthetic-incompatibility detection; and M5
+gene-priority random walk with restart on a heterogeneous variant-gene-
+pathway-PPI graph. On 1000 Genomes chr22 ($n=3{,}202$), motif-typed
+$Z$ resolves the $\rho_{\max}$ separation between biology-aligned and
+biology-isolated SNPs ${\sim}6\times$ more sharply than the random $Z$
+of Yelmen \emph{et~al.}, surfacing a mean bias-statistic shift
+$\Delta\mu=+1.7\sigma$ that random $Z$ hides. On the 1011 Yeast Genomes
+panel, M2 recovers the canonical cAMP-PKA epistatic pair BCY1$\times$TPK1
+at rank 1{,}148 of 94{,}440 (q\,$=1.7\times10^{-5}$, top 1.2\%), out-ranking
+the MDR classical baseline by $\sim$$43\times$ in percentile and
+out-detecting M1 (NF), M3 (NF), M4 (NF), and the variant-priority M5
+(NF). Gene-priority M5 RWR rescues the BCY1$\times$TPK1 case once the
+canonical BCY1$\leftrightarrow$TPK1 BioGRID edge is added to the cache
+(variant-pair rank 1{,}522, $p_{\mathrm{int}}=1.76\times10^{-10}$,
+$q=1.08\times10^{-5}$), demonstrating that the bottleneck on
+graph-priority methods is gene-gene graph curation, not the random-walk
+machinery itself. The toolkit is released as part of the GraphGWAS
+Python package; all benchmarks reproduce from a single command.
 }

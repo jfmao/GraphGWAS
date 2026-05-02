@@ -115,12 +115,13 @@ Biobank Research Team if EstBB application is granted.]
 \subsection*{Main-text Figures}
 \begin{description}
 \setlength{\itemsep}{2pt}
-\item[Figure 1] [PLACEHOLDER] $\rho_{\max}$ distribution under random vs motif-typed Z (replicates Yelmen et al. 2026 Fig 1, with our novel motif-Z extension).
-\item[Figure 2] [PLACEHOLDER] Conservativeness rescue: REGENIE LMM with vs without GraphGWAS-detected interaction covariates.
-\item[Figure 3] [PLACEHOLDER] M2 motif-pair power vs BOOST, MAPIT, MDR baselines on multi-scenario simulations.
-\item[Figure 4] [PLACEHOLDER] Yeast real-data: literature-validated epistatic pairs (BCY1--TPK1, HSP104 modifiers).
-\item[Figure 5] [PLACEHOLDER] Higher-order ($k\geq 3$) detection via M5--M7.
-\item[Figure 6] [PLACEHOLDER] Cross-species replication.
+\item[Figure 1] Yelmen Fig 1 reproduction on 1KG chr21+22 — $\rho_{\max}$ distributions for the diff-chromosome and same-chromosome designs. Sources: \texttt{paper/epistasis\_v1/figures/fig1\_rho\_max\_distribution.\{png,pdf,json\}}.
+\item[Figure 2] Motif-typed vs random $Z$, null-target arm — random-$Z$ mean 0.46 vs motif-$Z$ mean 0.45 on $n=3000$ null target SNPs. Sources: \texttt{fig2\_motif\_z\_comparison.\{png,pdf,json\}}.
+\item[Figure 3] Motif-typed vs random $Z$, causal-target arm — 2$\times$2 grid (target type $\times$ $Z$ type) demonstrating biology-typed $Z$ surfaces bias that random $Z$ hides ($\Delta\mu=+1.7\sigma$). Sources: \texttt{fig3\_motif\_z\_causal\_arm.\{png,pdf,json\}}.
+\item[Figure 4] [PLACEHOLDER] Conservativeness rescue: REGENIE LMM with vs without GraphGWAS-detected interaction covariates.
+\item[Figure 5] [PLACEHOLDER] Yeast real-data scenario $\times$ method grid — BCY1$\times$TPK1 recovery rank across 3 phenotype regimes $\times$ 5 methods. Source: \texttt{results/paper2\_epistasis/yeast\_validation.json}.
+\item[Figure 6] [PLACEHOLDER] Higher-order: gene-priority RWR vs variant-priority on yeast §Y.4 + canonical-PPI sensitivity panel. Source: \texttt{results/paper2\_epistasis/y5\_gene\_priority\_rwr\_*.json}.
+\item[Figure 7] [PLACEHOLDER] Cross-species replication (Arabidopsis FT$\times$FLC, rice Hd1$\times$Hd3a).
 \end{description}
 
 \subsection*{Main-text Tables}

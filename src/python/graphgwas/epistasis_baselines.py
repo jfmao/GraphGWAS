@@ -204,6 +204,7 @@ def run_mdr(
     n_pairs_test: int = 1000,
     cv_folds: int = 10,
     seed: int = 0,
+    force_pairs: list[tuple[int, int]] | None = None,
 ) -> pd.DataFrame:
     """Multifactor Dimensionality Reduction (scikit-mdr port).
 
@@ -234,7 +235,9 @@ def run_mdr(
             "  pip install scikit-mdr"
         )
     from mdr import MDR
-    from sklearn.model_selection import cross_val_score
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.metrics import balanced_accuracy_score
+    from sklearn.model_selection import StratifiedKFold
 
     rng = np.random.default_rng(seed)
     n_var = genotype_matrix.shape[1]
@@ -246,18 +249,43 @@ def run_mdr(
         i, j = rng.integers(0, n_var, size=2)
         if i != j:
             pair_indices.add((min(i, j), max(i, j)))
+    # Force-include explicitly-requested pairs (e.g., known ground-truth pairs)
+    if force_pairs is not None:
+        for (i, j) in force_pairs:
+            if i != j and 0 <= i < n_var and 0 <= j < n_var:
+                pair_indices.add((min(i, j), max(i, j)))
     pair_indices = list(pair_indices)
 
+    # MDR is a feature transformer in scikit-mdr (no predict method) — pair
+    # it with logistic regression for classification.  Manual CV loop because
+    # sklearn.cross_val_score's pipeline integration is finicky with MDR's
+    # custom transform signature.
+    skf = StratifiedKFold(n_splits=cv_folds, shuffle=True, random_state=seed)
     rows = []
     for (i, j) in pair_indices:
         X_pair = genotype_matrix[:, [i, j]].astype(np.int8)
-        clf = MDR()
-        try:
-            scores = cross_val_score(clf, X_pair, phenotype, cv=cv_folds,
-                                     scoring="balanced_accuracy")
-            cv_acc = float(scores.mean())
-        except Exception:  # noqa: BLE001
+        fold_accs = []
+        for train_idx, test_idx in skf.split(X_pair, phenotype):
+            try:
+                m = MDR()
+                m.fit(X_pair[train_idx], phenotype[train_idx])
+                X_train_t = m.transform(X_pair[train_idx]).reshape(-1, 1)
+                X_test_t = m.transform(X_pair[test_idx]).reshape(-1, 1)
+                # Skip pathological folds where MDR collapses everything to one class
+                if len(np.unique(X_train_t)) < 2:
+                    continue
+                if len(np.unique(phenotype[train_idx])) < 2:
+                    continue
+                clf = LogisticRegression(max_iter=200).fit(
+                    X_train_t, phenotype[train_idx]
+                )
+                preds = clf.predict(X_test_t)
+                fold_accs.append(balanced_accuracy_score(phenotype[test_idx], preds))
+            except Exception:  # noqa: BLE001
+                continue
+        if not fold_accs:
             continue
+        cv_acc = float(np.mean(fold_accs))
         rows.append({
             "variant_1": variant_ids[i],
             "variant_2": variant_ids[j],

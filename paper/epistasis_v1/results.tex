@@ -1,43 +1,241 @@
-% PLACEHOLDER results — planned-experiment headers; numbers fill in as Phase C/D progresses.
-
 \section{Results}\label{sec:results}
 
-\subsection{Graph-typed $\rho_{\max}$ collapses bias under realistic interaction architectures}\label{sec:rho_max}
+\subsection{Motif-typed $Z$ surfaces the bias that random $Z$ hides}\label{sec:rho_max}
 
-[PLACEHOLDER --- replicates Yelmen \emph{et~al.}\ Fig~1 on 1KG~chr21+22
-under random $Z$ (mean $\rho_{\max}\approx 0.032$, max~$\approx 0.04$
-across chromosomes; max~$0.85$ within-chromosome). Then extends to
-motif-typed $Z$: shows that for genuine causal target SNPs, motif-typed
-$\rho_{\max}$ is suppressed; for null target SNPs, it stays comparable
-to random. Empirical claim: graph-typed interaction modelling reduces
-the bias selectively where it matters.]
+We first quantified the geometric content of the bias-diagnostic
+$\rho_{\max}$ on the 1000~Genomes Project chr22 panel
+($n=3{,}202$ samples; $30$--$35$\,Mb window; $17{,}021$ MAF$\geq$0.05
+SNPs). For each of $30$ random interaction-feature matrices $Z$
+($m=100$ columns of two-way SNP$\times$SNP products), we computed
+$\rho_{\max}$ for $100$ target SNPs (3{,}000 measurements per cell).
+We compared two $Z$ constructions $\times$ two target-SNP pools:
+
+\begin{itemize}
+\setlength{\itemsep}{0pt}
+\item \textbf{Random $Z$}: columns are products of randomly-paired SNPs
+      (Yelmen \emph{et~al.}\ 2026 baseline).
+\item \textbf{Motif-typed $Z$}: columns are products of \emph{same-gene} (P1)
+      pairs drawn from the GraphGWAS chr22 cache
+      ($33{,}843$ unique pairs across $95$ multi-variant genes).
+\item \textbf{Null targets}: $11{,}035$ SNPs with no annotated same-gene
+      partner (biology-isolated).
+\item \textbf{Causal targets}: $5{,}986$ SNPs with $\geq 1$ same-gene
+      partner (biology-aligned, hence in the $Z_{\mathrm{motif}}$ span by construction).
+\end{itemize}
+
+The four-cell comparison (Fig.~3 in the List of Display Items;
+\texttt{paper/epistasis\_v1/figures/fig3\_motif\_z\_causal\_arm}) shows
+that the geometry of $Z$ separates the two target pools far more sharply
+when $Z$ is biology-typed:
+
+\begin{center}\small
+\begin{tabular}{lccc}
+\toprule
+Target pool          & $\rho_{\max}$ random $Z$ & $\rho_{\max}$ motif $Z$ & $\Delta$\\
+\midrule
+Null (biology-isolated) & 0.545 & 0.468 & $+0.077$\\
+Causal (biology-aligned) & 0.578 & \textbf{0.670} & $-0.092$\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+KS tests confirm both within-pool distributions differ (null:
+$D=0.236$, $p=1.85\times10^{-73}$; causal: $D=0.261$,
+$p=5.73\times10^{-90}$). The crucial direction is that random $Z$
+\emph{under}-estimates $\rho_{\max}$ for biology-aligned target SNPs:
+the random-$Z$ column space contains arbitrary directions that overlap
+with target SNPs through generic Gram-matrix noise, but it does not span
+the actual interaction direction. Motif-typed $Z$ spans the small
+biology-aligned subspace that \emph{contains} the true interaction
+direction, surfacing the bias by $+0.092$. The within-construction swing
+between causal and null targets is $0.670-0.468=0.202$ for motif $Z$
+versus $0.578-0.545=0.033$ for random $Z$ -- motif-typed $Z$ is a
+$\sim$$6\times$ more sensitive bias diagnostic for distinguishing
+biology-aligned from biology-isolated SNPs. At
+$\lambda_{\mathrm{var}}=0.1, n=3{,}202$, the cell-mean shifts $\mu$
+are $\mu_{\mathrm{causal,motif}}=12.27$ versus
+$\mu_{\mathrm{causal,random}}=10.52$: random $Z$ would falsely report
+the SNP as $1.7\sigma$ closer to the null than its actual position.
+
+\textbf{Implication}: Yelmen \emph{et~al.}'s closed-form bias diagnostic
+is conservative when applied with random $Z$, in the sense that it
+\emph{understates} the bias for the very SNPs where omitted-interaction
+contamination matters most. A genome-wide bias audit should be run with
+a graph-typed $Z$.
 
 \subsection{Conservativeness rescue on REGENIE-LMM-detected loci}\label{sec:rescue}
 
-[PLACEHOLDER --- run REGENIE on simulated phenotypes (1KG chr21+22 +
-realistic $\lambda$ values); count spuriously significant hits per
-\cite{yelmen2026}'s criterion. Then add GraphGWAS M2-detected
-interactions as covariates; recount. Headline number
-$X{\to}Y$~percent reduction in spurious hits.]
+[DEFERRED --- the REGENIE-rescue benchmark
+(\texttt{tests/regenie\_rescue\_demo.py}) is staged at Stage~1
+(strict-no-path-null phenotype simulation, validated:
+$\lambda_{\mathrm{var}}=0.1$ target $\Rightarrow$ $0.108$ achieved on
+1KG chr22). Stage~2 (REGENIE step~1$\,/\,$step~2 wrapper) requires the
+\texttt{regenie} v3.4 binary; install:
+\verb|mamba install -n graphmana -c bioconda regenie|. The Stage 3
+M2-without-Neo4j path was completed in commit \texttt{8f7e7db} and is
+ready for integration. The rescue claim
+($X\,\to\,Y$\,\% reduction in spurious significant hits) replaces this
+placeholder once Stage~2 is deployed.]
 
-\subsection{Power vs BOOST, MAPIT, MDR}\label{sec:power_baselines}
+\subsection{Power versus classical exhaustive baselines}\label{sec:power_baselines}
 
-[PLACEHOLDER --- 100 replicates per scenario S1--S5; rank-1 detection
-rate, mean rank, runtime per locus. Expectation: M2 motif filtering
-trades raw recall for prior plausibility, beating exhaustive baselines
-on FDR at low $\beta_{I}$.]
+We benchmarked the GraphGWAS toolkit (M1 LD-pruned co-occurrence; M2
+motif-filtered) against three classical-baseline references on the
+yeast Scenario~A panel from §\ref{sec:yeast_validation}:
 
-\subsection{Yeast real-data validation}\label{sec:yeast_validation}
+\begin{description}\setlength{\itemsep}{0pt}
+\item[BOOST]  PLINK2~v2.0.0-a.6.5LM \emph{drops} the
+  \texttt{--epistasis} flag (was PLINK~1.9-only). The closest in-toolkit
+  equivalent is M1 with LD-pruning disabled, which is the
+  Wan~2010-style exhaustive interaction-LR screen.
+\item[MAPIT]  Crawford-lab marginal-epistasis test (Rcpp). The
+  \texttt{run\_mapit} R-template wrapper is staged but not deployed
+  ($\Rightarrow$ deferred for next iteration; documented in
+  \texttt{graphgwas.epistasis\_baselines}).
+\item[MDR]    \texttt{scikit-mdr v0.4.6} (multifactor dimensionality
+  reduction; classifier-based). Pipelined with logistic regression
+  because \texttt{MDR} is a transformer in scikit-mdr, not a classifier.
+\end{description}
 
-[PLACEHOLDER --- 1011 Yeast Genomes; literature-validated epistatic
-pairs (BCY1--TPK1, HSP104 modifiers, RAS/PKA crosstalk).]
+On the yeast Scenario~A panel ($n=1{,}011$ samples; $6{,}625$ SNPs on
+chr9$/$10$/$12; binarised at the median for MDR's case$\,/\,$control input;
+5{,}000 random pairs $+$ the $10$ BCY1 $\times$ TPK1 cross-pairs
+force-included), MDR gave 100\% finite scores under our stratified-3-fold
+loop after the pipeline fix, but its CV balanced accuracy on the BCY1$\times$TPK1
+canonical pair was $0.522$ -- barely above the chance level of $0.5$. The
+ground-truth pair ranked $2{,}598$ of $5{,}010$ ($51.8$th percentile).
 
-\subsection{Higher-order interactions ($k\geq 3$)}\label{sec:higher_order}
+\begin{center}\small
+\begin{tabular}{lcc}
+\toprule
+Method                                & BCY1$\times$TPK1 percentile & Best score / $q$\\
+\midrule
+M2 motif-filtered (GraphGWAS)         & \textbf{1.2\%} (1{,}148\,/\,94{,}440) & $q=1.7\times10^{-5}$\\
+M1 LD-pruned exhaustive (GraphGWAS)   & NF (LD-prune replaces canonical reps) & --\\
+MDR (scikit-mdr v0.4.6)               & $51.8$\% (2{,}598\,/\,5{,}010) & CV bal-acc $0.522$\\
+BOOST (plink2 v2)                     & UNAVAILABLE & --\\
+MAPIT (R/Rscript)                     & DEFERRED & --\\
+\bottomrule
+\end{tabular}
+\end{center}
 
-[PLACEHOLDER --- M5/M6/M7 demonstration; the structurally unique claim
-that pairwise methods cannot reach.]
+M2 outranks MDR by a factor of $\sim$$43\times$ in percentile rank. The
+diagnostic mechanism is two-fold: (i) MDR's classifier-based scoring
+is power-limited at low MAF on small panels (BCY1's representative has
+MAF~$0.059$, TPK1's $0.071$, so 9-cell genotype-tables become sparse
+under cross-validation); (ii) random pair sampling is statistically
+intractable -- $5{,}000$ pairs out of the $6{,}625^2/2 \approx 22\,$M
+pairwise space is $0.02$\% coverage, requiring biology-aware filtering
+just to reach the candidate set in practice.
+
+\subsection{Yeast real-data validation: BCY1$\times$TPK1 across three
+phenotype regimes}\label{sec:yeast_validation}
+
+We tested whether each of the five graph-native methods (M1--M5) recovers
+the canonical cAMP-PKA epistatic pair BCY1 (YIL033C) $\times$ TPK1
+(YJL164C) on the 1011 Yeast Genomes panel ($n=1{,}011$; $6{,}625$
+chr9/10/12 SNPs at MAF$\geq 0.05$; $4{,}572$ in the multi-omics graph
+cache). Three phenotype regimes target different methods:
+
+\begin{description}\setlength{\itemsep}{0pt}
+\item[Scenario A]  $y = \beta\,(g_{\mathrm{BCY1}}-\bar g_{\mathrm{BCY1}})\,(g_{\mathrm{TPK1}}-\bar g_{\mathrm{TPK1}})+\varepsilon$, $\beta=3$ ($R^2_{\mathrm{causal}}\approx 10$\%) -- positive interaction, M1$/$M2$/$M5 turf.
+\item[Scenario B]  Case$\,/\,$control with double-carriers forced into cases (baseline $P_{\mathrm{case}}=0.10$) -- M3 turf.
+\item[Scenario C]  Synthetic-lethal depletion (double-carriers excluded from cases) -- M4 turf.
+\end{description}
+
+Recovery is gene-level: any (BCY1-variant $\times$ TPK1-variant) pair in
+a method's result list counts as recovery. Total runtime $\approx 9$
+minutes (3 scenarios $\times \approx 3$ min/scenario, no Neo4j).
+
+\begin{center}\small
+\begin{tabular}{lccccc}
+\toprule
+Scenario                          & M1 & M2                 & M3 & M4 & M5\\
+\midrule
+A — positive interaction          & NF & \textbf{1{,}148} ($q=1.7\times10^{-5}$) & NF & NF & NF\\
+B — case-enriched co-occurrence   & NF & \textbf{4{,}232} ($q=8.5\times10^{-7}$) & NF & NF & NF\\
+C — synthetic-lethal depletion    & NF & 29{,}809 ($q\approx 1.0$) & NF & NF & NF\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{M2 motif-filtering is the only method that recovers BCY1\,$\times$\,TPK1
+under signal regimes where a pairwise interaction-LR test has power}
+(Scenarios A and B). M2 dominates in both quantitative
+positive-interaction (A) and case-enriched co-occurrence (B), even
+though regression on a binary phenotype is suboptimal in B. M2's rank
+in the synthetic-lethal regime (C) is essentially random
+($29{,}809/94{,}440$, $q\approx 1.0$) -- the regression-based test
+correctly returns null for a depletion-only signal.
+
+The other four methods miss for traceable reasons:
+M1's position-based LD pruning replaces BCY1's representative with
+chr9:282798 (intergenic) and TPK1's with YJL167W -- the kept LD-block
+representatives are no longer BCY1$\,/\,$TPK1 by gene annotation; M3
+returns 79{,}636 case$\,/\,$ctrl-edge classifications under
+imbalanced $n_{\mathrm{case}}=119$ vs $n_{\mathrm{ctrl}}=892$, with
+BCY1$\,\times\,$TPK1 missing from the case-unique edges due to the same
+LD-prune-replacement issue; M4's $\min_{\mathrm{expected}}=0.5$ filter
+combined with low MAFs gives expected co-occurrence $\approx 0.28$,
+below the Poisson-tail threshold; M5 (variant-priority RWR) is
+analysed in §\ref{sec:higher_order}.
+
+\subsection{Higher-order methods: gene-priority RWR rescues M5}\label{sec:higher_order}
+
+The §\ref{sec:yeast_validation} result that variant-priority M5
+(\texttt{mutual\_rwr\_pair\_scores}) misses BCY1$\times$TPK1 across all
+three scenarios is traceable to seed-pool sparsity: only $7$ of the
+BCY1$\,/\,$TPK1 variants survive the MAF$\geq 0.05$ panel filter into the
+seed pool, so mutual-RWR scoring among $4{,}572$ seeds does not push
+the cross-pairs into the top-$2{,}000$.
+
+We re-tested the §Y.5 hypothesis with a \emph{gene-priority} RWR
+variant (\texttt{gene\_pair\_rwr\_scores}): seed the random walk on
+gene nodes rather than variant nodes; rank gene pairs by mutual
+stationary probability; expand each top gene pair into all
+(BCY1-variant $\times$ TPK1-variant) cross-pairs and test each pair for
+interaction. Two adjacency choices were compared:
+
+\begin{itemize}\setlength{\itemsep}{0pt}
+\item \textbf{Bipartite} (variant$\leftrightarrow$gene only): pure two-step
+      walk variant$\to$gene$\to$variant. BCY1 and TPK1 share no annotated
+      variant in our cache, so the bipartite RWR returns mutual score
+      $\equiv 0$ for the pair. Failed.
+\item \textbf{Heterograph} (gene$\leftrightarrow$gene weighted by shared
+      pathways with IDF weighting plus PPI edges): $887$ genes that have
+      at least one variant in the dosage panel; $265{,}304$ edges; max
+      edge weight $10.14$. The cache's PPI annotation
+      \emph{omits the canonical BCY1$\leftrightarrow$TPK1 edge} (BCY1
+      lists itself as its only known partner -- a curation bug). When
+      the canonical BioGRID cAMP-PKA edges are injected
+      ($+3.0$ weight on BCY1$\leftrightarrow$TPK1, also TPK1$\leftrightarrow$TPK2/3
+      and TPK pairwise), gene-priority RWR ranks BCY1$\times$TPK1 at gene-pair
+      rank $770$ of $2{,}000$ (RWR score $8.5\times10^{-6}$). Variant
+      expansion of the top-$2{,}000$ gene pairs yields $61{,}341$
+      tested variant pairs; BCY1$\times$TPK1 surfaces at variant-pair rank
+      $1{,}522$ with $p_{\mathrm{int}}=1.76\times10^{-10}$ and BH-FDR
+      $q=1.08\times10^{-5}$.
+\end{itemize}
+
+\textbf{Implication}: graph-priority RWR succeeds where variant-priority
+RWR fails, but only when the gene-gene graph carries the canonical
+biological edge. The recovery is rate-limited by gene-gene graph
+quality, not by the RWR machinery. Paper-#2 recommends explicit
+graph-curation (BioGRID/STRING for PPI, KEGG/Reactome for pathways,
+SGD/GO for gene-ontology) as a pre-method workflow step rather than
+treating the cache as a fixed input. The mass of higher-order methods
+(M6 GNN-attention, M7 persistent-homology) is deferred for paper-#2
+revision; only the structurally-unique pairwise claim is here.
 
 \subsection{Cross-species replication}\label{sec:cross_species}
 
-[PLACEHOLDER --- \emph{Arabidopsis} 1001~Genomes, 3K~Rice~Genomes,
-human~Pan-UKB.]
+[DEFERRED --- the cross-species runner
+(\texttt{tests/validate\_epistasis\_cross\_species.py}) is scaffolded to
+test FT$\times$FLC in \emph{Arabidopsis} 1001 Genomes and Hd1$\times$Hd3a in
+3{,}000 Rice Genomes under the same 5-method framework. A preliminary
+\emph{Arabidopsis} run produced an unexpected M3 (differential
+subgraph) recovery at gene-pair rank 1, while M2 missed -- the inverse
+of the yeast pattern. This is a paper-#2 revision target because it
+suggests species-specific best-method choices and motivates a
+meta-analysis layer that arbitrates across methods by ground-truth
+ranking. Full Arabidopsis $+$ rice run pending.]
