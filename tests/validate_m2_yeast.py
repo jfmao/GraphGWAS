@@ -677,7 +677,18 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=2026)
     parser.add_argument("--max-pairs-per-entity", type=int, default=500,
                         help="Per-pathway/gene cap on enumerated pairs")
+    parser.add_argument("--motifs", default="same_gene,same_pathway",
+                        help="Comma-separated motifs for M2.  Add "
+                             "'protein_interaction' to enable P3.  "
+                             "(Default: same_gene,same_pathway — original §Y.4)")
+    parser.add_argument("--inject-canonical-ppi", action="store_true",
+                        help="Augment graph cache with BioGRID-curated "
+                             "canonical PPI edges (BCY1↔TPK1/2/3 + 9 more "
+                             "pairs from docs/groundtruth/epistasis_pairs.json). "
+                             "The cache's PPI field is incomplete — see "
+                             "src/python/graphgwas/canonical_ppi.py.")
     args = parser.parse_args()
+    motifs_list = [m.strip() for m in args.motifs.split(",") if m.strip()]
 
     print("=== Yeast §Y.4 validation: M2 motif-filtered epistasis ===")
     print(f"VCF        : {YEAST_VCF}")
@@ -702,6 +713,23 @@ def main() -> None:
     print(f"\n      Loading graph cache...")
     cache = json.loads(YEAST_CACHE.read_text())
     print(f"      cache has {len(cache):,} variants total")
+
+    # Optional canonical-PPI injection (closes a curation gap; see §Y.5)
+    inject_diag = None
+    if args.inject_canonical_ppi:
+        from graphgwas.canonical_ppi import (
+            YEAST_CANONICAL_EDGES,
+            inject_canonical_ppi_edges,
+        )
+        cache, inject_diag = inject_canonical_ppi_edges(
+            cache, edges=YEAST_CANONICAL_EDGES, inplace=True, verbose=True,
+        )
+        print(f"      ✓ injected canonical PPI: "
+              f"{inject_diag['n_edges_applied']}/{inject_diag['n_edges_supplied']} "
+              f"edges applied, {inject_diag['n_variants_modified']} variants modified")
+        if inject_diag["edges_with_zero_variants"]:
+            print(f"      ⚠ edges dropped (no variant in cache): "
+                  f"{inject_diag['edges_with_zero_variants']}")
 
     variant_id_to_col = {v: i for i, v in enumerate(variant_ids)}
     n_in_cache = sum(1 for v in variant_ids if v in cache)
@@ -743,6 +771,7 @@ def main() -> None:
             args=args, rng=rng,
             g1v=g1v, g2v=g2v,
             gene1_variants=gene1_variants, gene2_variants=gene2_variants,
+            motifs_list=motifs_list,
         )
         all_scenario_results[scenario_name] = scenario_results
 
@@ -784,7 +813,10 @@ def _run_one_scenario(scenario_name: str,
                        rng: np.random.Generator,
                        g1v: str, g2v: str,
                        gene1_variants: set,
-                       gene2_variants: set) -> dict:
+                       gene2_variants: set,
+                       motifs_list: list[str] = None) -> dict:
+    if motifs_list is None:
+        motifs_list = ["same_gene", "same_pathway"]
     """Build phenotype + case/control masks for one scenario and run all 5 methods."""
     if scenario_name == "A":
         phenotype = simulate_with_truth(
@@ -839,12 +871,12 @@ def _run_one_scenario(scenario_name: str,
     ))
 
     # ----- M2 -----
-    print(f"\n[M2] Motif-filtered (same_gene + same_pathway)")
+    print(f"\n[M2] Motif-filtered ({'+'.join(motifs_list)})")
     t0 = time.time()
     m2_results = motif_filtered_epistasis_from_data(
         dosages=dosages, variant_ids=variant_ids, phenotype=phenotype,
         graph_cache=cache,
-        motifs=["same_gene", "same_pathway"],
+        motifs=motifs_list,
         mac_min=10, correction="BH",
         max_pairs_per_entity=args.max_pairs_per_entity,
         max_pairs_total=200_000, verbose=True,
