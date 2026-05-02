@@ -165,8 +165,41 @@ human (8 with field caveats) — restricting to pairs with double-mutant /
 CRISPR DKO / paired-NLR / biochemistry validation. For yeast, five pairs
 are panel-segregating in 1011 Yeast Genomes (Goldstein \emph{et al.}\ 2025
 hub-QTL set + the canonical cAMP-PKA pair): BCY1$\times$TPK1, WHI5$\times$CLN3,
-MKT1$\times$GPA1, MIP1$\times$SAL1, TKL1$\times$NQM1. The catalogue is the
-reference for the §Y.4 / §Y.6 multi-pair extension below.
+MKT1$\times$GPA1, MIP1$\times$SAL1, TKL1$\times$NQM1.
+
+\textbf{However: catalogue claims do not always transfer to standard QC
+pipelines.} When we run the multi-pair benchmark on our standard
+MAF$\geq 0.05$-filtered 1011 panel, only 1 of 5 pairs is testable —
+the remaining 4 pairs have at least one gene with no variants surviving
+the MAF cutoff (WHI5, MKT1, MIP1, SAL1, TKL1 all have max-MAF
+$<0.05$ in this VCF, despite having 140--440 variants in the cache).
+The Goldstein 2025 BB-QTL analysis used a barcoded-segregant subset
+with different filtering than the standard 1011 SNP release. This is
+a real-world reproducibility issue when applying ground-truth
+catalogues across pipelines:
+
+\begin{center}\small
+\begin{tabular}{lcc}
+\toprule
+Pair                & Genes both present at MAF$\geq 0.05$ & Multi-pair benchmark \\
+\midrule
+BCY1$\times$TPK1    & BCY1 (max MAF 0.059), TPK1 (0.071) & \textbf{Tested} \\
+WHI5$\times$CLN3    & WHI5 max MAF 0.000   & Skipped \\
+MKT1$\times$GPA1    & MKT1 max MAF 0.000   & Skipped \\
+MIP1$\times$SAL1    & MIP1 max MAF 0.000   & Skipped \\
+TKL1$\times$NQM1    & TKL1 max MAF 0.000   & Skipped \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The multi-pair benchmark (\texttt{validate\_multipair\_yeast.py}) loaded
+all 8 chromosomes hosting these genes' loci ($n=1{,}011$ samples,
+$\sim 16{,}000$ MAF$\geq 0.05$ SNPs) and reproduced BCY1$\times$TPK1's
+recovery on this larger 8-chromosome pool: M2 rank 2{,}868 of 198{,}971
+(top 1.4\% — the rank degrades from 121 in the chr9/10/12-only run
+because the larger pool contains more pathway-co-occurring competitor
+pairs, but the percentile recovery is similar). M1, M3, M4, M5 all NF
+(consistent with single-chromosome §Y.4 results above).
 
 \paragraph{Cache PPI is broken; canonical-PPI injection.}
 Audit: 0 of 5 Tier-A panel-segregating yeast pairs have their canonical
