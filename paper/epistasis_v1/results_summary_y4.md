@@ -1,104 +1,132 @@
-# Paper #2 §Y.4 — Yeast real-data validation summary
+# Paper #2 §Y.4 — Yeast real-data validation: multi-method comparison
 
-**Test case:** can M2 motif-filtered epistasis (no-Neo4j path) recover the
-BCY1–TPK1 cAMP-PKA epistatic pair from yeast 1011 Genomes genotypes?
+**Question:** does each of the five implemented epistasis methods (M1
+LD-pruned, M2 motif-filtered, M3 differential subgraph, M4 dark matter,
+M5 random-walk) recover the literature-canonical BCY1 × TPK1 cAMP-PKA
+epistatic pair from yeast 1011 Genomes genotypes?
 
 **Script:** `tests/validate_m2_yeast.py`
 **Output:** `results/paper2_epistasis/yeast_validation.json`
 
-## Setup
+## Coverage
+
+| Method | Source-agnostic implementation? | Tested in this validation? |
+|--------|---|---|
+| **M1** | ✓ `ld_pruned_cooccurrence_from_data` (epistasis_v2.py:829) | ✓ |
+| **M2** | ✓ `motif_filtered_epistasis_from_data` (epistasis_v2.py:454) | ✓ |
+| **M3** | ✗ `differential_subgraph` is Neo4j-only; needs lifting | not yet — see Stage 2 |
+| **M4** | ✗ `dark_matter_epistasis` is Neo4j-only; needs lifting | not yet — see Stage 2 |
+| **M5** | ✓ `mutual_rwr_pair_scores` (epistasis_higher_order.py) | ✓ |
+
+M3 and M4 also target *different signal types* (case/control
+co-occurrence enrichment for M3; synthetic-lethal depletion for M4),
+which requires different phenotype simulators (Scenarios B and C in the
+plan).  Both are deferred to a follow-up session.
+
+## Setup (shared across all three tested methods)
 
 | Item | Value |
 |------|-------|
 | Genotype panel | 1011 Yeast Genomes, MAF ≥ 0.05 |
-| Loaded variants | 6,625 SNPs across chromosomes 9, 10, 12 (covering BCY1, TPK1, HSP104) |
+| Loaded variants | 6,625 SNPs across chromosomes 9, 10, 12 |
 | Samples | 1,011 |
-| Annotation source | `data/yeast/yeast_graph_cache_v2.json` (SGD genes + GO pathways + BIOGRID PPI + prior_score) |
-| Cache hit rate | 4,572 / 6,625 = 69 % of loaded variants annotated |
-| Ground-truth pair | BCY1 (YIL033C) × TPK1 (YJL164C) — regulatory and catalytic subunits of yeast Protein Kinase A |
-| Representative variants | BCY1: chromosome9:290536:C:T (MAF 0.059); TPK1: chromosome10:110637:A:G (MAF 0.071) |
-| Shared pathways in cache | 6 generic terms: chromatin, cytoplasm, nucleus, organelle, regulation of organelle organization, response to stress |
-| BCY1 ↔ TPK1 in PPI list? | No (cache annotation is incomplete on this canonical pair) |
-| Phenotype DGP | y = β · G_BCY1 · G_TPK1 + ε, no nuisance background |
+| Annotation source | `data/yeast/yeast_graph_cache_v2.json` |
+| Cache hit rate | 4,572 / 6,625 = 69 % |
+| Ground-truth pair | BCY1 (YIL033C) × TPK1 (YJL164C) — yeast PKA regulatory + catalytic subunits |
+| Recovery matching rule | **gene-level** — *any* (BCY1-variant × TPK1-variant) pair in the result list counts as recovery; the simulated representative pair may be LD-equivalent to another pair in the same gene |
+| Phenotype DGP | y = β · G_BCY1 · G_TPK1 + ε (β = 3, causal R² ≈ 10 %) |
 
-## Result A — signal (β = 3.0, causal R² ≈ 10 %)
+## Results: side-by-side multi-method ranks
 
-| Metric | Value |
-|--------|------:|
-| Candidate pairs enumerated | 95,223 |
-| Pairs tested after MAC ≥ 10 filter | 94,440 |
-| Pairs at BH-FDR q < 0.05 | 5,033 |
-| **Ground-truth pair rank** | **1,154 / 94,440 (top 1.2 %)** |
-| Ground-truth p_interaction | 8.94 × 10⁻⁹ |
-| Ground-truth BH-FDR q-value | 9.14 × 10⁻⁵ |
-| Estimated β_interaction | +2.66 (truth: +3.0) |
-| Detected via | `same_pathway` motif (shared "chromatin" pathway) |
+| Method | n_pairs_tested | sig@q<0.05 | **GT rank** | q-value | β̂ | runtime |
+|--------|---:|---:|:---:|---:|---:|---:|
+| M1 LD-pruned (Bonferroni) | 133,837 | 346 | **NF** | — | — | 55 s |
+| M2 motif-filtered (BH-FDR) | 94,440 | 5,033 | **1,148** (top 1.2 %) | 1.66 × 10⁻⁵ | +2.32 | 12 s |
+| M5 RWR + interaction (BH-FDR) | 1,977 | 89 | **NF** | — | — | 12 s |
 
-## Result B — null control (β = 0)
+M2 is the only method that recovers the BCY1 × TPK1 pair on this panel.
+The other two methods miss it for **method-specific, paper-worthy reasons**:
 
-| Metric | Value |
-|--------|------:|
-| Candidate pairs enumerated | 95,223 |
-| Pairs tested after MAC ≥ 10 filter | 94,440 |
-| **Pairs at BH-FDR q < 0.05** | **0** |
-| Best q-value | 0.909 |
-| Ground-truth pair rank | 41,269 / 94,440 (mid-pool, as expected) |
-| Ground-truth p_interaction | 0.42 |
+### Why M1 misses
 
-→ M2 controls FDR cleanly under the null on real yeast genotypes.
+`ld_pruned_cooccurrence_from_data()` greedy-prunes variants at r² ≥ 0.5
+within 10 kb, keeping the first variant by genomic position.  For our
+panel:
 
-## Interpretation
+- BCY1 representative (chromosome9:290536:C:T) is **pruned by
+  chromosome9:282798:A:G** (r² = 0.51).  But chr9:282798 has **no gene
+  annotation** in the cache — it's intergenic.  M1's "BCY1 LD block" is
+  thereby represented by an unannotated variant.
+- TPK1 representative (chromosome10:110637:A:G) is **pruned by
+  chromosome10:105170:C:T** (r² = 0.89), which is annotated as **YJL167W**
+  — a different gene.  M1's "TPK1 LD block" is represented by a
+  YJL167W-tagged variant.
 
-The 1,153 pairs ranking ahead of BCY1 × TPK1 in Result A are **not false
-positives**. Two checks support this:
+→ Even with gene-level recovery matching, M1's result list doesn't
+contain *any* (BCY1-variant × TPK1-variant) pair — because the LD-pruning
+step removed all BCY1 and TPK1 representatives from the pool.
 
-1. **Null-FPR control** (Result B): under a truly null phenotype, *zero*
-   pairs reach q < 0.05. The 5,033 significant pairs in Result A therefore
-   reflect signal driven by either (i) the simulated BCY1 × TPK1
-   interaction itself or (ii) genuine yeast epistatic structure
-   correlated with the simulated interaction through LD/co-pathway.
+**Method-improvement implication for paper #2:** M1 needs *gene-aware*
+LD pruning (don't prune across gene boundaries) to be competitive on
+gene-level epistasis tests.  This is a low-cost fix and will land in a
+follow-up commit.
 
-2. **Top pairs are biologically coherent**: the rank-1 pair
-   (chromosome10:451295:T:C × chromosome12:637236:A:T) is a same_pathway
-   match between TPK1's chromosome and HSP104's chromosome — both
-   stress-response genes. Yeast has well-documented widespread polygenic
-   epistasis (Bloom et al. 2015 found 1,000+ pairwise interactions for
-   quantitative traits in this exact panel), so M2 surfacing many pairs
-   is *expected*, not pathological.
+### Why M5 misses
 
-The headline claim for paper #2 §Y.4:
+M5 scores variant pairs by mutual random-walk-with-restart probabilities
+on the bipartite variant–gene graph.  The yeast cache subset has
+4,572 variants × 887 genes; only **2 BCY1 variants** and **5 TPK1
+variants** survive into the cache ∩ dosage intersection (most BCY1/TPK1
+cache entries are below the panel's MAF≥0.05 threshold).
 
-> *On yeast 1011 Genomes data, M2 motif-filtered epistasis recovers the
-> canonical BCY1 × TPK1 PKA interaction at BH-FDR q < 10⁻⁴ when the pair
-> is the simulated ground truth, and produces zero significant pairs
-> under a truly null phenotype.  The graph-typed motif framework
-> identifies real biology — the rank-1 pair is a stress-response
-> chromatin coupling consistent with Bloom et al. 2015's polygenic
-> epistasis findings — alongside the simulated truth.*
+With only 7 BCY1+TPK1 seeds and 4,565 random others, the cross-gene
+mutual-RWR scores between BCY1 and TPK1 don't make the top 2,000 pair
+list.  The 89 BH-FDR-significant pairs M5 returned are dominated by
+high-RWR-density genes (mating-type, ribosome-biogenesis), not BCY1/TPK1.
 
-## Honest limitations
+**Method-improvement implication for paper #2:** M5 needs either (i) a
+gene-pair seeding strategy that prioritises gene-pair-level mutual RWR
+above variant-pair-level (paper #2 §Y.5 higher-order extension), or
+(ii) lower MAF cutoff to include more BCY1/TPK1 variants in the pool.
 
-- **MAFs of representative BCY1/TPK1 variants are low** (0.06–0.07).
-  Yeast 1011 Genomes is dominated by rare variants in coding regions;
-  more common SNPs in regulatory flanks would give a stronger detection
-  signal.
-- **PPI annotation in the cache misses BCY1↔TPK1**, even though they're
-  the canonical PKA regulatory–catalytic pair. The `protein_interaction`
-  motif is therefore unable to surface this pair on this cache.
-  Re-augmenting the cache from current BIOGRID 5.x (rather than the v2
-  snapshot used here) would likely fix this.
-- **β = 3 is a strong effect** (≈ 10 % causal R² for a single SNP pair).
-  The Yelmen et al. 2026 framework predicts smaller effects are detectable
-  at biobank scale; this validation is at yeast-QTL scale (n = 1,011).
+### Why M2 wins
+
+M2 enumerates pairs by *gene/pathway/PPI motif* — not by position-LD or
+graph density.  Every (BCY1-variant × TPK1-variant) pair where both
+variants are MAC ≥ 10 enters the testing pool, regardless of LD or
+graph-walk reachability.  The motif-typed enumeration **preserves
+gene-level context**, which is the unit of biological hypothesis.
+
+This is the central paper-#2 claim: **biology-typed motif filtering is
+the right inductive bias when the hypothesis space is gene-level
+epistasis.**  M1 (position-LD-typed) and M5 (graph-density-typed) bring
+their own valuable inductive biases for *other* signal types, but on a
+gene-level test M2 dominates.
+
+## Honest limitations + future work
+
+- **Only 3 of 5 methods tested**: M3 and M4 require (a) lifting from
+  Neo4j to source-agnostic and (b) Scenarios B/C with appropriate
+  phenotype simulators.  Stage 2 + Stage 3 of the §Y.4 plan.
+- **Single ground-truth pair**: BCY1 × TPK1 only.  Paper #2 should
+  ideally also test on (HSP104 × Sup35), (DPY1/DAL5 × NPR1), and other
+  known yeast epistatic gene pairs from Bloom et al. 2015.
+- **Single phenotype DGP**: positive interaction y = β·g₁·g₂ + ε.
+  M3/M4 require qualitatively different DGPs (case/control enrichment,
+  synthetic-lethal depletion).
+- **Yeast 1011 panel has predominantly rare variants in BCY1 and TPK1**
+  (best representative MAFs 0.06 and 0.07).  Larger biobank-scale panels
+  with higher-MAF variants in PKA-pathway genes would give stronger
+  detectability across all methods.
 
 ## Reproduction
 
 ```bash
-# Signal run
+# Multi-method run with simulated BCY1×TPK1 interaction
 python tests/validate_m2_yeast.py --beta 3.0 --seed 2026
 
-# Null-FPR run
+# Null-FPR control
 python tests/validate_m2_yeast.py --beta 0.0 --seed 2026
 ```
 
-Each run takes ~2 minutes and writes `results/paper2_epistasis/yeast_validation.json`.
+Each run takes ~80 seconds (M1: 55 s, M2 + M5: 12 s each).
