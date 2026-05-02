@@ -93,7 +93,7 @@ environment variables:
 - [`graphgwas agent`](commands/agent.md) — LangGraph natural-language interface
 - [`graphgwas interpret`](commands/interpret.md) — deterministic post-hoc interpretation
 - [`graphgwas serve`](commands/serve.md) — start FastAPI REST server
-- [`graphgwas mcp`](commands/mcp.md) — start MCP server (for Claude Desktop / Claude Code)
+- [`graphgwas mcp`](commands/mcp.md) — start MCP server (for any MCP-compatible client)
 
 ## Command reference template
 

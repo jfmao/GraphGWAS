@@ -174,7 +174,7 @@ DOMAINS = [
         "functions": [
             ("Server", [
                 ("serve", "FastAPI REST server (37 endpoints)"),
-                ("mcp", "MCP server (16 tools, Claude Desktop / Code)"),
+                ("mcp", "MCP server (16 tools, MCP-compatible clients)"),
             ]),
             ("Plot", [
                 ("plot manhattan", "Manhattan plot from results"),

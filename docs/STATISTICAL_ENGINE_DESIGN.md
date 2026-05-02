@@ -85,7 +85,7 @@ MAC < 5                     → Fisher's exact
 
 | Component | Function | Technology |
 |-----------|----------|-----------|
-| Agent creation | `create_agent()` | LangGraph ReAct + Claude |
+| Agent creation | `create_agent()` | LangGraph ReAct + LLM |
 | Query interface | `run_query()` | Natural language → tool calls → response |
 | Offline interpretation | `interpret_results()` | Structured analysis without LLM |
 | Tools | 7 tools | scan, epistasis, flow, finemap, mpat, cypher, status |

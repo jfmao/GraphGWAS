@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "graphgwas"
-version = "0.1.2"
+version = "0.1.3"
 description = "Relational fine-mapping of causal GWAS variants on a multi-omics knowledge graph"
 readme = {file = "README.md", content-type = "text/markdown"}
 license = "MIT"
@@ -70,11 +70,6 @@ gnn = [
     "torch-geometric>=2.4",
     "scikit-learn>=1.3",
 ]
-agent = [
-    "langgraph>=0.2",
-    "langchain-core>=0.2",
-    "langchain-anthropic>=0.1",
-]
 hail = [
     "hail>=0.2.130",
 ]
@@ -86,7 +81,7 @@ dev = [
     "twine>=4.0",
 ]
 all = [
-    "graphgwas[sumstats,genotypes,api,mcp,gnn,agent,dev]",
+    "graphgwas[sumstats,genotypes,api,mcp,gnn,dev]",
 ]
 
 [project.urls]

@@ -1,7 +1,5 @@
 """GraphGWAS CLI — Click-based command-line interface."""
 
-import json
-import sys
 
 import click
 
@@ -154,7 +152,7 @@ def qc_run(ctx, chromosomes):
     with _connect(ctx) as conn:
         result = run_variant_qc(conn, chromosomes=chrom_list)
 
-    click.echo(f"\nQC Complete:")
+    click.echo("\nQC Complete:")
     click.echo(f"  Variants scanned: {result['n_variants_scanned']:,}")
     click.echo(f"  HWE failures: {result['n_hwe_fail']:,}")
     click.echo(f"  MAC < 5 in cases: {result['n_mac_fail']:,}")
@@ -574,7 +572,7 @@ def popstruct_grammar(ctx, trait, n_pcs):
         click.echo(f"  h² = {grammar['h2']:.4f}")
         click.echo(f"  GRAMMAR+ calibration factor = {factor:.4f}")
         click.echo(f"  Residuals stored as gwas_value (phenotype: {trait}_grammar)")
-        click.echo(f"\nNext: run GWAS on residuals:")
+        click.echo("\nNext: run GWAS on residuals:")
         click.echo(f"  graphgwas assoc scan --chr all --method linear --parallel -o gwas_{trait}_grammar.tsv")
         click.echo(f"  Then apply GRAMMAR+ factor to p-values: p_cal = chi2.sf(chi2.isf(p, 1) * {factor:.4f}, 1)")
 
@@ -677,7 +675,7 @@ def flow_architecture(ctx, chromosome, af_threshold, permutations, p_threshold):
             p_threshold=p_threshold, n_permutations=permutations
         )
 
-    click.echo(f"\nDisease Architecture:")
+    click.echo("\nDisease Architecture:")
     click.echo(f"  Significant pathways: {arch['n_pathways']}")
     click.echo(f"  Disease variants: {arch['n_variants']}")
     click.echo(f"  Disease genes: {arch['n_genes']}")
@@ -726,7 +724,7 @@ def spectral_correction(ctx, n_components, af_threshold, chromosome):
             af_threshold=af_threshold, chromosomes=chroms
         )
 
-    click.echo(f"\nSpectral correction computed:")
+    click.echo("\nSpectral correction computed:")
     click.echo(f"  Components: {result['n_components']}")
     click.echo(f"  Eigenvalue range: [{result['eigenvalues'][0]:.4f}, {result['eigenvalues'][-1]:.4f}]")
 
@@ -762,7 +760,7 @@ def gnn_run(ctx, chromosome, start, end, hidden_channels, epochs, max_variants, 
             max_variants=max_variants, device=device,
         )
         if result:
-            click.echo(f"\nGNN Results:")
+            click.echo("\nGNN Results:")
             click.echo(f"  Device: {result.get('device', 'cpu')}")
             click.echo(f"  Best AUROC: {result['best_auroc']:.4f}")
             click.echo(f"  Embeddings imported: {result['n_embeddings_imported']}")
@@ -789,40 +787,15 @@ def gnn_export(ctx, chromosome, start, end, output, max_variants):
 
 
 # ---------------------------------------------------------------------------
-# Phase 5: Agent commands
+# Phase 5: Interpretation commands (LLM-free)
 # ---------------------------------------------------------------------------
-
-@cli.command("agent")
-@click.option("--model", default="claude-sonnet-4-20250514", help="LLM model name")
-@click.pass_context
-def agent_cmd(ctx, model):
-    """Start interactive GWAS agent (natural language interface)."""
-    from .agent import create_agent, run_query
-
-    with _connect(ctx) as conn:
-        agent = create_agent(conn, model=model)
-        click.echo("GraphGWAS Agent ready. Type your question (Ctrl+C to exit).\n")
-
-        while True:
-            try:
-                query = input("You: ").strip()
-                if not query:
-                    continue
-                if query.lower() in ("exit", "quit", "q"):
-                    break
-                run_query(agent, query)
-                print()
-            except (KeyboardInterrupt, EOFError):
-                click.echo("\nAgent session ended.")
-                break
-
 
 @cli.command("interpret")
 @click.option("--run-id", required=True)
 @click.pass_context
 def interpret_cmd(ctx, run_id):
-    """Interpret GWAS results (no LLM required)."""
-    from .agent import interpret_results
+    """Interpret GWAS results (rule-based; no LLM required)."""
+    from .interpret import interpret_results
 
     with _connect(ctx) as conn:
         interpret_results(conn, run_id)
@@ -942,7 +915,7 @@ def h2_report(ctx, chromosome, include_multi, include_gnn):
                                      include_multiresolution=include_multi,
                                      include_gnn=include_gnn,
                                      gnn_chr=chromosome or "chr19")
-    click.echo(f"\nSummary:")
+    click.echo("\nSummary:")
     for name, h2 in result["summary"].items():
         click.echo(f"  h²_{name:<20s} = {h2:.4f}")
 
@@ -991,7 +964,7 @@ def mv_gmatrix(ctx, traits, af_threshold, n_components):
     if "error" in result:
         click.echo(f"Error: {result['error']}")
         return
-    click.echo(f"\nHeritabilities:")
+    click.echo("\nHeritabilities:")
     for t, h2 in zip(result["trait_names"], result["heritabilities"]):
         click.echo(f"  h²({t}) = {h2:.4f}")
 
@@ -1081,7 +1054,7 @@ def mv_report(ctx, trait1, trait2, af_threshold):
         result = multivariate_report(conn, trait1, trait2,
                                      af_threshold=af_threshold)
     s = result["summary"]
-    click.echo(f"\nSummary:")
+    click.echo("\nSummary:")
     click.echo(f"  r_G           = {s['r_g']:.4f}")
     click.echo(f"  h²_bivariate  = {s['h2_bivariate']:.4f}")
     click.echo(f"  Genetic coh.  = {s['genetic_coherence']:.4f}")

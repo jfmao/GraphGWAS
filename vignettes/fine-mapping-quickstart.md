@@ -182,7 +182,7 @@ loaded. To add relational priors, load the pre-built Neo4j dump
   use the Cypher query layer for interpretability ("which genes in
   this credible set are drug targets?")
 - **Expose the fine-mapping methods to an AI agent** via
-  `graphgwas mcp` and query them from Claude Desktop or Claude Code
+  `graphgwas mcp` and query them from any MCP-compatible client
   in natural language
 - **Reproduce every figure in the paper** via
   `python tests/generate_paper_figures.py`; see

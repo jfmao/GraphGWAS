@@ -87,7 +87,7 @@ require.
 |---|---|---|
 | **CLI** (52 commands, 15 groups) | interactive analysis, scripted pipelines | `graphgwas ...` |
 | **REST API** (FastAPI, 37 endpoints) | web integration, programmatic access | `graphgwas api serve` |
-| **MCP server** (FastMCP, 16 tools) | AI-agent access via Claude Desktop / Claude Code | `graphgwas mcp` |
+| **MCP server** (FastMCP, 16 tools) | AI-agent access via any MCP-compatible client | `graphgwas mcp` |
 
 Full documentation in [`docs/manual/`](docs/manual/index.md); end-to-end
 walkthrough in [`vignettes/fine-mapping-quickstart.md`](vignettes/fine-mapping-quickstart.md).

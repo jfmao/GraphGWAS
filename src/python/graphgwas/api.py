@@ -254,7 +254,7 @@ async def assoc_scan(request: Request, body: ScanRequest):
 
     def _run():
         from .assoc import single_locus_scan, generate_run_id
-        from .results import create_gwas_study, store_results, query_top_hits
+        from .results import create_gwas_study, store_results
 
         run_id = generate_run_id()
 
@@ -492,7 +492,7 @@ async def cypher_query(request: Request, body: CypherRequest):
 @app.post("/api/v1/interpret/{run_id}")
 async def interpret(request: Request, run_id: str):
     """Structured GWAS interpretation (no LLM required)."""
-    from .agent import interpret_results
+    from .interpret import interpret_results
     return interpret_results(_conn(request), run_id, verbose=False)
 
 

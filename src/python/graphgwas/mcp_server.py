@@ -1,10 +1,9 @@
 """GraphGWAS MCP Server — Model Context Protocol interface.
 
 Exposes GraphGWAS capabilities as MCP tools, enabling any MCP-compatible client
-(Claude Desktop, Claude Code, Cursor, etc.) to run GWAS analyses conversationally.
+(Cursor, Continue, MCP Inspector, etc.) to run GWAS analyses conversationally.
 
-This replaces the need for the hardcoded LangGraph agent — the LLM client IS the
-agent, and GraphGWAS just exposes tools.
+The LLM client IS the agent, and GraphGWAS just exposes tools.
 
 Usage:
     graphgwas mcp                    # stdio transport (default)
@@ -331,7 +330,7 @@ if HAS_MCP:
             af_threshold=af_threshold, chromosomes=chroms, verbose=False,
         )
         lines = [
-            f"Spectral correction computed:",
+            "Spectral correction computed:",
             f"  Components: {result['n_components']}",
             f"  Eigenvalue range: [{result['eigenvalues'][0]:.4f}, "
             f"{result['eigenvalues'][-1]:.4f}]",
@@ -372,7 +371,7 @@ if HAS_MCP:
             return "No variants in region. Aborting."
 
         lines = [
-            f"GNN Pipeline Results:",
+            "GNN Pipeline Results:",
             f"  Best AUROC: {result['best_auroc']:.4f}",
             f"  Embeddings imported: {result['n_embeddings_imported']}",
             "",
@@ -441,9 +440,9 @@ if HAS_MCP:
                                   af_threshold=af_threshold,
                                   n_permutations=permutations,
                                   verbose=False)
-            lines = [f"Flow Heritability Decomposition:",
+            lines = ["Flow Heritability Decomposition:",
                      f"  h²_flow = {r['h2_flow_total']:.4f} (p={r['p_value']:.4f})",
-                     f"  Top pathway contributions:"]
+                     "  Top pathway contributions:"]
             for c in r.get("pathway_contributions", [])[:5]:
                 lines.append(f"    {c['pathway']}: h²={c['h2_contribution']:.4f} "
                              f"({c['flow_fraction']*100:.1f}%)")
@@ -623,7 +622,7 @@ if HAS_MCP:
                                     r["n_controls"], verbose=False)
                 return (f"Classical PRS: {r['n_variants']} variants\n"
                         f"  AUROC={ev['auroc']:.4f}, R²={ev['nagelkerke_r2']:.4f}")
-            return f"No significant variants found"
+            return "No significant variants found"
         elif method == "pathway":
             from .prs import pathway_partitioned_prs
             r = pathway_partitioned_prs(conn, run_id, p_threshold, verbose=False)
