@@ -1,0 +1,143 @@
+%% Springer Nature journal article template (sn-jnl)
+%% Target journal: Nature Genetics (Article / Technical Report)
+%% Nature Portfolio reference style
+%%
+%% PAPER #2 — Graph-native epistasis (placeholder skeleton)
+%% Companion to paper #1 (paper/finemapping_v1/) on relational fine-mapping.
+
+\documentclass[pdflatex,sn-nature]{sn-jnl}
+
+%%% Standard Packages
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{textcomp}
+\usepackage{hyperref}
+\usepackage{siunitx}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{lineno}
+\linenumbers
+
+\graphicspath{{figures/}}
+
+\raggedbottom
+\unnumbered
+
+\begin{document}
+
+\title[Graph-native epistasis]{Graph-native epistasis detection rescues anti-conservative bias in biobank-scale GWAS}
+
+%%=============================================================%%
+%% Author information
+%%=============================================================%%
+
+\author[1]{\fnm{Ehsan} \sur{Estaji}}\email{ehsan.estaji@umu.se}
+\equalcont{These authors contributed equally to this work.}
+
+\author[1]{\fnm{Shi-Wei} \sur{Zhao}}\email{shi-wei.zhao@umu.se}
+\equalcont{These authors contributed equally to this work.}
+
+\author[1]{\fnm{Zhao-Yang} \sur{Chen}}\email{zhao-yang.chen@umu.se}
+
+\author[2]{\fnm{Shuai} \sur{Nie}}\email{nieshuai@gdaas.cn}
+
+\author*[1]{\fnm{Jian-Feng} \sur{Mao}}\email{jianfeng.mao@umu.se}
+
+\affil[1]{\orgdiv{Ume\aa{} Plant Science Centre, Department of Plant Physiology}, \orgname{Ume\aa{} University}, \orgaddress{\postcode{SE-90187}, \city{Ume\aa{}}, \country{Sweden}}}
+
+\affil[2]{\orgdiv{Rice Research Institute, Key Laboratory of Genetics and Breeding of High Quality Rice in Southern China (Co-construction by Ministry and Province), Ministry of Agriculture and Rural Affairs, Guangdong Key Laboratory of New Technology in Rice Breeding}, \orgname{Guangdong Academy of Agricultural Sciences}, \orgaddress{\postcode{510640}, \city{Guangzhou}, \country{China}}}
+
+\input{abstract}
+
+\keywords{epistasis, gene-gene interaction, GWAS bias, linear mixed model, biobank, multi-omics, graph database, REGENIE}
+
+\maketitle
+
+% Main text
+\input{introduction}
+\input{results}
+\input{discussion}
+
+% Online Methods
+\section{Online Methods}\label{sec:methods}
+\input{methods}
+
+\backmatter
+
+\bmhead{Data Availability}
+
+[PLACEHOLDER --- to be filled as Phase C results land. Likely sources:
+1000~Genomes Project chr21+chr22 high-coverage NYGC release; Estonian
+Biobank (subject to application); 1011 Yeast Genomes; \emph{Arabidopsis}
+1001 Genomes; 3000 Rice Genomes Project; Pan-UK Biobank summary
+statistics. Pre-built graph caches and benchmark JSONs to be deposited
+on Zenodo.]
+
+\bmhead{Code Availability}
+
+GraphGWAS source code is available at
+\url{https://github.com/jfmao/GraphGWAS} under the MIT licence. The
+release accompanying this paper provides the Python package and
+command-line interface, the epistasis-detection toolkit (M1--M7),
+the bias-diagnostic module (\texttt{graphgwas.bias}), the benchmark
+scripts that produced every figure and table in the paper, and a
+reproducibility guide that regenerates every result from scratch.
+
+\bmhead{Acknowledgements}
+
+[PLACEHOLDER --- mirror finemapping\_v1 acknowledgements; add Estonian
+Biobank Research Team if EstBB application is granted.]
+
+\section*{Declarations}
+
+\begin{itemize}
+\item \textbf{Funding:} [PLACEHOLDER]
+\item \textbf{Competing interests:} The authors declare no competing interests.
+\item \textbf{Ethics approval and consent to participate:} [PLACEHOLDER]
+\item \textbf{Consent for publication:} Not applicable.
+\item \textbf{Author contributions:} [PLACEHOLDER --- to be assigned per Phase C/D progress.]
+\end{itemize}
+
+%% References inline (Nature Portfolio convention)
+\bibliography{references}
+
+\clearpage
+
+% ===========================================================================
+% LIST OF DISPLAY ITEMS  (placeholder — to populate as figures/tables produced)
+% ===========================================================================
+\section*{List of Display Items}
+
+\subsection*{Main-text Figures}
+\begin{description}
+\setlength{\itemsep}{2pt}
+\item[Figure 1] [PLACEHOLDER] $\rho_{\max}$ distribution under random vs motif-typed Z (replicates Yelmen et al. 2026 Fig 1, with our novel motif-Z extension).
+\item[Figure 2] [PLACEHOLDER] Conservativeness rescue: REGENIE LMM with vs without GraphGWAS-detected interaction covariates.
+\item[Figure 3] [PLACEHOLDER] M2 motif-pair power vs BOOST, MAPIT, MDR baselines on multi-scenario simulations.
+\item[Figure 4] [PLACEHOLDER] Yeast real-data: literature-validated epistatic pairs (BCY1--TPK1, HSP104 modifiers).
+\item[Figure 5] [PLACEHOLDER] Higher-order ($k\geq 3$) detection via M5--M7.
+\item[Figure 6] [PLACEHOLDER] Cross-species replication.
+\end{description}
+
+\subsection*{Main-text Tables}
+\begin{description}
+\setlength{\itemsep}{2pt}
+\item[Table 1] [PLACEHOLDER] Method portfolio for graph-native epistasis (M1--M7).
+\end{description}
+
+\subsection*{Supplementary Figures} \begin{description}\item [Figure S1--Sn] [PLACEHOLDER]\end{description}
+\subsection*{Supplementary Tables} \begin{description}\item [Table S1--Sn] [PLACEHOLDER]\end{description}
+\subsection*{Supplementary Notes} \begin{description}\item [Note S1--Sn] [PLACEHOLDER]\end{description}
+
+\clearpage
+
+% ===========================================================================
+% SUPPLEMENTARY MATERIALS
+% ===========================================================================
+\input{supplementary}
+
+\end{document}

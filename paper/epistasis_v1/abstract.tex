@@ -1,0 +1,28 @@
+% PLACEHOLDER abstract — Yelmen-reframing pitch.  Final empirical numbers will
+% replace [PLACEHOLDER] tags as Phase C/D experiments produce results.
+
+\abstract{
+Classical genome-wide association studies --- including state-of-the-art
+linear mixed models such as REGENIE --- are anti-conservative when the
+true genetic architecture involves epistasis but the analytical model
+omits it. Yelmen \emph{et~al.}\ (2026) showed that the bias grows with
+sample size, so biobank-scale GWAS is more vulnerable, not less.
+We present GraphGWAS-Epistasis, a graph-native epistasis-detection
+toolkit that exploits a typed multi-omics knowledge graph (genes,
+tissue-specific eQTLs, pathways, protein--protein interactions) to
+build a biology-typed interaction subspace. Four detection strategies
+operate on this substrate: M1 LD-pruned co-occurrence with explicit
+interaction tests; M2 motif-filtered pairs (same-gene, PPI-partner,
+same-pathway); M3 differential subgraph analysis between cases and
+controls; and M4 dark-matter / synthetic-incompatibility detection.
+On simulated phenotypes derived from [PLACEHOLDER --- 1KG chr21+22 /
+Estonian Biobank if access granted], feeding the detected interactions
+back into the LMM as covariates collapses the spurious-significance
+regime from [PLACEHOLDER]\,\% to [PLACEHOLDER]\,\%. The same graph-typed
+interaction subspace yields a closed-form $\rho_{\max}$ diagnostic that
+flags bias-prone target SNPs before testing. Three higher-order methods
+(M5 random walk, M6 GNN-attention, M7 persistent homology) extend the
+framework to $k\geq 3$ interactions that pairwise tests cannot
+formulate. The toolkit is released as part of the GraphGWAS Python
+package; all benchmarks reproduce from a single command.
+}

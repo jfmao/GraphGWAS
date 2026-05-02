@@ -1,0 +1,36 @@
+% PLACEHOLDER introduction — to expand as Phase C/D results land.
+
+\section{Introduction}\label{sec:intro}
+
+[PLACEHOLDER paragraph 1 --- the bias problem.] Classical GWAS, even
+with state-of-the-art linear mixed models, omits gene--gene interaction
+terms. Yelmen \emph{et~al.}\ \cite{yelmen2026} recently characterised
+the resulting bias mathematically: the null $t$-statistic acquires a
+mean shift $\mu = \rho\sqrt{\lambda n}/\sqrt{1-\lambda\rho^{2}}$ that
+grows with sample size $n$, where $\rho$ is the correlation between
+the target SNP and the realised interaction signal and $\lambda$ is
+the variance fraction explained by interactions. At biobank scale
+($n\geq 100{,}000$) this shift produces 1{,}000s of spurious
+genome-wide significant hits even under their strict no-path null
+where the target SNP cannot itself participate in the interaction.
+
+[PLACEHOLDER paragraph 2 --- the detection-tool landscape.] Existing
+epistasis-detection tools (BOOST \cite{wan2010boost},
+MAPIT \cite{crawford2017}, MDR-family approaches) treat the search space
+as either an exhaustive pairwise grid (computationally infeasible at
+biobank scale) or an unconstrained statistical fishing exercise (low
+power after multiple-testing correction). Neither leverages the
+biology-typed structure that genome-wide functional resources
+(GENCODE, GTEx, STRING, ENCODE, Reactome) make available.
+
+[PLACEHOLDER paragraph 3 --- our contribution.] We present
+GraphGWAS-Epistasis, a graph-native toolkit that uses the typed
+multi-omics knowledge graph from \cite{estaji2026graphgwas} to
+restrict epistasis search to biologically motivated motifs. Four
+pairwise detection strategies (M1--M4) operate on this graph-typed
+interaction subspace; three higher-order extensions (M5--M7) detect
+$k\geq 3$ interactions. The framework also provides a closed-form
+$\rho_{\max}$ diagnostic that flags bias-prone target SNPs before
+testing.
+
+[PLACEHOLDER paragraph 4 --- empirical headlines, to be filled.]

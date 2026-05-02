@@ -1,0 +1,81 @@
+% PLACEHOLDER methods — section headers + brief intent for each subsection.
+% Implementation status (M1-M4 done; M5-M7 designed) tracked in
+% docs/EPISTASIS_V2_DESIGN.md.
+
+\subsection{Graph-native epistasis substrate}\label{sec:methods_substrate}
+
+[PLACEHOLDER --- recap from paper~\#1 \cite{estaji2026graphgwas}: typed
+multi-omics knowledge graph (Variant--Gene--Pathway--Tissue), schema,
+node and edge counts on 1000 Genomes / Pan-UK Biobank.]
+
+\subsection{LD-pruned co-occurrence with interaction test (M1)}\label{sec:methods_m1}
+
+[PLACEHOLDER --- LD-aware maximum independent set on the LD graph at
+threshold $\tau$; on survivors, fit $y \sim G_{1} + G_{2} + G_{1}G_{2}$
+with logistic / linear / Firth correction; BH-FDR. Theorem~1
+(search-space reduction $\sim 1/k(\tau)^{2}$) recapped from
+\cite{estaji2026graphgwas} Supplementary Note~S1.]
+
+\subsection{Motif-filtered pairwise testing (M2)}\label{sec:methods_m2}
+
+[PLACEHOLDER --- candidate enumeration via Cypher motifs P1
+(same-gene), P2 (PPI partner), P3 (same-pathway). Same interaction
+regression as M1 on the candidate set.]
+
+\subsection{Differential subgraph analysis (M3)}\label{sec:methods_m3}
+
+[PLACEHOLDER --- co-occurrence sub-graphs for cases and controls;
+log-fold-ratio scoring; Fisher's exact for significance.]
+
+\subsection{Synthetic incompatibility (M4)}\label{sec:methods_m4}
+
+[PLACEHOLDER --- depleted co-occurrence detection; Poisson tail
+$p$-values; high-MAF restriction for power.]
+
+\subsection{Higher-order interactions (M5--M7)}\label{sec:methods_m5_m7}
+
+[PLACEHOLDER --- random walk with restart on the bipartite
+variant--gene graph (M5); GNN attention-based extraction (M6);
+persistent homology / 1-cycles in case-only co-occurrence
+simplicial complex (M7). Implementation status table and
+forthcoming-work caveats.]
+
+\subsection{Bias diagnostic: graph-typed $\rho_{\max}$ and $R(x)$}\label{sec:methods_bias}
+
+Following Yelmen \emph{et~al.}\ \cite{yelmen2026}, we define the
+maximum correlation between a target SNP $g$ and the column space
+of an interaction-feature matrix $Z$ as
+\begin{equation}
+\rho_{\max}(g, Z) \;=\; \frac{\lVert P_{H} g \rVert}{\lVert g \rVert},
+\qquad P_{H} = Z(Z^{\top}Z)^{+}Z^{\top}.
+\end{equation}
+The expected $t$-statistic mean shift under the omitted-interaction
+null is
+\begin{equation}
+\mu \;=\; \frac{\rho\sqrt{\lambda n}}{\sqrt{1-\lambda\rho^{2}}}
+\end{equation}
+and the conservativeness ratio
+\begin{equation}
+R(x) \;=\; \frac{p_{\text{true}}(x)}{p_{\text{nominal}}(x)}
+\end{equation}
+quantifies how anti-conservative ($R{>}1$) or conservative ($R{<}1$)
+the nominal $p$-value is. These three quantities are computed by the
+\texttt{graphgwas.bias} module on the same preprocessed (whitened,
+covariate-residualised) feature space used by the LMM. Our
+contribution beyond \cite{yelmen2026} is the substitution of a
+graph-typed $Z$ (built from M2 motif pairs) for the random $Z$ they
+analysed.
+
+\subsection{Strict no-path null framework}\label{sec:methods_null}
+
+[PLACEHOLDER --- adapted from \cite{yelmen2026} Eq.~12: target SNP
+forbidden from $Z$; phenotype simulated as $y = u + \varepsilon$ with
+$u \in \mathrm{col}(Z)$. Used for paper-\#2 calibration runs.]
+
+\subsection{Cross-method validation and benchmarks}\label{sec:methods_benchmarks}
+
+[PLACEHOLDER --- REGENIE \cite{mbatchou2021} as the LMM baseline;
+BOOST, MAPIT, MDR as epistasis-specific baselines. 100~replicates
+per scenario across S1 (pure interaction), S2 (marginal+interaction),
+S3 (weak $\beta_{I}$), S4 (multi-pair), S5 ($k=3$). Datasets:
+1KG~chr21+22 simulations; Estonian Biobank if access granted.]

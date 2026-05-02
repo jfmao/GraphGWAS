@@ -1,0 +1,43 @@
+% PLACEHOLDER results — planned-experiment headers; numbers fill in as Phase C/D progresses.
+
+\section{Results}\label{sec:results}
+
+\subsection{Graph-typed $\rho_{\max}$ collapses bias under realistic interaction architectures}\label{sec:rho_max}
+
+[PLACEHOLDER --- replicates Yelmen \emph{et~al.}\ Fig~1 on 1KG~chr21+22
+under random $Z$ (mean $\rho_{\max}\approx 0.032$, max~$\approx 0.04$
+across chromosomes; max~$0.85$ within-chromosome). Then extends to
+motif-typed $Z$: shows that for genuine causal target SNPs, motif-typed
+$\rho_{\max}$ is suppressed; for null target SNPs, it stays comparable
+to random. Empirical claim: graph-typed interaction modelling reduces
+the bias selectively where it matters.]
+
+\subsection{Conservativeness rescue on REGENIE-LMM-detected loci}\label{sec:rescue}
+
+[PLACEHOLDER --- run REGENIE on simulated phenotypes (1KG chr21+22 +
+realistic $\lambda$ values); count spuriously significant hits per
+\cite{yelmen2026}'s criterion. Then add GraphGWAS M2-detected
+interactions as covariates; recount. Headline number
+$X{\to}Y$~percent reduction in spurious hits.]
+
+\subsection{Power vs BOOST, MAPIT, MDR}\label{sec:power_baselines}
+
+[PLACEHOLDER --- 100 replicates per scenario S1--S5; rank-1 detection
+rate, mean rank, runtime per locus. Expectation: M2 motif filtering
+trades raw recall for prior plausibility, beating exhaustive baselines
+on FDR at low $\beta_{I}$.]
+
+\subsection{Yeast real-data validation}\label{sec:yeast_validation}
+
+[PLACEHOLDER --- 1011 Yeast Genomes; literature-validated epistatic
+pairs (BCY1--TPK1, HSP104 modifiers, RAS/PKA crosstalk).]
+
+\subsection{Higher-order interactions ($k\geq 3$)}\label{sec:higher_order}
+
+[PLACEHOLDER --- M5/M6/M7 demonstration; the structurally unique claim
+that pairwise methods cannot reach.]
+
+\subsection{Cross-species replication}\label{sec:cross_species}
+
+[PLACEHOLDER --- \emph{Arabidopsis} 1001~Genomes, 3K~Rice~Genomes,
+human~Pan-UKB.]

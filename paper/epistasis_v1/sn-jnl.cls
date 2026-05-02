@@ -1,0 +1,1 @@
+../finemapping_v1/sn-jnl.cls
