@@ -1,0 +1,39 @@
+{
+  "params": {
+    "n_samples": 3202,
+    "n_z": 10,
+    "m_int": 50,
+    "n_target": 30,
+    "maf_min": 0.05,
+    "chr22_window": [
+      30000000,
+      35000000
+    ],
+    "seed": 2026
+  },
+  "motif_stats": {
+    "n_variants_total": 17021,
+    "n_variants_in_cache": 6209,
+    "n_genes_with_2plus_variants": 95,
+    "n_genes_capped": 65,
+    "max_pairs_per_gene": 500,
+    "n_motif_pairs_unique": 33843
+  },
+  "random_z": {
+    "n": 300,
+    "min": 0.17454309432173584,
+    "mean": 0.45883796174256486,
+    "median": 0.4420122324116366,
+    "p95": 0.7378720058899763,
+    "max": 0.9131278643008066
+  },
+  "motif_z": {
+    "n": 300,
+    "min": 0.16089396778251608,
+    "mean": 0.4451745312402297,
+    "median": 0.40943531009950807,
+    "p95": 0.793793892585702,
+    "max": 0.9650646398260083
+  },
+  "ks_test_note": "If random_z and motif_z distributions are statistically similar for null target SNPs (which they should be \u2014 this is the no-penalty-on-null claim), the next step is the causal-SNP arm: simulate phenotypes under non-null DGP and verify motif-Z rho_max is suppressed for the causal target."
+}
