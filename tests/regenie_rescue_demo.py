@@ -60,8 +60,10 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "src" / "python"))
 
 from graphgwas.bgen_reader import BgenReader  # noqa: E402
+from graphgwas.epistasis_v2 import motif_filtered_epistasis_from_data  # noqa: E402
 
 BGEN_DIR = REPO_ROOT / "tests" / "data" / "human" / "1kGP_bgen"
+CACHE_PATH = REPO_ROOT / "data" / "annotations" / "human_graph_cache_v2_chr22.json"
 RESULTS_DIR = REPO_ROOT / "results" / "paper2_epistasis"
 FIG_DIR = REPO_ROOT / "paper" / "epistasis_v1" / "figures"
 
@@ -242,40 +244,98 @@ def run_regenie_step2(
 
 def detect_motif_interactions_no_neo4j(
     dosages: np.ndarray,
-    sample_ids: list[str],
+    variant_ids: list[str],
     phenotype: np.ndarray,
     graph_cache_path: Path,
     *,
+    motifs: list[str] | None = None,
     fdr_threshold: float = 0.05,
-) -> list[tuple[int, int, float]]:
+    mac_min: int = 10,
+    max_pairs_per_entity: int = 500,
+    max_pairs_total: int = 50_000,
+    verbose: bool = True,
+) -> list:
     """Detect M2 (motif-filtered) interactions without Neo4j.
 
-    Uses graph_cache JSON file (gene-membership annotations) to enumerate
-    same-gene pairs (motif P1), then fits y ~ G1 + G2 + G1*G2 and reports
-    pairs with BH-FDR < fdr_threshold.
+    Thin wrapper around
+    :func:`graphgwas.epistasis_v2.motif_filtered_epistasis_from_data`
+    that returns only the BH-FDR-significant pairs.
 
-    [SCAFFOLD] full implementation deferred — for the rescue demo we
-    currently use random-pair detection as a placeholder.  Wiring to
-    epistasis_v2.motif_filtered_epistasis() requires building the
-    Cypher-equivalent same-gene index from graph_cache, then calling
-    the existing _test_interaction() helper.
-
-    TODO(paper2-Y2):
-    - Adapt epistasis_v2.motif_filtered_epistasis to accept graph_cache
-      JSON instead of Neo4j connection.
-    - Wire phenotype + dosages here.
-    - Return list of (i, j, p_interaction) tuples.
+    Args:
+        dosages: shape ``(n_samples, n_variants)``, NaN-tolerant.
+        variant_ids: length ``n_variants`` in ``chrN:pos:REF:ALT`` format
+            (matching the keys of ``graph_cache_path``).  When loading
+            from BGEN, swap ``a1, a2`` → ``REF, ALT`` first
+            (plink2 puts ALT in slot 0).
+        phenotype: shape ``(n_samples,)``.
+        graph_cache_path: JSON cache.
+        motifs: default ``["same_gene", "same_pathway"]``.
+        fdr_threshold: BH-FDR threshold for significance.
+        mac_min, max_pairs_per_entity, max_pairs_total: passed through.
+        verbose: print progress.
 
     Returns:
-        Empty list (placeholder).  Once implemented, returns
-        [(i, j, p), ...] for each motif pair surviving FDR cutoff.
+        List of significant ``InteractionResult`` records, sorted by
+        ``p_interaction`` ascending.
     """
-    raise NotImplementedError(
-        "M2 motif detection (no-Neo4j path) not yet implemented. "
-        "See TODO in tests/regenie_rescue_demo.py:detect_motif_interactions_no_neo4j. "
-        "Plan: lift epistasis_v2.motif_filtered_epistasis() into a "
-        "graph_cache-driven variant, then re-enable this function."
+    if motifs is None:
+        motifs = ["same_gene", "same_pathway"]
+    results = motif_filtered_epistasis_from_data(
+        dosages=dosages,
+        variant_ids=variant_ids,
+        phenotype=phenotype,
+        graph_cache=graph_cache_path,
+        motifs=motifs,
+        mac_min=mac_min,
+        correction="BH",
+        max_pairs_per_entity=max_pairs_per_entity,
+        max_pairs_total=max_pairs_total,
+        verbose=verbose,
     )
+    return [r for r in results
+            if r.p_corrected is not None and r.p_corrected < fdr_threshold]
+
+
+def write_regenie_covar(
+    pair_indices: list[tuple[int, int]],
+    dosages: np.ndarray,
+    sample_ids: list[str],
+    out: Path,
+) -> Path:
+    """Write a REGENIE-compatible covariate file built from motif-pair products.
+
+    Each row: ``FID IID PAIR_001 PAIR_002 ... PAIR_K`` where each PAIR_k
+    column is the centred dosage product of the (i, j) pair for that sample.
+
+    Args:
+        pair_indices: list of (i, j) variant-column indices.
+        dosages: shape (n_samples, n_variants).
+        sample_ids: length n_samples.
+        out: destination path.
+
+    Returns:
+        ``out`` (unchanged), for convenience.
+    """
+    out.parent.mkdir(parents=True, exist_ok=True)
+    n_samples = dosages.shape[0]
+    if len(sample_ids) != n_samples:
+        raise ValueError(
+            f"sample_ids length ({len(sample_ids)}) != n_samples ({n_samples})"
+        )
+    cols = []
+    for i, j in pair_indices:
+        prod = dosages[:, i] * dosages[:, j]
+        cols.append(prod - np.nanmean(prod))
+    if cols:
+        Z = np.column_stack(cols)
+    else:
+        Z = np.empty((n_samples, 0), dtype=np.float64)
+    header = "FID IID " + " ".join(f"PAIR_{k+1:03d}" for k in range(Z.shape[1]))
+    lines = [header]
+    for sid, row in zip(sample_ids, Z):
+        lines.append(f"0 {sid} " + " ".join(f"{v:.6f}" for v in row))
+    out.write_text("\n".join(lines) + "\n")
+    return out
 
 
 # ===========================================================================
@@ -318,6 +378,11 @@ def main() -> None:
                         help="Stage 1 only — write pheno file, exit before REGENIE.")
     parser.add_argument("--regenie-only", action="store_true",
                         help="Stages 1 and 2 only — skip M2 detection + rescue.")
+    parser.add_argument("--m2-only", action="store_true",
+                        help="Stages 1 and 3 only — simulate phenotype + run M2 motif "
+                             "detection + write covariate file; skip REGENIE.")
+    parser.add_argument("--fdr-threshold", type=float, default=0.05,
+                        help="BH-FDR threshold for M2 significance (Stage 3).")
     parser.add_argument("--lambda-var", type=float, default=0.1,
                         help="Variance fraction from interactions (Yelmen lambda)")
     parser.add_argument("--n-target", type=int, default=1,
@@ -347,6 +412,13 @@ def main() -> None:
     af = np.nanmean(dos, axis=0) / 2.0
     keep = np.minimum(af, 1.0 - af) >= 0.05
     dos = dos[:, keep].astype(np.float64)
+    df = df[keep].reset_index(drop=True)
+    # Build variant IDs in 'chrN:pos:REF:ALT' format (matching graph_cache).
+    # BGEN reader's `a1, a2` are (ALT, REF) per plink2 convention — swap.
+    variant_ids = [
+        f"{r.chr}:{int(r.pos)}:{r.a2}:{r.a1}"
+        for r in df.itertuples()
+    ]
     print(f"  dosages: n_samples={dos.shape[0]}, n_variants={dos.shape[1]}")
 
     sim = simulate_phenotype(
@@ -369,49 +441,137 @@ def main() -> None:
         return
 
     # ----- Stage 2: REGENIE -----
-    print("\n[2/4] Running REGENIE step 1 + step 2...")
-    if not regenie_available():
-        print("  ⚠ regenie not installed — skipping. To enable:")
-        print("    mamba install -n graphmana -c bioconda regenie")
-        print("  Stages 3+4 also skipped.")
-        return
+    if args.m2_only:
+        print("\n[2/4] Skipping REGENIE (--m2-only)")
+    else:
+        print("\n[2/4] Running REGENIE step 1 + step 2...")
+        if not regenie_available():
+            print("  ⚠ regenie not installed — skipping Stages 2+4.")
+            print("    To enable later:  mamba install -n graphmana -c bioconda regenie")
+            print("  Continuing with Stage 3 (M2 motif detection)...")
+            args.m2_only = True  # graceful fallthrough to Stage 3
 
-    bgen_path = BGEN_DIR / "chr22.bgen"
-    sample_path = BGEN_DIR / "chr22.sample"
-    step1_prefix = RESULTS_DIR / "regenie_step1"
-    step2_prefix = RESULTS_DIR / "regenie_step2_baseline"
+    n_baseline = None
+    if not args.m2_only:
+        bgen_path = BGEN_DIR / "chr22.bgen"
+        sample_path = BGEN_DIR / "chr22.sample"
+        step1_prefix = RESULTS_DIR / "regenie_step1"
+        step2_prefix = RESULTS_DIR / "regenie_step2_baseline"
 
-    rc = run_regenie_step1(bgen_path, sample_path, pheno_path, step1_prefix)
-    if rc != 0:
-        sys.exit(f"REGENIE step1 failed with exit code {rc}")
-    rc = run_regenie_step2(bgen_path, sample_path, pheno_path,
-                           step1_prefix.with_name(step1_prefix.name + "_pred.list"),
-                           step2_prefix)
-    if rc != 0:
-        sys.exit(f"REGENIE step2 failed with exit code {rc}")
+        rc = run_regenie_step1(bgen_path, sample_path, pheno_path, step1_prefix)
+        if rc != 0:
+            sys.exit(f"REGENIE step1 failed with exit code {rc}")
+        rc = run_regenie_step2(
+            bgen_path, sample_path, pheno_path,
+            step1_prefix.with_name(step1_prefix.name + "_pred.list"),
+            step2_prefix,
+        )
+        if rc != 0:
+            sys.exit(f"REGENIE step2 failed with exit code {rc}")
 
-    baseline_path = step2_prefix.with_suffix(".regenie")
-    n_baseline = count_spurious_hits(baseline_path)
-    print(f"  ✓ baseline spurious significant SNPs: {n_baseline:,}")
+        baseline_path = step2_prefix.with_suffix(".regenie")
+        n_baseline = count_spurious_hits(baseline_path)
+        print(f"  ✓ baseline spurious significant SNPs: {n_baseline:,}")
 
     if args.regenie_only:
         return
 
     # ----- Stage 3: M2 motif detection -----
-    print("\n[3/4] Running M2 motif-pair detection...")
-    print("  ⚠ M2 no-Neo4j wrapper is a TODO — see "
-          "detect_motif_interactions_no_neo4j() docstring.")
-    print("  This stage is intentionally a scaffold.  Once the wrapper "
-          "exists, it will:")
-    print("    - call detect_motif_interactions_no_neo4j(dos, sample_ids, "
-          "sim['y'][:,0], CACHE_PATH)")
-    print("    - return motif pairs + their interaction p-values")
-    print("    - emit a covariate file: per-pair G1*G2 dosage product columns")
-    print("  STOPPING here. Re-run after Stage 3 wrapper is implemented.")
-    return
+    print("\n[3/4] Running M2 motif-pair detection (no-Neo4j path)...")
+    print(f"  graph cache: {CACHE_PATH.name}")
+    if not CACHE_PATH.exists():
+        sys.exit(f"  ✗ graph cache missing: {CACHE_PATH}")
 
-    # ----- Stage 4: rescue + comparison -----
-    # (Not reached until Stage 3 is implemented.)
+    sig_results = detect_motif_interactions_no_neo4j(
+        dosages=dos,
+        variant_ids=variant_ids,
+        phenotype=sim["y"][:, 0],
+        graph_cache_path=CACHE_PATH,
+        motifs=["same_gene", "same_pathway"],
+        fdr_threshold=args.fdr_threshold,
+        mac_min=10,
+        max_pairs_per_entity=500,
+        max_pairs_total=50_000,
+        verbose=True,
+    )
+    print(f"  ✓ {len(sig_results):,} pairs at BH-FDR < {args.fdr_threshold}")
+    if sig_results:
+        best = sig_results[0]
+        print(f"    best: {best.variant_1} × {best.variant_2}  "
+              f"motif={best.motif}  q={best.p_corrected:.2e}")
+
+    # Map InteractionResult variant IDs back to dosage column indices
+    vid_to_col = {v: i for i, v in enumerate(variant_ids)}
+    pair_indices = [
+        (vid_to_col[r.variant_1], vid_to_col[r.variant_2])
+        for r in sig_results
+    ]
+
+    # Emit REGENIE covariate file
+    covar_path = RESULTS_DIR / "motif_covariates.txt"
+    write_regenie_covar(pair_indices, dos, sample_ids, covar_path)
+    print(f"  ✓ wrote covariate file: {covar_path}")
+    print(f"    columns: FID IID + {len(pair_indices)} pair-product columns")
+
+    # Persist a JSON sidecar with the M2 detection result
+    sidecar = RESULTS_DIR / "stage3_m2_results.json"
+    sidecar.write_text(json.dumps({
+        "n_significant": len(sig_results),
+        "fdr_threshold": args.fdr_threshold,
+        "motifs": ["same_gene", "same_pathway"],
+        "lambda_var": args.lambda_var,
+        "n_samples": int(dos.shape[0]),
+        "n_variants": int(dos.shape[1]),
+        "top_pairs": [
+            {
+                "variant_1": r.variant_1, "variant_2": r.variant_2,
+                "motif": r.motif, "shared_entity": r.shared_entity,
+                "p_interaction": float(r.p_interaction),
+                "p_corrected": float(r.p_corrected) if r.p_corrected else None,
+                "beta_interaction": float(r.beta_interaction),
+            }
+            for r in sig_results[:20]
+        ],
+    }, indent=2))
+    print(f"  ✓ wrote {sidecar}")
+
+    if args.m2_only:
+        print("\n[done] --m2-only specified; stopping before Stage 4.")
+        return
+
+    # ----- Stage 4: rescue REGENIE step 2 with motif covariates + count -----
+    print("\n[4/4] Re-running REGENIE step 2 with motif covariates...")
+    if not regenie_available() or n_baseline is None:
+        print("  ⚠ baseline not produced (REGENIE missing); cannot compute rescue Δ.")
+        return
+
+    rescue_prefix = RESULTS_DIR / "regenie_step2_rescue"
+    rc = run_regenie_step2(
+        BGEN_DIR / "chr22.bgen",
+        BGEN_DIR / "chr22.sample",
+        pheno_path,
+        (RESULTS_DIR / "regenie_step1_pred.list"),
+        rescue_prefix,
+        covar=covar_path,
+    )
+    if rc != 0:
+        sys.exit(f"REGENIE rescue step2 failed with exit code {rc}")
+
+    rescue_path = rescue_prefix.with_suffix(".regenie")
+    n_rescue = count_spurious_hits(rescue_path)
+    delta_pct = 100 * (n_baseline - n_rescue) / max(1, n_baseline)
+    print(f"  ✓ rescue spurious significant SNPs: {n_rescue:,}")
+    print(f"  Δ (baseline → rescue): {n_baseline} → {n_rescue} "
+          f"({delta_pct:+.1f}% reduction)")
+
+    (RESULTS_DIR / "spurious_counts.json").write_text(json.dumps({
+        "baseline": int(n_baseline),
+        "rescue": int(n_rescue),
+        "delta_pct_reduction": float(delta_pct),
+        "n_motif_covariates": len(pair_indices),
+        "fdr_threshold": args.fdr_threshold,
+        "lambda_var": args.lambda_var,
+    }, indent=2))
 
 
 if __name__ == "__main__":

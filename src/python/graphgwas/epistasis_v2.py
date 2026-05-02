@@ -330,6 +330,292 @@ def motif_filtered_epistasis(
 
 
 # ===================================================================
+# M2 — no-Neo4j path (graph-cache driven)
+#
+# Mirrors _enumerate_motif_pairs / motif_filtered_epistasis above but
+# reads gene / pathway / PPI annotations from a JSON graph_cache file
+# (see data/annotations/human_graph_cache_v2_chr*.json) instead of
+# running Cypher queries against a live Neo4j connection.  Used by
+# the paper-#2 REGENIE rescue demo (tests/regenie_rescue_demo.py
+# Stage 3) and any other context where Neo4j is not available.
+# ===================================================================
+
+def enumerate_motif_pairs_from_cache(
+    cache: dict,
+    variant_id_to_col: dict,
+    motifs: list,
+    *,
+    max_pairs_per_entity: int = 500,
+    rng: "np.random.Generator | None" = None,
+) -> list:
+    """Enumerate variant pairs matching biological motifs from a graph_cache.
+
+    The graph_cache JSON keys are variant IDs (``chrN:pos:REF:ALT`` format)
+    and each value is a dict with lists ``{"genes", "pathways", "ppi"}``.
+    For each requested motif we build the inverse index (e.g. gene → variant
+    indices) and emit pairs from each entity that has ≥ 2 contributing
+    variants.
+
+    Args:
+        cache: pre-loaded JSON dict, keyed by variant ID.
+        variant_id_to_col: maps each variant ID present in the dosage
+            matrix to its column index.  Variants in the cache but not in
+            this map are silently skipped.
+        motifs: subset of ``["same_gene", "same_pathway",
+            "protein_interaction"]``.  Unknown motif names raise.
+        max_pairs_per_entity: cap on how many pairs to emit from any
+            single entity (gene / pathway / PPI partner-set) to keep the
+            candidate pool tractable on densely-annotated regions.
+        rng: numpy Generator for deterministic per-entity sub-sampling
+            once an entity hits the cap.
+
+    Returns:
+        List of ``(var_idx_1, var_idx_2, motif, shared_entity)`` tuples,
+        deduplicated across motifs (a pair surfaced via multiple
+        motifs appears once, with the *first* motif name encountered).
+    """
+    import itertools
+
+    if rng is None:
+        rng = np.random.default_rng(0)
+
+    # Build inverse indices for each requested motif
+    valid_motifs = {"same_gene", "same_pathway", "protein_interaction"}
+    for m in motifs:
+        if m not in valid_motifs:
+            raise ValueError(f"Unknown motif: {m!r}.  Valid: {sorted(valid_motifs)}")
+
+    gene_to_vars: dict = {}
+    pathway_to_vars: dict = {}
+    ppi_to_vars: dict = {}      # gene → variant indices in any of its PPI partners
+    var_to_genes: dict = {}     # for cross-gene constraint on same_pathway / PPI
+
+    for vid, idx in variant_id_to_col.items():
+        entry = cache.get(vid)
+        if entry is None:
+            continue
+        genes = entry.get("genes", []) or []
+        if "same_gene" in motifs:
+            for g in genes:
+                gene_to_vars.setdefault(g, []).append(idx)
+        if "same_pathway" in motifs:
+            for p in entry.get("pathways", []) or []:
+                pathway_to_vars.setdefault(p, []).append(idx)
+        if "protein_interaction" in motifs:
+            for partner_gene in entry.get("ppi", []) or []:
+                ppi_to_vars.setdefault(partner_gene, []).append(idx)
+        if genes:
+            var_to_genes[idx] = set(genes)
+
+    seen_pairs: set = set()
+    out: list = []
+
+    def _emit_pairs(entity_to_vars, motif_name, *,
+                    cross_gene_only=False):
+        """Walk an inverse index, emitting unique cross-variant pairs."""
+        for entity, var_idxs in entity_to_vars.items():
+            if len(var_idxs) < 2:
+                continue
+            n_full = len(var_idxs) * (len(var_idxs) - 1) // 2
+            if n_full <= max_pairs_per_entity:
+                pair_iter = itertools.combinations(var_idxs, 2)
+            else:
+                # Random sample of distinct pairs (sample-without-replacement
+                # via rng.choice with size=2)
+                def _sample():
+                    for _ in range(max_pairs_per_entity):
+                        a, b = rng.choice(var_idxs, size=2, replace=False)
+                        yield int(a), int(b)
+                pair_iter = _sample()
+            for a, b in pair_iter:
+                i, j = (a, b) if a < b else (b, a)
+                if cross_gene_only:
+                    g_i = var_to_genes.get(i, set())
+                    g_j = var_to_genes.get(j, set())
+                    if g_i and g_j and g_i & g_j:
+                        # Same-gene pair — skip; that's handled by same_gene
+                        continue
+                key = (i, j)
+                if key in seen_pairs:
+                    continue
+                seen_pairs.add(key)
+                out.append((i, j, motif_name, str(entity)))
+
+    if "same_gene" in motifs:
+        _emit_pairs(gene_to_vars, "same_gene")
+    if "same_pathway" in motifs:
+        _emit_pairs(pathway_to_vars, "same_pathway", cross_gene_only=True)
+    if "protein_interaction" in motifs:
+        _emit_pairs(ppi_to_vars, "protein_interaction", cross_gene_only=True)
+
+    return out
+
+
+def motif_filtered_epistasis_from_data(
+    dosages: np.ndarray,
+    variant_ids: list,
+    phenotype: np.ndarray,
+    graph_cache,
+    motifs: list | None = None,
+    *,
+    mac_min: int = 10,
+    correction: str = "BH",
+    max_pairs_per_entity: int = 500,
+    max_pairs_total: int = 50_000,
+    verbose: bool = True,
+    rng: "np.random.Generator | None" = None,
+) -> "list[InteractionResult]":
+    """M2 motif-filtered pairwise epistasis testing — no-Neo4j variant.
+
+    Functional twin of :func:`motif_filtered_epistasis` that takes raw
+    dosages + a graph_cache instead of a Neo4j connection.  Reuses
+    :func:`_test_interaction` for the regression and the same
+    BH-FDR / Bonferroni multiple-testing correction.
+
+    Args:
+        dosages: shape ``(n_samples, n_variants)``, can contain NaN.
+        variant_ids: list of length ``n_variants`` in ``chrN:pos:REF:ALT``
+            format (matching graph_cache keys).
+        phenotype: shape ``(n_samples,)``.  NaN samples are dropped per pair.
+        graph_cache: either a dict (already loaded) or a ``str``/``Path``
+            to a JSON file.
+        motifs: default ``["same_gene", "same_pathway"]``.  Pass
+            ``["same_gene", "same_pathway", "protein_interaction"]`` to
+            include PPI-partner pairs (P2).
+        mac_min: minimum minor allele count required from each variant in
+            the pair (after NaN-drop).
+        correction: ``"BH"`` or ``"bonferroni"``.
+        max_pairs_per_entity: per-gene / per-pathway sampling cap.
+        max_pairs_total: hard cap on total pairs tested across all motifs;
+            after enumeration the head of the list is taken if this is
+            exceeded.
+        verbose: print progress.
+        rng: numpy Generator for deterministic sampling.
+
+    Returns:
+        ``list[InteractionResult]`` sorted by ``p_interaction`` ascending.
+    """
+    import json as _json
+    from pathlib import Path as _Path
+
+    if motifs is None:
+        motifs = ["same_gene", "same_pathway"]
+    if isinstance(graph_cache, (str, _Path)):
+        cache = _json.loads(_Path(graph_cache).read_text())
+    else:
+        cache = graph_cache
+
+    n_samples, n_variants = dosages.shape
+    if len(variant_ids) != n_variants:
+        raise ValueError(
+            f"variant_ids length ({len(variant_ids)}) must match "
+            f"dosages.shape[1] ({n_variants})"
+        )
+    if phenotype.shape[0] != n_samples:
+        raise ValueError(
+            f"phenotype length ({phenotype.shape[0]}) must match "
+            f"dosages.shape[0] ({n_samples})"
+        )
+
+    variant_id_to_col = {v: i for i, v in enumerate(variant_ids)}
+
+    if verbose:
+        print(f"M2 (no-Neo4j) motif-filtered epistasis: "
+              f"n_samples={n_samples}, n_variants={n_variants}, "
+              f"motifs={motifs}", flush=True)
+
+    pairs = enumerate_motif_pairs_from_cache(
+        cache, variant_id_to_col, motifs,
+        max_pairs_per_entity=max_pairs_per_entity, rng=rng,
+    )
+    if verbose:
+        print(f"  enumerated {len(pairs):,} candidate pairs", flush=True)
+
+    if len(pairs) > max_pairs_total:
+        pairs = pairs[:max_pairs_total]
+        if verbose:
+            print(f"  truncated to first {max_pairs_total:,} pairs", flush=True)
+
+    # Compute MAFs once per variant for filter + result populating.
+    # NaN-aware: AF = nanmean(d) / 2.
+    af_total = np.nanmean(dosages, axis=0) / 2.0
+    maf_total = np.minimum(af_total, 1.0 - af_total)
+
+    all_results: list = []
+    n_passed_mac = 0
+    for (i, j, motif, shared) in pairs:
+        d1 = dosages[:, i].astype(float)
+        d2 = dosages[:, j].astype(float)
+        # MAC filter using non-NaN dosage sums
+        s1 = float(np.nansum(d1)); n1 = int(np.sum(~np.isnan(d1)))
+        s2 = float(np.nansum(d2)); n2 = int(np.sum(~np.isnan(d2)))
+        mac1 = min(s1, 2 * n1 - s1)
+        mac2 = min(s2, 2 * n2 - s2)
+        if mac1 < mac_min or mac2 < mac_min:
+            continue
+        n_passed_mac += 1
+
+        result = _test_interaction(d1, d2, phenotype)
+        all_results.append(InteractionResult(
+            variant_1=variant_ids[i],
+            variant_2=variant_ids[j],
+            motif=motif,
+            shared_entity=shared,
+            beta_marginal_1=result["beta_1"],
+            beta_marginal_2=result["beta_2"],
+            beta_interaction=result["beta_interaction"],
+            se_interaction=result["se_interaction"],
+            p_interaction=result["p_interaction"],
+            p_corrected=None,  # filled below
+            n_samples=int(result["n"]),
+            maf_1=float(maf_total[i]),
+            maf_2=float(maf_total[j]),
+        ))
+
+    if verbose:
+        print(f"  {n_passed_mac:,} pairs survived MAC≥{mac_min} filter", flush=True)
+        print(f"  {len(all_results):,} pairs tested", flush=True)
+
+    if not all_results:
+        return []
+
+    # Multiple-testing correction (lifted verbatim from motif_filtered_epistasis)
+    pvals = np.array([r.p_interaction for r in all_results])
+    if correction == "BH":
+        n_tests = len(pvals)
+        order = np.argsort(pvals)
+        ranks = np.empty(n_tests, dtype=int)
+        ranks[order] = np.arange(1, n_tests + 1)
+        corrected = np.minimum(1.0, pvals * n_tests / ranks)
+        # Enforce monotonicity (BH step-up)
+        for k in range(n_tests - 2, -1, -1):
+            corrected[order[k]] = min(corrected[order[k]],
+                                       corrected[order[k + 1]])
+        for k, r in enumerate(all_results):
+            r.p_corrected = float(corrected[k])
+    elif correction == "bonferroni":
+        for r in all_results:
+            r.p_corrected = float(min(1.0, r.p_interaction * len(all_results)))
+    else:
+        raise ValueError(f"correction must be 'BH' or 'bonferroni'; got {correction!r}")
+
+    all_results.sort(key=lambda r: r.p_interaction)
+
+    if verbose:
+        sig_nominal = sum(1 for r in all_results if r.p_interaction < 0.05)
+        sig_corrected = sum(1 for r in all_results
+                            if r.p_corrected is not None and r.p_corrected < 0.05)
+        print(f"  nominal p < 0.05      : {sig_nominal:,}")
+        print(f"  corrected p < 0.05 ({correction}): {sig_corrected:,}")
+        if all_results:
+            best = all_results[0]
+            print(f"  best pair: {best.variant_1} × {best.variant_2}  "
+                  f"motif={best.motif}  p_interaction={best.p_interaction:.2e}")
+
+    return all_results
+
+
+# ===================================================================
 # M1: LD-Aware Co-occurrence with Interaction Statistics
 # ===================================================================
 
