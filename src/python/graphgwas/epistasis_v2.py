@@ -25,7 +25,6 @@ from .genotype import (
     get_phenotype_indices,
     get_phenotype_values,
     build_dosage,
-    build_carrier_set,
     variant_iterator,
 )
 
@@ -317,7 +316,7 @@ def motif_filtered_epistasis(
     if verbose:
         sig_nominal = sum(1 for r in all_results if r.p_interaction < 0.05)
         sig_corrected = sum(1 for r in all_results if r.p_corrected and r.p_corrected < 0.05)
-        print(f"\n  Summary:")
+        print("\n  Summary:")
         print(f"    Total pairs tested: {total_pairs_tested:,}")
         print(f"    Nominal p < 0.05: {sig_nominal:,}")
         print(f"    Corrected p < 0.05: {sig_corrected:,}")
@@ -1130,3 +1129,47 @@ def motif_epistasis_to_tsv(results: list[InteractionResult], path: str):
                 "maf_1": f"{r.maf_1:.4f}",
                 "maf_2": f"{r.maf_2:.4f}",
             })
+
+
+# ===================================================================
+# Bridge to graphgwas.bias: build interaction-feature matrix Z from
+# motif-typed pair results so rho_max / R(x) can be evaluated under
+# a biology-typed interaction subspace (cf. paper #2).
+# ===================================================================
+
+def motif_interaction_matrix(motif_results: list,
+                              dosages: np.ndarray,
+                              variant_id_to_col: dict[str, int]) -> np.ndarray:
+    """Build interaction-feature matrix Z from M2 motif-pair results.
+
+    For each motif pair ``(v1, v2)`` in *motif_results*, append a column
+    ``dosage(v1) * dosage(v2)`` (centred) to ``Z``.  The resulting matrix
+    spans the biology-typed interaction subspace and is the input
+    ``Z`` to :func:`graphgwas.bias.rho_max` and the ``conservativeness_ratio``.
+
+    Args:
+        motif_results: list of :class:`InteractionResult` (from
+            :func:`motif_filtered_epistasis`).
+        dosages: per-variant dosage matrix, shape (n_samples, n_variants).
+        variant_id_to_col: maps each ``InteractionResult.variant_*``
+            variant ID string to its column index in ``dosages``.
+
+    Returns:
+        Z, shape (n_samples, n_motif_pairs), with each column the centred
+        dosage product for one motif pair.  Pairs whose variant IDs are
+        not present in ``variant_id_to_col`` are silently skipped; the
+        returned matrix may have fewer columns than ``len(motif_results)``.
+    """
+    cols = []
+    for r in motif_results:
+        i = variant_id_to_col.get(r.variant_1)
+        j = variant_id_to_col.get(r.variant_2)
+        if i is None or j is None:
+            continue
+        prod = dosages[:, i] * dosages[:, j]
+        prod = prod - prod.mean()
+        cols.append(prod)
+    if not cols:
+        # 0-column matrix with the right number of rows
+        return np.empty((dosages.shape[0], 0), dtype=float)
+    return np.column_stack(cols)
