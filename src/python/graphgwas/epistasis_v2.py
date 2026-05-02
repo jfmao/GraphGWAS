@@ -1388,6 +1388,332 @@ def dark_matter_epistasis(
     return results
 
 
+# ===================================================================
+# M3 + M4 — no-Neo4j paths (graph-cache-free; case/control input)
+# ===================================================================
+
+def differential_subgraph_from_data(
+    dosages: np.ndarray,
+    variant_ids: list,
+    case_mask: np.ndarray,
+    control_mask: np.ndarray,
+    *,
+    r2_prune: float = 0.5,
+    min_cocarriers: int = 5,
+    min_distance_bp: int = 100_000,
+    mac_min: int = 10,
+    max_variants: int = 1000,
+    verbose: bool = True,
+) -> list:
+    """M3 differential-subgraph analysis — no-Neo4j variant.
+
+    Functional twin of :func:`differential_subgraph` that takes dosages +
+    case/control masks instead of a Neo4j connection.  Builds separate
+    co-occurrence graphs for cases and controls, scores each pair by
+    case-vs-control log-fold-ratio + Fisher's exact, and returns
+    InteractionResult records sorted by p_interaction (interaction
+    regression p-value for pairs with Fisher p < 0.1).
+
+    Args:
+        dosages: shape ``(n_samples, n_variants)``, NaN-tolerant.
+        variant_ids: length ``n_variants``.
+        case_mask, control_mask: boolean arrays of length ``n_samples``.
+            Must be disjoint.  Samples not in either mask are ignored.
+        r2_prune, min_distance_bp, max_variants, mac_min: same as M3 Neo4j.
+        min_cocarriers: minimum case (or control) co-carrier count to
+            classify edges as case_unique / ctrl_unique.
+
+    Returns:
+        ``list[InteractionResult]`` sorted by ``p_interaction``.
+    """
+    case_mask = np.asarray(case_mask, dtype=bool)
+    control_mask = np.asarray(control_mask, dtype=bool)
+    if case_mask.shape[0] != dosages.shape[0]:
+        raise ValueError("case_mask length must match n_samples")
+    if control_mask.shape[0] != dosages.shape[0]:
+        raise ValueError("control_mask length must match n_samples")
+    if np.any(case_mask & control_mask):
+        raise ValueError("case_mask and control_mask must be disjoint")
+
+    n_case = int(case_mask.sum())
+    n_ctrl = int(control_mask.sum())
+    if n_case < 20 or n_ctrl < 20:
+        if verbose:
+            print(f"M3 from_data: too few cases/controls "
+                  f"({n_case}, {n_ctrl}); aborting")
+        return []
+
+    if verbose:
+        print(f"M3 (no-Neo4j) differential-subgraph: "
+              f"{n_case} cases + {n_ctrl} controls, "
+              f"{dosages.shape[1]} variants, r²_prune={r2_prune}", flush=True)
+
+    # Build (variants, dosage_list) format for the existing pruning logic.
+    af_vec = np.nanmean(dosages, axis=0) / 2.0
+    pheno_for_test = np.where(case_mask, 1.0, np.where(control_mask, 0.0, np.nan))
+    n = dosages.shape[1]
+    variants: list = []
+    dosage_list: list = []
+    for k in range(n):
+        af = float(af_vec[k])
+        if af < 0.01 or af > 0.99:
+            continue
+        d = dosages[:, k].astype(np.float64)
+        d_clean = np.where(np.isnan(d), 0, d)
+        mac = min(float(d_clean.sum()), float(2 * d.size - d_clean.sum()))
+        if mac < mac_min:
+            continue
+        # Parse position from variant ID 'chrN:pos:REF:ALT'
+        parts = variant_ids[k].split(":")
+        try:
+            pos = int(parts[1])
+        except (IndexError, ValueError):
+            pos = k  # fallback — synthetic position
+        variants.append({"variantId": variant_ids[k], "pos": pos, "af_total": af})
+        dosage_list.append(d)
+        if len(variants) >= max_variants * 3:
+            break
+
+    # LD pruning (greedy keep-first, position-LD only)
+    keep: list = []
+    used: set = set()
+    for i in range(len(variants)):
+        if i in used:
+            continue
+        keep.append(i)
+        for j in range(i + 1, len(variants)):
+            if j in used:
+                continue
+            if abs(variants[i]["pos"] - variants[j]["pos"]) < min_distance_bp:
+                r2 = _compute_ld(dosage_list[i], dosage_list[j])
+                if r2 > r2_prune:
+                    used.add(j)
+        if len(keep) >= max_variants:
+            break
+
+    pruned_v = [variants[i] for i in keep]
+    pruned_d = [dosage_list[i] for i in keep]
+    n_v = len(pruned_v)
+    if verbose:
+        print(f"  {len(variants)} loaded → {n_v} after LD pruning")
+    if n_v < 4:
+        return []
+
+    # Carrier arrays (cases + controls in their respective slots)
+    carrier_case = np.zeros((n_v, n_case), dtype=bool)
+    carrier_ctrl = np.zeros((n_v, n_ctrl), dtype=bool)
+    case_idx = np.where(case_mask)[0]
+    ctrl_idx = np.where(control_mask)[0]
+    for i in range(n_v):
+        carrier_case[i] = pruned_d[i][case_idx] > 0
+        carrier_ctrl[i] = pruned_d[i][ctrl_idx] > 0
+
+    results: list = []
+    pairs_tested = 0
+    for i in range(n_v):
+        for j in range(i + 1, n_v):
+            if abs(pruned_v[i]["pos"] - pruned_v[j]["pos"]) < min_distance_bp:
+                continue
+            co_case = int(np.sum(carrier_case[i] & carrier_case[j]))
+            co_ctrl = int(np.sum(carrier_ctrl[i] & carrier_ctrl[j]))
+            if co_case < 2 and co_ctrl < 2:
+                continue
+            pairs_tested += 1
+            case_freq = co_case / n_case
+            ctrl_freq = co_ctrl / n_ctrl
+            pseudo = 1.0 / max(n_case, n_ctrl)
+            lfr = float(np.log2((case_freq + pseudo) / (ctrl_freq + pseudo)))
+            try:
+                _, fisher_p = sp_stats.fisher_exact(
+                    [[co_case, n_case - co_case], [co_ctrl, n_ctrl - co_ctrl]]
+                )
+                fisher_p = float(fisher_p)
+            except ValueError:
+                fisher_p = 1.0
+
+            if co_case >= min_cocarriers and co_ctrl < 2:
+                edge_type = "case_unique"
+            elif co_ctrl >= min_cocarriers and co_case < 2:
+                edge_type = "ctrl_unique"
+            elif abs(lfr) > 1.0:
+                edge_type = "differential"
+            else:
+                edge_type = "shared"
+
+            if fisher_p < 0.1:
+                int_result = _test_interaction(pruned_d[i], pruned_d[j], pheno_for_test)
+                p_int = int_result["p_interaction"]
+                beta_int = int_result["beta_interaction"]
+            else:
+                p_int = 1.0
+                beta_int = 0.0
+
+            if fisher_p < 0.05 or edge_type in ("case_unique", "ctrl_unique"):
+                results.append(InteractionResult(
+                    variant_1=pruned_v[i]["variantId"],
+                    variant_2=pruned_v[j]["variantId"],
+                    motif=edge_type,
+                    shared_entity=f"lfr={lfr:.2f},co_case={co_case},co_ctrl={co_ctrl}",
+                    beta_marginal_1=0.0,
+                    beta_marginal_2=0.0,
+                    beta_interaction=float(beta_int),
+                    se_interaction=0.0,
+                    p_interaction=float(p_int),
+                    p_corrected=float(min(1.0, fisher_p * pairs_tested)),
+                    n_samples=n_case + n_ctrl,
+                    maf_1=pruned_v[i]["af_total"],
+                    maf_2=pruned_v[j]["af_total"],
+                ))
+
+    results.sort(key=lambda r: r.p_interaction)
+    if verbose:
+        by_type: dict = {}
+        for r in results:
+            by_type[r.motif] = by_type.get(r.motif, 0) + 1
+        print(f"  pairs tested: {pairs_tested:,}")
+        for t, c in sorted(by_type.items()):
+            print(f"    {t}: {c}")
+    return results
+
+
+def dark_matter_epistasis_from_data(
+    dosages: np.ndarray,
+    variant_ids: list,
+    case_mask: np.ndarray,
+    control_mask: np.ndarray,
+    *,
+    maf_min: float = 0.05,
+    depletion_threshold: float = 0.5,
+    min_expected: float = 5.0,
+    mac_min: int = 20,
+    max_variants: int = 500,
+    verbose: bool = True,
+) -> list:
+    """M4 dark-matter / synthetic-incompatibility — no-Neo4j variant.
+
+    Tests for *depleted* co-occurrence in cases relative to expectation
+    under independence — the synthetic-lethal regime.  Functional twin
+    of :func:`dark_matter_epistasis`.
+
+    Args:
+        dosages: shape ``(n_samples, n_variants)``.
+        variant_ids: length ``n_variants``.
+        case_mask, control_mask: boolean arrays of length ``n_samples``.
+        maf_min: minimum MAF (need enough expected co-occurrences).
+        depletion_threshold: max ratio observed/expected to flag.
+        min_expected: minimum expected co-occurrences for testability.
+        mac_min: minimum minor allele count.
+        max_variants: cap.
+
+    Returns:
+        ``list[InteractionResult]`` sorted by Poisson p-value.
+    """
+    case_mask = np.asarray(case_mask, dtype=bool)
+    control_mask = np.asarray(control_mask, dtype=bool)
+    n_case = int(case_mask.sum())
+    n_ctrl = int(control_mask.sum())
+    if n_case < 20 or n_ctrl < 20:
+        if verbose:
+            print(f"M4 from_data: too few cases/controls "
+                  f"({n_case}, {n_ctrl})")
+        return []
+    case_idx = np.where(case_mask)[0]
+    ctrl_idx = np.where(control_mask)[0]
+
+    if verbose:
+        print(f"M4 (no-Neo4j) dark-matter: "
+              f"{n_case} cases + {n_ctrl} controls, MAF≥{maf_min}", flush=True)
+
+    af_vec = np.nanmean(dosages, axis=0) / 2.0
+    n = dosages.shape[1]
+    variants: list = []
+    dosage_list: list = []
+    cf_case_list: list = []
+    cf_ctrl_list: list = []
+
+    for k in range(n):
+        af = float(af_vec[k])
+        if af < maf_min or af > (1 - maf_min):
+            continue
+        d = dosages[:, k].astype(np.float64)
+        d_clean = np.where(np.isnan(d), 0, d)
+        mac = min(float(d_clean.sum()), float(2 * d.size - d_clean.sum()))
+        if mac < mac_min:
+            continue
+        carriers = d > 0
+        cf_case = float(carriers[case_idx].mean())
+        cf_ctrl = float(carriers[ctrl_idx].mean())
+        parts = variant_ids[k].split(":")
+        try:
+            pos = int(parts[1])
+        except (IndexError, ValueError):
+            pos = k
+        variants.append({"variantId": variant_ids[k], "pos": pos, "af_total": af})
+        dosage_list.append(d)
+        cf_case_list.append(cf_case)
+        cf_ctrl_list.append(cf_ctrl)
+        if len(variants) >= max_variants:
+            break
+
+    n_v = len(variants)
+    if verbose:
+        print(f"  {n_v} common variants loaded")
+    if n_v < 4:
+        return []
+
+    results: list = []
+    pairs_tested = 0
+    depleted_found = 0
+    for i in range(n_v):
+        d_i = dosage_list[i]
+        carriers_i = d_i > 0
+        for j in range(i + 1, n_v):
+            expected_case = n_case * cf_case_list[i] * cf_case_list[j]
+            expected_ctrl = n_ctrl * cf_ctrl_list[i] * cf_ctrl_list[j]
+            if expected_case < min_expected:
+                continue
+            d_j = dosage_list[j]
+            carriers_j = d_j > 0
+            observed_case = int(np.sum(carriers_i[case_idx] & carriers_j[case_idx]))
+            observed_ctrl = int(np.sum(carriers_i[ctrl_idx] & carriers_j[ctrl_idx]))
+            pairs_tested += 1
+            ratio_case = observed_case / expected_case
+            ratio_ctrl = observed_ctrl / expected_ctrl if expected_ctrl > 0 else 1.0
+            is_depleted = (ratio_case < depletion_threshold and
+                           ratio_ctrl > depletion_threshold)
+            poisson_p_case = float(sp_stats.poisson.cdf(observed_case, expected_case))
+            z_case = (observed_case - expected_case) / np.sqrt(expected_case + 1)
+            z_ctrl = (observed_ctrl - expected_ctrl) / np.sqrt(max(expected_ctrl, 1) + 1)
+            depletion_differential = float(z_ctrl - z_case)
+
+            if is_depleted or (poisson_p_case < 0.01 and depletion_differential > 1.0):
+                depleted_found += 1
+                results.append(InteractionResult(
+                    variant_1=variants[i]["variantId"],
+                    variant_2=variants[j]["variantId"],
+                    motif="dark_matter",
+                    shared_entity=(
+                        f"obs_case={observed_case},exp_case={expected_case:.1f},"
+                        f"ratio={ratio_case:.3f},"
+                        f"obs_ctrl={observed_ctrl},exp_ctrl={expected_ctrl:.1f}"
+                    ),
+                    beta_marginal_1=0.0,
+                    beta_marginal_2=0.0,
+                    beta_interaction=depletion_differential,
+                    se_interaction=0.0,
+                    p_interaction=poisson_p_case,
+                    p_corrected=float(min(1.0, poisson_p_case * pairs_tested)),
+                    n_samples=n_case + n_ctrl,
+                    maf_1=variants[i]["af_total"],
+                    maf_2=variants[j]["af_total"],
+                ))
+
+    results.sort(key=lambda r: r.p_interaction)
+    if verbose:
+        print(f"  pairs tested: {pairs_tested:,}, depleted: {depleted_found:,}")
+    return results
+
+
 def motif_epistasis_to_tsv(results: list[InteractionResult], path: str):
     """Write epistasis v2 results to TSV file."""
     import csv
