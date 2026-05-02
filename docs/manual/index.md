@@ -133,7 +133,7 @@ Related commands and vignettes.
 
 Not every command listed above is rigorously benchmarked in the Nature
 Genetics manuscript. See Supplementary Note S3 of the paper
-(`paper/manuscript_v1/supplementary.tex`) for the full benchmark-status table.
+(`paper/finemapping_v1/supplementary.tex`) for the full benchmark-status table.
 In short:
 
 - **Fine-mapping** commands (`finemap`, and the underlying HBP / GAFM / CLGF

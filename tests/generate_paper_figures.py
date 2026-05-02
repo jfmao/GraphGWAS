@@ -3,7 +3,7 @@
 Reads benchmark JSONs under results/benchmark_v2/ and writes PNG + PDF to
 results/benchmark_v2/paper_figures/fig{3,4,5,6}.{png,pdf}.
 
-Figures (per paper/manuscript_v1/results.tex):
+Figures (per paper/finemapping_v1/results.tex):
   3. HBP vs SuSiE/FINEMAP benchmark (4 panels)
   4. PIP calibration + null FPR (4 panels)
   5. LPCE (M1) epistasis search reduction (4 panels)

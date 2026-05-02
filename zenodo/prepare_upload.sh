@@ -226,10 +226,10 @@ done
 # ===================================================================
 echo ""
 echo "[6d] Copying manuscript PDF..."
-[ -f "$ROOT/paper/manuscript_v1/main.pdf" ] \
-    && cp "$ROOT/paper/manuscript_v1/main.pdf" "$ZEN/manuscript/manuscript_preprint.pdf" \
+[ -f "$ROOT/paper/finemapping_v1/main.pdf" ] \
+    && cp "$ROOT/paper/finemapping_v1/main.pdf" "$ZEN/manuscript/manuscript_preprint.pdf" \
     && echo "  ✓ manuscript_preprint.pdf" \
-    || echo "  ⚠ paper/manuscript_v1/main.pdf not built yet"
+    || echo "  ⚠ paper/finemapping_v1/main.pdf not built yet"
 
 # ===================================================================
 # 6e. LD references (genome-wide and chr22 ancestry-matched)
@@ -253,9 +253,19 @@ echo "[6/6] Creating source-code snapshot..."
 cd "$ROOT"
 SHA=$(git rev-parse HEAD 2>/dev/null || echo "unknown")
 echo "$SHA" > "$ZEN/code_snapshot/commit_sha.txt"
-git archive --format=tar.gz --prefix=graphgwas-v0.1.0/ \
-    -o "$ZEN/code_snapshot/graphgwas_v0.1.0.tar.gz" HEAD 2>/dev/null \
-    && echo "  ✓ graphgwas_v0.1.0.tar.gz (from $SHA)" \
+# Prefer the tagged v0.1.1 release if available; fall back to HEAD
+if git rev-parse v0.1.1 >/dev/null 2>&1; then
+    SRC_REF="v0.1.1"
+    SRC_PREFIX="graphgwas-v0.1.1/"
+    SRC_TGZ="graphgwas_v0.1.1.tar.gz"
+else
+    SRC_REF="HEAD"
+    SRC_PREFIX="graphgwas-${SHA:0:8}/"
+    SRC_TGZ="graphgwas_${SHA:0:8}.tar.gz"
+fi
+git archive --format=tar.gz --prefix="$SRC_PREFIX" \
+    -o "$ZEN/code_snapshot/$SRC_TGZ" "$SRC_REF" 2>/dev/null \
+    && echo "  ✓ $SRC_TGZ (from $SRC_REF)" \
     || echo "  ⚠ git archive failed (not a git repo at this path)"
 
 # ===================================================================
@@ -282,6 +292,74 @@ echo "Computing SHA-256 checksums..."
 } > "$ZEN/MANIFEST.md"
 echo "  ✓ MANIFEST.md"
 
+# ===================================================================
+# 8. (Optional) Bundle Neo4j Community 5.26 tarball
+#
+# Set NEO4J_DOWNLOAD=1 to fetch ~160 MB from neo4j.com.
+# Without this flag, the deposit ships dumps only and assumes users
+# install Neo4j separately.
+# ===================================================================
+echo ""
+echo "[8] Neo4j Community tarball (160 MB)..."
+NEO4J_TGZ="$ZEN/graph_dumps/neo4j-community-5.26.0-unix.tar.gz"
+if [ -f "$NEO4J_TGZ" ]; then
+    echo "  ✓ already present at $NEO4J_TGZ"
+elif [[ "${NEO4J_DOWNLOAD:-0}" == "1" ]]; then
+    echo "  Downloading from dist.neo4j.org..."
+    curl -L -o "$NEO4J_TGZ" \
+        https://dist.neo4j.org/neo4j-community-5.26.0-unix.tar.gz \
+        && echo "  ✓ neo4j-community-5.26.0-unix.tar.gz" \
+        || echo "  ⚠ download failed; bundle without engine, document URL in README"
+else
+    echo "  ⏭ skipped (set NEO4J_DOWNLOAD=1 to fetch ~160 MB from dist.neo4j.org)"
+fi
+
+# ===================================================================
+# 9. Flat upload bundle (GraphMana-style drag-and-drop into Zenodo)
+#
+# Produces zenodo/upload/ with one .tar.gz per top-level subfolder
+# plus standalone PDFs and dumps. This is what you drag into the
+# Zenodo "New upload" form.
+# ===================================================================
+echo ""
+echo "[9] Building flat upload bundle..."
+UP="$ZEN/upload"
+rm -rf "$UP"
+mkdir -p "$UP"
+
+# Per-subfolder tarballs
+for sub in benchmark_outputs panukb_results figure_source_data \
+           simulation_seeds irri_3krg_gwas multispecies_leads \
+           validation_catalogues ld_references graph_caches; do
+    if [ -d "$ZEN/$sub" ] && [ -n "$(ls -A "$ZEN/$sub" 2>/dev/null)" ]; then
+        tar -czf "$UP/graphgwas_${sub}.tar.gz" -C "$ZEN" "$sub"
+        echo "  ✓ graphgwas_${sub}.tar.gz"
+    fi
+done
+
+# Standalone large items (NOT re-tarballed — Zenodo serves them directly)
+for f in graph_dumps/yeast_1011_v0.1.dump \
+         graph_dumps/human_1kg_multiomics_v0.1.dump \
+         graph_dumps/neo4j-community-5.26.0-unix.tar.gz \
+         manuscript/manuscript_preprint.pdf \
+         code_snapshot/$SRC_TGZ \
+         CITATION.cff MANIFEST.md README.md; do
+    if [ -f "$ZEN/$f" ]; then
+        cp "$ZEN/$f" "$UP/$(basename "$f")"
+        echo "  ✓ $(basename "$f")"
+    fi
+done
+
 echo ""
 echo "=== Staging complete ==="
-echo "Next: review $ZEN/ then upload via https://zenodo.org/deposit"
+echo "Subfolder tree (full hierarchy): $ZEN/"
+echo "Flat upload bundle (drag into Zenodo): $UP/"
+echo ""
+echo "Bundle contents:"
+ls -lh "$UP" | awk 'NR>1 {printf "  %-50s %s\n", $9, $5}'
+echo ""
+echo "Total upload bundle size:"
+du -sh "$UP"
+echo ""
+echo "Next: open https://zenodo.org/uploads/new , drag every file in"
+echo "      $UP into the form, then paste fields from $ZEN/.zenodo.json"

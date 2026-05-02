@@ -15,7 +15,7 @@ Panel (b) thus shows:
   - the credible-set output shown as a co-queryable graph object
     (with gene/tissue/pathway attached), not just a PIP bar chart
 
-Writes to paper/manuscript_v1/figures/fig1_architecture.{png,pdf}.
+Writes to paper/finemapping_v1/figures/fig1_architecture.{png,pdf}.
 """
 
 from __future__ import annotations
@@ -326,7 +326,7 @@ def main() -> None:
 
     plt.tight_layout(rect=[0, 0, 1, 0.97])
 
-    out_dir = Path("/mnt/data/GraphGWAS/paper/manuscript_v1/figures")
+    out_dir = Path("/mnt/data/GraphGWAS/paper/finemapping_v1/figures")
     out_dir.mkdir(parents=True, exist_ok=True)
     for ext in ("png", "pdf"):
         fig.savefig(out_dir / f"fig1_architecture.{ext}", dpi=200,

@@ -292,7 +292,7 @@ def main() -> None:
             "native query language.",
             ha="center", va="bottom", fontsize=9, color="#666", style="italic")
 
-    out_dir = Path("/mnt/data/GraphGWAS/paper/manuscript_v1/figures")
+    out_dir = Path("/mnt/data/GraphGWAS/paper/finemapping_v1/figures")
     out_dir.mkdir(parents=True, exist_ok=True)
     for ext in ("png", "pdf"):
         fig.savefig(out_dir / f"figS3_cli_tree.{ext}",
