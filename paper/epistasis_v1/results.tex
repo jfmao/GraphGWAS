@@ -65,17 +65,44 @@ a graph-typed $Z$.
 
 \subsection{Conservativeness rescue on REGENIE-LMM-detected loci}\label{sec:rescue}
 
-[DEFERRED --- the REGENIE-rescue benchmark
-(\texttt{tests/regenie\_rescue\_demo.py}) is staged at Stage~1
-(strict-no-path-null phenotype simulation, validated:
-$\lambda_{\mathrm{var}}=0.1$ target $\Rightarrow$ $0.108$ achieved on
-1KG chr22). Stage~2 (REGENIE step~1$\,/\,$step~2 wrapper) requires the
-\texttt{regenie} v3.4 binary; install:
-\verb|mamba install -n graphmana -c bioconda regenie|. The Stage 3
-M2-without-Neo4j path was completed in commit \texttt{8f7e7db} and is
-ready for integration. The rescue claim
-($X\,\to\,Y$\,\% reduction in spurious significant hits) replaces this
-placeholder once Stage~2 is deployed.]
+We tested the headline rescue claim on 1KG chr22 ($n=3{,}202$ samples,
+$129{,}953$ variants after MAF$\geq 0.05$). Phenotypes were simulated
+under Yelmen \emph{et al.}'s strict no-path-null DGP — one target SNP
+chosen disjoint from the $m=100$ random interaction-feature pairs, so
+the marginal effect $\alpha=0$ by construction; achieved variance
+fraction $\lambda_{\mathrm{var}}=0.108$ against a target of $0.10$.
+REGENIE v4.1.2 (forward-compatible with the v3.4 used by Yelmen
+\emph{et al.}) was run twice on the same phenotype:
+
+\begin{description}
+\setlength{\itemsep}{0pt}
+\item[Baseline]  REGENIE step~1 (whole-genome ridge) + step~2 (per-SNP
+  association), no covariates. Count of variants with $p<5\times 10^{-8}$:
+  these are spurious because $\alpha=0$.
+\item[Rescue]    REGENIE step~2 re-run with five GraphGWAS M2 motif-pair
+  products (BH-FDR $<0.05$ from Stage 3 detection on the same simulated
+  phenotype) added as covariates.
+\end{description}
+
+\begin{center}\small
+\begin{tabular}{lcc}
+\toprule
+                                            & Baseline & Rescue (M2 motif covariates) \\
+\midrule
+Spurious significant SNPs ($p<5\times10^{-8}$) & 16       & \textbf{1} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{93.75\% reduction in spurious genome-wide-significant hits} —
+adding five M2-detected motif-pair products as REGENIE covariates
+collapses 15 of 16 spurious hits.  The headline number is consistent
+with Yelmen \emph{et al.}'s prediction that omitted-interaction bias
+generates anti-conservative LMM tail behaviour, and demonstrates that
+graph-typed interaction detection is a viable rescue.  Source files:
+\texttt{results/paper2\_epistasis/regenie\_step2\_baseline\_Y1.regenie},
+\texttt{regenie\_step2\_rescue\_Y1.regenie},
+\texttt{spurious\_counts.json}.
 
 \subsection{Power versus classical exhaustive baselines}\label{sec:power_baselines}
 

@@ -180,14 +180,39 @@ def write_regenie_pheno(y: np.ndarray, sample_ids: list[str], out: Path) -> Path
     return out
 
 
+def _genotype_args(geno: Path) -> list[str]:
+    """Build the REGENIE genotype-input argument set.
+
+    REGENIE rejects phased BGEN ("only unphased bgen are supported"), so the
+    1KG phased BGENs we use elsewhere can't be fed directly.  We accept
+    either a PLINK bed prefix (auto-detected if ``geno.with_suffix('.bed')``
+    exists) or an unphased BGEN; bed mode is preferred.
+    """
+    bed = geno.with_suffix(".bed")
+    if bed.exists():
+        # PLINK bed/bim/fam triple
+        return ["--bed", str(geno)]
+    bgen = geno.with_suffix(".bgen")
+    sample = geno.with_suffix(".sample")
+    if bgen.exists() and sample.exists():
+        return ["--bgen", str(bgen), "--sample", str(sample)]
+    raise RuntimeError(
+        f"No genotype input found at {geno}.{{bed,bim,fam}} or "
+        f"{geno}.{{bgen,sample}}.  For phased 1KG BGENs, convert first:\n"
+        f"  plink2 --bgen <file>.bgen ref-first --sample <file>.sample "
+        f"--make-bed --maf 0.05 --out <prefix>"
+    )
+
+
 def run_regenie_step1(
-    bgen: Path, sample: Path, pheno: Path, out_prefix: Path, *,
+    geno_prefix: Path, pheno: Path, out_prefix: Path, *,
     extra: list[str] | None = None,
 ) -> int:
     """Run REGENIE step 1 (whole-genome ridge regression).
 
-    Output: <out_prefix>_pred.list and <out_prefix>_*.loco files.
-    Returns subprocess exit code.
+    Args:
+        geno_prefix: prefix path (without extension) for PLINK bed/bim/fam
+            or BGEN+sample. PLINK bed is preferred (REGENIE rejects phased BGEN).
     """
     if not regenie_available():
         raise RuntimeError(
@@ -197,8 +222,7 @@ def run_regenie_step1(
         )
     cmd = [
         "regenie", "--step", "1",
-        "--bgen", str(bgen),
-        "--sample", str(sample),
+        *_genotype_args(geno_prefix),
         "--phenoFile", str(pheno),
         "--bsize", "1000",
         "--out", str(out_prefix),
@@ -210,21 +234,17 @@ def run_regenie_step1(
 
 
 def run_regenie_step2(
-    bgen: Path, sample: Path, pheno: Path,
+    geno_prefix: Path, pheno: Path,
     pred_list: Path, out_prefix: Path, *,
     covar: Path | None = None,
     extra: list[str] | None = None,
 ) -> int:
-    """Run REGENIE step 2 (per-SNP association).
-
-    Output: <out_prefix>_*.regenie summary statistics.
-    """
+    """Run REGENIE step 2 (per-SNP association)."""
     if not regenie_available():
         raise RuntimeError("REGENIE not on PATH (see step1 error message).")
     cmd = [
         "regenie", "--step", "2",
-        "--bgen", str(bgen),
-        "--sample", str(sample),
+        *_genotype_args(geno_prefix),
         "--phenoFile", str(pheno),
         "--pred", str(pred_list),
         "--bsize", "400",
@@ -453,25 +473,42 @@ def main() -> None:
 
     n_baseline = None
     if not args.m2_only:
-        bgen_path = BGEN_DIR / "chr22.bgen"
-        sample_path = BGEN_DIR / "chr22.sample"
+        # Prefer PLINK bed (REGENIE rejects phased BGEN); fall back to BGEN.
+        # Convert first via:
+        #   plink2 --bgen <bgen> ref-first --sample <sample> --make-bed --maf 0.05 \
+        #          --out results/paper2_epistasis/chr22_plink
+        bed_prefix = RESULTS_DIR / "chr22_plink"
+        if (bed_prefix.with_suffix(".bed")).exists():
+            geno_prefix = bed_prefix
+            print(f"  using PLINK bed: {geno_prefix}")
+        else:
+            geno_prefix = BGEN_DIR / "chr22"
+            print(f"  using BGEN: {geno_prefix}")
         step1_prefix = RESULTS_DIR / "regenie_step1"
         step2_prefix = RESULTS_DIR / "regenie_step2_baseline"
 
-        rc = run_regenie_step1(bgen_path, sample_path, pheno_path, step1_prefix)
+        rc = run_regenie_step1(geno_prefix, pheno_path, step1_prefix)
         if rc != 0:
             sys.exit(f"REGENIE step1 failed with exit code {rc}")
         rc = run_regenie_step2(
-            bgen_path, sample_path, pheno_path,
+            geno_prefix, pheno_path,
             step1_prefix.with_name(step1_prefix.name + "_pred.list"),
             step2_prefix,
         )
         if rc != 0:
             sys.exit(f"REGENIE step2 failed with exit code {rc}")
 
-        baseline_path = step2_prefix.with_suffix(".regenie")
+        # REGENIE step 2 writes one file per phenotype: <prefix>_<phenoname>.regenie
+        # Match the first one (we only have one phenotype Y1 here).
+        baseline_candidates = sorted(step2_prefix.parent.glob(
+            f"{step2_prefix.name}_*.regenie"
+        ))
+        if not baseline_candidates:
+            sys.exit(f"REGENIE step2 produced no .regenie output near {step2_prefix}")
+        baseline_path = baseline_candidates[0]
         n_baseline = count_spurious_hits(baseline_path)
         print(f"  ✓ baseline spurious significant SNPs: {n_baseline:,}")
+        print(f"    (counted in {baseline_path.name})")
 
     if args.regenie_only:
         return
@@ -547,8 +584,7 @@ def main() -> None:
 
     rescue_prefix = RESULTS_DIR / "regenie_step2_rescue"
     rc = run_regenie_step2(
-        BGEN_DIR / "chr22.bgen",
-        BGEN_DIR / "chr22.sample",
+        geno_prefix,
         pheno_path,
         (RESULTS_DIR / "regenie_step1_pred.list"),
         rescue_prefix,
@@ -557,7 +593,12 @@ def main() -> None:
     if rc != 0:
         sys.exit(f"REGENIE rescue step2 failed with exit code {rc}")
 
-    rescue_path = rescue_prefix.with_suffix(".regenie")
+    rescue_candidates = sorted(rescue_prefix.parent.glob(
+        f"{rescue_prefix.name}_*.regenie"
+    ))
+    if not rescue_candidates:
+        sys.exit(f"REGENIE rescue step2 produced no .regenie output near {rescue_prefix}")
+    rescue_path = rescue_candidates[0]
     n_rescue = count_spurious_hits(rescue_path)
     delta_pct = 100 * (n_baseline - n_rescue) / max(1, n_baseline)
     print(f"  ✓ rescue spurious significant SNPs: {n_rescue:,}")

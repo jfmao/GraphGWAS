@@ -1,0 +1,465 @@
+{
+  "schema_version": "1.0",
+  "compiled": "2026-05-02",
+  "purpose": "Functional-validation ground-truth pairs for paper #2 §Y.4/§Y.6 expanded benchmarks. Each row has a primary citation that established the pair's epistatic relationship via wet-lab biochemistry, double-mutant genetics, or paired-NLR cosegregation. Pairs flagged 'panel_natural_variation: true' are detectable in the GraphGWAS panels (1011 Yeast Genomes / 1001 Arabidopsis Genomes / 3K Rice Genomes / 1KG); 'false' means the pair is only validated in lab strains.",
+  "species": {
+    "yeast": {
+      "panel": "1011 Yeast Genomes (Peter et al. 2018 Nature; expanded by De Chiara 2025 Nature to 1086 T2T)",
+      "pairs": [
+        {
+          "id": "yeast.BCY1_TPK1",
+          "gene_1": {"systematic": "YIL033C", "standard": "BCY1"},
+          "gene_2": {"systematic": "YJL164C", "standard": "TPK1"},
+          "phenotype": "Glucose-stress / carbon-source switching",
+          "validation": ["Co-IP", "kinase assay", "double-mutant rescue"],
+          "panel_natural_variation": true,
+          "anchor": true,
+          "mechanism": "Regulatory/catalytic subunits of cAMP-dependent PKA holoenzyme; BCY1 inhibits TPK1/2/3 in the absence of cAMP",
+          "primary_citation": "Werner-Washburne 1996; Toda 1987 Cell",
+          "expected_motif": ["protein_interaction", "same_pathway"]
+        },
+        {
+          "id": "yeast.WHI5_CLN3",
+          "gene_1": {"systematic": "YOR083W", "standard": "WHI5"},
+          "gene_2": {"systematic": "YAL040C", "standard": "CLN3"},
+          "phenotype": "Cell-size at Start, G1/S commitment",
+          "validation": ["time-lapse Start commitment", "double-mutant cell-size", "CRISPR confirmation in Boguslawski 2025"],
+          "panel_natural_variation": true,
+          "panel_natural_variation_evidence": "Goldstein, Hale, Ehrenreich 2025 Genetics — barcoded BB-QTL maps CLN3 hub-effect across 169 segregants",
+          "mechanism": "Cln3-Cdc28 phosphorylates Whi5 → Whi5 nuclear exit → SBF activation",
+          "primary_citation": "Skotheim 2008 Nature; reaffirmed in Goldstein 2025 Genetics 231:iyaf136",
+          "expected_motif": ["protein_interaction", "same_pathway"]
+        },
+        {
+          "id": "yeast.MKT1_GPA1",
+          "gene_1": {"systematic": "YNL085W", "standard": "MKT1"},
+          "gene_2": {"systematic": "YHR005C", "standard": "GPA1"},
+          "phenotype": "Sporulation efficiency, thermotolerance, growth on YPD",
+          "validation": ["reciprocal hemizygosity in BY×RM", "barcoded BB-QTL"],
+          "panel_natural_variation": true,
+          "mechanism": "MKT1-D30G is a validated natural variant; epistatic with multiple genetic-background loci including GPA1, HAP1, KRE33, IRA2",
+          "primary_citation": "Steinmetz 2002; Bloom et al. PMC 2018; Goldstein 2025",
+          "expected_motif": ["same_pathway"]
+        },
+        {
+          "id": "yeast.MIP1_SAL1",
+          "gene_1": {"systematic": "YOR330C", "standard": "MIP1"},
+          "gene_2": {"systematic": "YNL083W", "standard": "SAL1"},
+          "phenotype": "Petite frequency, mitochondrial DNA stability, glycerol growth",
+          "validation": ["recombinant yeast cross", "petite-frequency QTL"],
+          "panel_natural_variation": true,
+          "mechanism": "Mitonuclear epistasis: MIP1 = mt-DNA polymerase, SAL1 = ADP/ATP carrier; jointly maintain mt genome stability",
+          "primary_citation": "Paliwal et al. 2014 Genetics; Edwards et al. 2023 PMID 36989278",
+          "expected_motif": ["same_pathway"]
+        },
+        {
+          "id": "yeast.TKL1_NQM1",
+          "gene_1": {"systematic": "YPR074C", "standard": "TKL1"},
+          "gene_2": {"systematic": "YGR043C", "standard": "NQM1"},
+          "phenotype": "Pentose phosphate pathway robustness, glycerol/non-fermentable growth",
+          "validation": ["SGA negative GI"],
+          "panel_natural_variation": true,
+          "mechanism": "TKL1 = transketolase major; NQM1 = paralog with overlapping function. Loss of one is buffered by the other",
+          "primary_citation": "Costanzo et al. 2016 Science (CellMap)",
+          "expected_motif": ["same_pathway"]
+        },
+        {
+          "id": "yeast.MEC1_RAD9",
+          "gene_1": {"systematic": "YBR136W", "standard": "MEC1"},
+          "gene_2": {"systematic": "YDR217C", "standard": "RAD9"},
+          "phenotype": "DNA damage checkpoint, MMS/HU/IR sensitivity",
+          "validation": ["epistasis ordering by phospho-blot", "double-mutant survival"],
+          "panel_natural_variation": false,
+          "mechanism": "Mec1 sensor kinase phosphorylates Rad9 adaptor; rad9Δ epistatic to mec1-checkpoint loss",
+          "primary_citation": "Weinert and Hartwell 1988 (classical); reaffirmed in DDR reviews",
+          "expected_motif": ["protein_interaction", "same_pathway"]
+        },
+        {
+          "id": "yeast.RFA1_RAD52",
+          "gene_1": {"systematic": "YJL173C", "standard": "RFA1"},
+          "gene_2": {"systematic": "YML032C", "standard": "RAD52"},
+          "phenotype": "Double-strand break repair, MMS, ionizing radiation",
+          "validation": ["D-loop / strand-exchange biochemistry", "rad51Δ rad52Δ phenotype"],
+          "panel_natural_variation": false,
+          "mechanism": "Rad52 mediator loads Rad51 onto RPA-coated ssDNA; canonical RAD52 epistasis group",
+          "primary_citation": "Symington 2002 MMBR; Liu et al. 2020 PMC7492393",
+          "expected_motif": ["protein_interaction", "same_pathway"]
+        },
+        {
+          "id": "yeast.FUS3_KSS1",
+          "gene_1": {"systematic": "YBL016W", "standard": "FUS3"},
+          "gene_2": {"systematic": "YGR040W", "standard": "KSS1"},
+          "phenotype": "Pheromone response vs invasive growth",
+          "validation": ["fus3Δ kss1Δ vs single deletion", "differential substrate specificity Madhani/Errede"],
+          "panel_natural_variation": false,
+          "mechanism": "Paralogous MAPKs activated by Ste7; FUS3 specializes for mating, KSS1 for filamentous growth",
+          "primary_citation": "Madhani 1997 Cell; Bardwell 2010 review",
+          "expected_motif": ["same_pathway"]
+        },
+        {
+          "id": "yeast.SNF1_REG1",
+          "gene_1": {"systematic": "YDR477W", "standard": "SNF1"},
+          "gene_2": {"systematic": "YDR028C", "standard": "REG1"},
+          "phenotype": "Carbon-source switching (glucose derepression)",
+          "validation": ["snf1Δ reg1Δ double-mutant rescue", "phospho-Snf1 blot"],
+          "panel_natural_variation": false,
+          "mechanism": "Reg1-Glc7 PP1 dephosphorylates Snf1; reg1Δ rescues snf1Δ glucose-derepression",
+          "primary_citation": "Carlson lab; Sanz 2008 review",
+          "expected_motif": ["protein_interaction", "same_pathway"]
+        },
+        {
+          "id": "yeast.HSL1_SWE1",
+          "gene_1": {"systematic": "YKL101W", "standard": "HSL1"},
+          "gene_2": {"systematic": "YJL187C", "standard": "SWE1"},
+          "phenotype": "Morphogenesis checkpoint, latrunculin/sphingolipid stress",
+          "validation": ["Wee1-like kinase phospho-blot"],
+          "panel_natural_variation": false,
+          "mechanism": "Hsl1 kinase phosphorylates Swe1 to inactivate it",
+          "primary_citation": "Booher 1999 Curr Biol; Kellogg 2003",
+          "expected_motif": ["protein_interaction"]
+        }
+      ]
+    },
+    "arabidopsis": {
+      "panel": "1001 Arabidopsis Genomes (Alonso-Blanco et al. 2016 Cell)",
+      "pairs": [
+        {
+          "id": "arabidopsis.FT_FLC",
+          "gene_1": {"agi": "AT1G65480", "standard": "FT"},
+          "gene_2": {"agi": "AT5G10140", "standard": "FLC"},
+          "phenotype": "Flowering time, vernalization-dependent",
+          "validation": ["double mutant", "natural-allele complementation"],
+          "panel_natural_variation": true,
+          "anchor": true,
+          "mechanism": "FLC represses FT directly via chromatin binding; vernalization suppresses FLC, releasing FT to promote flowering",
+          "primary_citation": "Michaels and Amasino 1999 Plant Cell; Searle 2006 Genes Dev",
+          "expected_motif": ["protein_interaction", "same_pathway"]
+        },
+        {
+          "id": "arabidopsis.FRI_FLC",
+          "gene_1": {"agi": "AT4G00650", "standard": "FRI"},
+          "gene_2": {"agi": "AT5G10140", "standard": "FLC"},
+          "phenotype": "Flowering time, vernalization requirement, latitudinal cline",
+          "validation": ["double mutant", "FRI required for FLC upregulation", "classic epistasis QTL"],
+          "panel_natural_variation": true,
+          "panel_natural_variation_evidence": "FRI loss-of-function in ~58% of accessions, FLC haplotype block",
+          "mechanism": "FRI activates FLC chromatin (FRI-C complex) to repress flowering until vernalization",
+          "primary_citation": "Caicedo 2004 PNAS PMC524852; Shindo 2006",
+          "expected_motif": ["protein_interaction", "same_pathway"]
+        },
+        {
+          "id": "arabidopsis.RRS1_RPS4",
+          "gene_1": {"agi": "AT5G45260", "standard": "RRS1"},
+          "gene_2": {"agi": "AT5G45250", "standard": "RPS4"},
+          "phenotype": "Resistance to Ralstonia, Pst-AvrRps4, Colletotrichum",
+          "validation": ["double mutant phenocopies single", "obligate heterodimeric NLR pair", "Co-IP", "structure"],
+          "panel_natural_variation": true,
+          "panel_natural_variation_evidence": "Both R-genes are presence/absence variable across 1001G",
+          "mechanism": "Paired sensor (RRS1 with WRKY decoy) + executor (RPS4) NLR — obligate heterodimer",
+          "primary_citation": "Saucet 2015 Nat Comm; Williams 2014; Guo 2020 PMID 32234500",
+          "expected_motif": ["protein_interaction"]
+        },
+        {
+          "id": "arabidopsis.MAM1_AOP2",
+          "gene_1": {"agi": "AT5G23010", "standard": "MAM1 (GS-ELONG)"},
+          "gene_2": {"agi": "AT4G03060", "standard": "AOP2 (GS-AOP)"},
+          "phenotype": "Aliphatic glucosinolate chemotype",
+          "validation": ["reciprocal isogenic lines", "classical Kliebenstein QTL"],
+          "panel_natural_variation": true,
+          "panel_natural_variation_evidence": "Strong haplotype variation across 1001G; major chemotype QTL",
+          "mechanism": "MAM1 sets C4 chain length, AOP2 desaturates to alkenyl GSL. Both required for alkenyl-glucosinolate phenotype",
+          "primary_citation": "Kliebenstein 2001 Genetics; Brachi/Roux 2022 eLife",
+          "expected_motif": ["same_pathway"]
+        },
+        {
+          "id": "arabidopsis.SHR_SCR",
+          "gene_1": {"agi": "AT3G54810", "standard": "SHR"},
+          "gene_2": {"agi": "AT3G54220", "standard": "SCR"},
+          "phenotype": "Root ground-tissue patterning, QC, leaf S-phase",
+          "validation": ["shr scr double phenocopies single", "ChIP", "BiFC", "Long 2024 Nature live-imaging"],
+          "panel_natural_variation": false,
+          "mechanism": "SHR moves cell-to-cell, binds SCR promoter; SCR sequesters SHR in endodermis (positive feedback) → asymmetric division",
+          "primary_citation": "Cui 2007; Long 2024 Nature s41586-023-06971-z",
+          "expected_motif": ["protein_interaction", "same_pathway"]
+        },
+        {
+          "id": "arabidopsis.DOG1_ABI3",
+          "gene_1": {"agi": "AT5G45830", "standard": "DOG1"},
+          "gene_2": {"agi": "AT3G24650", "standard": "ABI3"},
+          "phenotype": "Seed dormancy, longevity, maturation",
+          "validation": ["abi3 dog1 double phenocopies severe abi3 (green seeds, ABA-insensitive)"],
+          "panel_natural_variation": true,
+          "panel_natural_variation_evidence": "DOG1 is the major dormancy QTL across 1001G",
+          "mechanism": "Parallel pathways for seed maturation; DOG1 binds AHG1/AHG3 PP2C",
+          "primary_citation": "Dekkers 2016 Plant Phys PMID 26729600",
+          "expected_motif": ["same_pathway"]
+        },
+        {
+          "id": "arabidopsis.GL1_GL3",
+          "gene_1": {"agi": "AT5G66320", "standard": "GL1"},
+          "gene_2": {"agi": "AT5G41315", "standard": "GL3"},
+          "phenotype": "Trichome initiation",
+          "validation": ["MBW complex Y2H", "double bHLH gl3 egl3 phenocopies ttg1"],
+          "panel_natural_variation": true,
+          "panel_natural_variation_evidence": "GL1 LoF alleles drive trichome density variation in 1001G",
+          "mechanism": "MYB+bHLH+WD40 selector complex (GL1+GL3+TTG1) specifies trichome cell fate",
+          "primary_citation": "Payne 2000; Pesch 2009 PMC2642726",
+          "expected_motif": ["protein_interaction"]
+        },
+        {
+          "id": "arabidopsis.PHYB_PIF4",
+          "gene_1": {"agi": "AT2G18790", "standard": "PHYB"},
+          "gene_2": {"agi": "AT2G43010", "standard": "PIF4"},
+          "phenotype": "Shade avoidance, hypocotyl elongation, thermomorphogenesis",
+          "validation": ["phyB pif4 double mutant"],
+          "panel_natural_variation": true,
+          "panel_natural_variation_evidence": "PHYB has natural alleles; PIF4 expression cis-eQTL across 1001G",
+          "mechanism": "phyB binds and degrades PIFs; ELF3 sequesters PIF4 in evening complex",
+          "primary_citation": "Nieto 2022 PLoS Genet PMC11121753; Silva 2025 NComm",
+          "expected_motif": ["protein_interaction", "same_pathway"]
+        },
+        {
+          "id": "arabidopsis.BRI1_BAK1",
+          "gene_1": {"agi": "AT4G39400", "standard": "BRI1"},
+          "gene_2": {"agi": "AT4G33430", "standard": "BAK1"},
+          "phenotype": "Brassinosteroid perception; PAMP responses (with FLS2)",
+          "validation": ["bri1 bak1 double mutant", "co-receptor crystallography"],
+          "panel_natural_variation": false,
+          "mechanism": "LRR-RK heterodimer = active BR co-receptor (and PRR co-receptor)",
+          "primary_citation": "Li 2002 Cell; Chinchilla 2007 Nature",
+          "expected_motif": ["protein_interaction"]
+        }
+      ]
+    },
+    "rice": {
+      "panel": "3K Rice Genomes (Wang et al. 2018 Nature 557:43)",
+      "pairs": [
+        {
+          "id": "rice.Hd1_Hd3a",
+          "gene_1": {"locus": "LOC_Os06g16370", "standard": "Hd1"},
+          "gene_2": {"locus": "LOC_Os06g06320", "standard": "Hd3a"},
+          "phenotype": "Heading date, photoperiod-dependent",
+          "validation": ["NIL series under SD/LD"],
+          "panel_natural_variation": true,
+          "anchor": true,
+          "mechanism": "Hd1 is a photoperiod-sensitive transcription factor that promotes Hd3a (rice FT ortholog) under short days but represses it under long days",
+          "primary_citation": "Yano et al. 2000 Plant Cell; Tamaki 2007 Science",
+          "expected_motif": ["protein_interaction", "same_pathway"]
+        },
+        {
+          "id": "rice.Hd1_Ghd7",
+          "gene_1": {"locus": "LOC_Os06g16370", "standard": "Hd1"},
+          "gene_2": {"locus": "LOC_Os07g15770", "standard": "Ghd7"},
+          "phenotype": "Heading date, LD/SD differential",
+          "validation": ["all 8 allele combinations in prr37 background", "NIL series"],
+          "panel_natural_variation": true,
+          "panel_natural_variation_evidence": "Hd1 nonfunctional alleles fixed in many japonica; Ghd7 nonfunctional in northern lines",
+          "mechanism": "Hd1+Ghd7 cooperatively repress Ehd1 → Hd3a/RFT1 under LD",
+          "primary_citation": "Sun et al. 2022 J Genet Genomics 49:437-447",
+          "expected_motif": ["same_pathway"]
+        },
+        {
+          "id": "rice.Ghd7_DTH8",
+          "gene_1": {"locus": "LOC_Os07g15770", "standard": "Ghd7"},
+          "gene_2": {"locus": "LOC_Os08g07740", "standard": "DTH8 (Ghd8)"},
+          "phenotype": "Heading date under NLD",
+          "validation": ["4-gene segregating NIL", "field NLD/NSD"],
+          "panel_natural_variation": true,
+          "panel_natural_variation_evidence": "Both highly variable across 3K RG",
+          "mechanism": "Trigenic with Hd1; protein-protein interaction reported",
+          "primary_citation": "Zhang et al. 2019 Rice 12:48",
+          "expected_motif": ["protein_interaction", "same_pathway"]
+        },
+        {
+          "id": "rice.GS3_Gn1a",
+          "gene_1": {"locus": "LOC_Os03g44500", "standard": "GS3"},
+          "gene_2": {"locus": "LOC_Os01g66030", "standard": "Gn1a (OsCKX2)"},
+          "phenotype": "Grain length × grain number",
+          "validation": ["CRISPR/Cas9 single + double + triple in ZH11"],
+          "panel_natural_variation": true,
+          "mechanism": "Gn1a↑grain # via CK; GS3 negative on length; gs3·gn1a yields > additive",
+          "primary_citation": "Zeng et al. 2022 Int J Mol Sci 23:12478",
+          "expected_motif": ["same_pathway"]
+        },
+        {
+          "id": "rice.GS3_IPA1",
+          "gene_1": {"locus": "LOC_Os03g44500", "standard": "GS3"},
+          "gene_2": {"locus": "LOC_Os08g39890", "standard": "OsSPL14 (IPA1)"},
+          "phenotype": "Grain length × tiller architecture",
+          "validation": ["CRISPR gs3·ipa1 + gs3·ipa1·gn1a triple"],
+          "panel_natural_variation": true,
+          "mechanism": "gs3·ipa1 highest yield; triple breaks down — non-additive epistasis",
+          "primary_citation": "Zeng et al. 2022 Int J Mol Sci 23:12478",
+          "expected_motif": ["same_pathway"]
+        },
+        {
+          "id": "rice.GW8_GW7",
+          "gene_1": {"locus": "LOC_Os08g41940", "standard": "OsSPL16 (GW8)"},
+          "gene_2": {"locus": "LOC_Os07g41200", "standard": "GW7 (GL7, SLG7)"},
+          "phenotype": "Grain quality × yield",
+          "validation": ["qGW7 NIL", "GW7 transgenics", "ChIP+EMSA"],
+          "panel_natural_variation": true,
+          "panel_natural_variation_evidence": "GW7 11-bp deletion is a 3K RG haplotype",
+          "mechanism": "OsSPL16 (GW8) directly represses GW7; gw8·GW7^TFA breaks the repression",
+          "primary_citation": "Wang et al. 2015 Nat Genet 47:949-954",
+          "expected_motif": ["protein_interaction"]
+        },
+        {
+          "id": "rice.Pik_pair",
+          "gene_1": {"locus": "LOC_Os11g46200", "standard": "Pik-1"},
+          "gene_2": {"locus": "LOC_Os11g46210", "standard": "Pik-2"},
+          "phenotype": "Magnaporthe oryzae blast resistance, AVR-Pik recognition",
+          "validation": ["Co-IP", "transient cell-death assays", "allele swaps"],
+          "panel_natural_variation": true,
+          "panel_natural_variation_evidence": "Pik haplotypes among 3K RG (Pikm/Pikp/Pikh)",
+          "mechanism": "Pik-1 sensor (HMA-integrated) + Pik-2 helper required as obligate pair",
+          "primary_citation": "Białas et al. 2022 PNAS 119:e2116896119",
+          "expected_motif": ["protein_interaction"]
+        },
+        {
+          "id": "rice.RGA_pair",
+          "gene_1": {"locus": "LOC_Os11g11790", "standard": "RGA5 (Pia-2)"},
+          "gene_2": {"locus": "LOC_Os11g11770", "standard": "RGA4 (Pia-1)"},
+          "phenotype": "Rice blast resistance, AVR-Pia / AVR1-CO39",
+          "validation": ["loss of function in either abolishes resistance"],
+          "panel_natural_variation": true,
+          "mechanism": "Sensor RGA5 binds effector via integrated HMA; helper RGA4 triggers cell death; obligate pair",
+          "primary_citation": "Cesari et al. 2014; Ortiz et al. 2017",
+          "expected_motif": ["protein_interaction"]
+        },
+        {
+          "id": "rice.SUB1A_SUB1C",
+          "gene_1": {"locus": "LOC_Os09g11460", "standard": "SUB1A"},
+          "gene_2": {"locus": "LOC_Os09g11480", "standard": "SUB1C"},
+          "phenotype": "Submergence tolerance",
+          "validation": ["NIL Swarna-Sub1, IR64-Sub1"],
+          "panel_natural_variation": true,
+          "panel_natural_variation_evidence": "SUB1A presence/absence is a major haplotype",
+          "mechanism": "SUB1A-1 represses SUB1C; suppressive epistasis",
+          "primary_citation": "Singh et al. 2020 Sci Rep 10:8621; Xu 2006 Nature",
+          "expected_motif": ["same_pathway"]
+        },
+        {
+          "id": "rice.GW2_GW5_negative_control",
+          "gene_1": {"locus": "LOC_Os02g14720", "standard": "GW2"},
+          "gene_2": {"locus": "LOC_Os05g09520", "standard": "GW5 (qSW5)"},
+          "phenotype": "Grain weight (independent pathways)",
+          "validation": ["NIL panel + multi-edit CRISPR shows no QTL × QTL interaction"],
+          "panel_natural_variation": true,
+          "negative_control": true,
+          "mechanism": "qSW5 in BR signaling; GW2 RING E3-ligase — separate molecular routes; expected no detectable epistasis",
+          "primary_citation": "Yan et al. 2011 TAG 122:1407; Zhou 2025 Rice 18",
+          "expected_motif": []
+        }
+      ]
+    },
+    "human": {
+      "panel": "1KG Phase 3 chr21+22 / Pan-UK Biobank",
+      "pairs": [
+        {
+          "id": "human.HLA-B_ERAP1",
+          "gene_1": {"hgnc": "HLA-B", "locus": "chr6"},
+          "gene_2": {"hgnc": "ERAP1", "locus": "chr5"},
+          "phenotype": "Ankylosing spondylitis",
+          "validation": ["allele-specific peptidome in HLA-B27 transgenic rats", "ERAP1 KO abolishes B27 misfolding", "interaction p<1e-12"],
+          "panel_natural_variation": true,
+          "mechanism": "ERAP1 trims peptides for B27 loading; allotype combinations alter peptidome quality",
+          "primary_citation": "Cortes et al. 2015 Nat Commun PMC4443427; Reeves 2014 PNAS",
+          "expected_motif": ["same_pathway"],
+          "tier": "A"
+        },
+        {
+          "id": "human.TPMT_NUDT15",
+          "gene_1": {"hgnc": "TPMT", "locus": "chr6"},
+          "gene_2": {"hgnc": "NUDT15", "locus": "chr13"},
+          "phenotype": "Thiopurine toxicity (ALL, IBD)",
+          "validation": ["biochemical TGN/MeMP", "prospective dose-titration trials"],
+          "panel_natural_variation": true,
+          "mechanism": "TPMT methylation-inactivates 6-MP; NUDT15 hydrolyzes active TGTP→TGMP. Loss of both = catastrophic dG-incorporation",
+          "primary_citation": "Yang 2015 JCO; Moriyama 2016 Nat Genet; CPIC 2022 update PMID 36210828",
+          "expected_motif": ["same_pathway"],
+          "tier": "A"
+        },
+        {
+          "id": "human.VKORC1_CYP2C9",
+          "gene_1": {"hgnc": "VKORC1", "locus": "chr16"},
+          "gene_2": {"hgnc": "CYP2C9", "locus": "chr10"},
+          "phenotype": "Warfarin dose response",
+          "validation": ["RCT of genotype-guided dosing (EU-PACT)", "PK/PD modeling", "recombinant enzyme assays"],
+          "panel_natural_variation": true,
+          "mechanism": "VKORC1 = drug target (vit-K cycling); CYP2C9 = clearance",
+          "primary_citation": "IWPC 2009; Pirmohamed 2013 NEJM; CPIC 2017",
+          "expected_motif": ["same_pathway"],
+          "tier": "A"
+        },
+        {
+          "id": "human.HLA-B_KIR3DS1",
+          "gene_1": {"hgnc": "HLA-B", "locus": "chr6", "allele": "Bw4-80I"},
+          "gene_2": {"hgnc": "KIR3DS1", "locus": "chr19"},
+          "phenotype": "HIV-1 progression / controllers",
+          "validation": ["NK functional assays", "peptide-tetramer KIR binding", "MACS cohort"],
+          "panel_natural_variation": true,
+          "mechanism": "KIR3DL1/DS1 expression × Bw4 epitope strength tunes NK education and infected-cell killing",
+          "primary_citation": "Martin 2002 Nat Genet; Boudreau 2016 JI PMC4868784",
+          "expected_motif": ["protein_interaction"],
+          "tier": "A"
+        },
+        {
+          "id": "human.BRCA1_PARP1",
+          "gene_1": {"hgnc": "BRCA1", "locus": "chr17"},
+          "gene_2": {"hgnc": "PARP1", "locus": "chr1"},
+          "phenotype": "Breast/ovarian cancer (synthetic lethal therapy)",
+          "validation": ["CRISPR DKO viability", "olaparib/talazoparib clinical RCTs"],
+          "panel_natural_variation": false,
+          "mechanism": "BRCA-deficient cells rely on PARP for ssBR; PARP trapping → unrepairable replication-fork collapse",
+          "primary_citation": "Bryant 2005 Nature; Farmer 2005 Nature",
+          "expected_motif": ["same_pathway"],
+          "tier": "A"
+        },
+        {
+          "id": "human.HFE_C282Y_H63D",
+          "gene_1": {"hgnc": "HFE", "locus": "chr6", "allele": "C282Y rs1800562"},
+          "gene_2": {"hgnc": "HFE", "locus": "chr6", "allele": "H63D rs1799945"},
+          "phenotype": "Hereditary hemochromatosis (compound het)",
+          "validation": ["hepcidin/ferritin biochemistry", "FerriScan MRI iron loading", "UKBB age-of-onset"],
+          "panel_natural_variation": true,
+          "mechanism": "C282Y disrupts MHC-fold β2m binding; H63D mild misfold; combined → reduced hepcidin signaling",
+          "primary_citation": "Allen 2008 NEJM; Pilling 2019 BMJ; UKBB 2024",
+          "expected_motif": ["same_gene"],
+          "tier": "A"
+        },
+        {
+          "id": "human.HLA-DQA1_DQB1",
+          "gene_1": {"hgnc": "HLA-DQA1", "locus": "chr6", "allele": "*05:01"},
+          "gene_2": {"hgnc": "HLA-DQB1", "locus": "chr6", "allele": "*02:01"},
+          "phenotype": "Celiac disease (DQ2.5 heterodimer)",
+          "validation": ["HLA-DQ2.5 tetramers + gluten peptide presentation", "transgenic mouse models"],
+          "panel_natural_variation": true,
+          "mechanism": "Heterodimer required; alpha + beta chains must combine to form gluten-binding groove",
+          "primary_citation": "Sollid 2012; Tye-Din 2010 JEM",
+          "expected_motif": ["protein_interaction"],
+          "tier": "A"
+        },
+        {
+          "id": "human.HLA-DRB1_DR3_DR4",
+          "gene_1": {"hgnc": "HLA-DRB1", "locus": "chr6", "allele": "*15:01"},
+          "gene_2": {"hgnc": "HLA-DRB1", "locus": "chr6", "allele": "*03:01"},
+          "phenotype": "Type 1 diabetes (DR3/DR4 trans-dimer)",
+          "validation": ["DR3/DR4 trans-dimer crystallography", "insulin-peptide tetramers", "T1DGC cohort"],
+          "panel_natural_variation": true,
+          "mechanism": "trans-encoded αβ heterodimer on APC presents preproinsulin peptides better than cis-pairs",
+          "primary_citation": "Erlich 2008 Diabetes; Noble 2021 Curr Diab Rep",
+          "expected_motif": ["same_gene"],
+          "tier": "A"
+        }
+      ],
+      "notes": "For 1KG chr21+22 specifically: only CYP2D6×CYP3A4 (chr22×chr7) is on-chromosome for chr22. Most canonical human epistasis pairs are HLA (chr6) x other-loci. Recommend simulating functional-architecture-matched epistasis (paralog pairs, enhancer×promoter) rather than insisting on real chr21+22 hits. Tier classification follows the agent's rigor scale (A = wet-lab functional + replicated)."
+    }
+  },
+  "field_caveats": {
+    "yeast": "Most lab-strain pairs (Costanzo CellMap deletions) are not natural-variation-detectable in the 1011 panel; only Goldstein 2025-confirmed hub-QTL (CLN3, MKT1, GPA1, HAP1, IRA2, KRE33) are reliably segregating. Verify allele-frequency in panel before treating any pair as panel ground truth.",
+    "arabidopsis": "Tier-1 pairs (FRI×FLC, MAM1×AOP2, RRS1×RPS4) have allelic variation in 1001G; Tier-2/3 (BRI1×BAK1, SHR×SCR) are highly conserved — useful as positive-control architecture, but expect low panel detection power.",
+    "rice": "All Tier-A pairs have characterized variants in 3K RG (Wang 2018 Nature 557:43). For SUB1A: 3K RG is biased — SUB1A is rare outside FR13A-derived lines.",
+    "human": "Hemani 2014 Nature trans-eQTL pairs largely retracted as haplotype artifact. Most long-range LD pair hits from eMERGE/UKBB 2023 are statistically marginal with no functional follow-up. The Tier-A pairs above are the ones that survived independent functional validation."
+  }
+}
