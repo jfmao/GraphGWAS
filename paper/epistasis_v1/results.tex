@@ -497,6 +497,38 @@ generalises the §\ref{sec:m5_substrate} \emph{n}=3-anchor claim to
 \emph{n}=21 wet-lab-validated pairs across three species, with a
 falsification check via a within-species negative control.
 
+\paragraph{Generalisation: from binary canonical PPI to a weighted,
+multi-source substrate.}
+The Mode~E PPI bridge above uses a binary indicator
+$\mathbf 1[(g_a,g_b)\in\mathrm{PPI}]$ where the PPI set is a
+hand-curated tuple list per species
+(\texttt{src/python/graphgwas/canonical\_ppi.py}: 16 yeast, 12
+\emph{Arabidopsis}, 13 rice edges). For paper-\#2 revision we
+generalised this to a \emph{weighted} gene-gene transition that
+admits multiple per-species evidence sources via the
+\texttt{graphgwas.weighted\_substrate} module:
+\begin{itemize}\setlength{\itemsep}{0pt}
+\item For human: $1.3 \times 10^5$ weighted edges from
+      Billmann \emph{et al.}\ 2026 \cite{billmann2026hap1}
+      HAP1 qGI scores ($1.19 \times 10^5$ pairs at standard threshold
+      $|qGI|>0.3$, $\mathrm{FDR}<0.1$) plus
+      $1.15 \times 10^4$ pairs cross-validated against DepMap 22Q4
+      Expression-Dependency, with each edge carrying a per-source
+      weight in $[0,1]$ and a noisy-OR / max pool across sources.
+\item For yeast and plants: the existing canonical-PPI tuples are
+      loaded with \texttt{weight = 1.0} per edge, so the binary
+      Mode~E remains a special case of the weighted substrate.
+\end{itemize}
+A drop-in A/B test on the rice runner (\texttt{tests/m5\_weighted\_substrate\_test.py})
+confirmed exact equivalence on canonical edges (Hd1$\times$Hd3a:
+weighted rank $1$/$25{,}608$, binary rank $1$/$25{,}608$, both at
+$p\to 0$; weighted runtime $1.76\,$s vs.\ binary $2.33\,$s).
+Empirical validation on the human Billmann catalogue (79 entries;
+§\ref{sec:catalogue_extension}) is deferred to paper-\#2-revision
+because it requires wiring a human cohort (1KG / UKBB) and a STRING /
+Reactome / Billmann-derived cache; the substrate API and edge files
+are in place.
+
 \subsection{Catalogue extension: M5$^\star$ generalises and a negative
 control passes}\label{sec:catalogue_extension}
 
