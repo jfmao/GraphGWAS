@@ -1,0 +1,2269 @@
+{
+  "human": [
+    {
+      "pair_id": "human.HLA-B_ERAP1",
+      "g1_symbol": "HLA-B",
+      "g2_symbol": "ERAP1",
+      "g1_systematic": "HLA-B",
+      "g2_systematic": "ERAP1",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 18841,
+      "g1_panel_count": 304,
+      "g2_panel_count": 709,
+      "g1_rep_maf": 0.3288982259570495,
+      "g2_rep_maf": 0.4891304347826087,
+      "M2": {
+        "n_tested": 119255,
+        "ground_truth_rank": 7277,
+        "ground_truth_p": 0.018608686049251363,
+        "ground_truth_q": 0.969897445289738,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 215536,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 5.0139799933340686e-05,
+        "best_pair": [
+          "chr6:30834286:C:T",
+          "chr5:96842687:C:G"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.TPMT_NUDT15",
+      "g1_symbol": "TPMT",
+      "g2_symbol": "NUDT15",
+      "g1_systematic": "TPMT",
+      "g2_systematic": "NUDT15",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 10627,
+      "g1_panel_count": 458,
+      "g2_panel_count": 295,
+      "g1_rep_maf": 0.4847328244274809,
+      "g2_rep_maf": 0.44816272965879267,
+      "M2": {
+        "n_tested": 23028,
+        "ground_truth_rank": 12515,
+        "ground_truth_p": 0.0007853748428001709,
+        "ground_truth_q": 1.0,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 135110,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 2.712677812966503e-05,
+        "best_pair": [
+          "chr6:18139944:T:C",
+          "chr13:48003049:A:G"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.VKORC1_CYP2C9",
+      "g1_symbol": "VKORC1",
+      "g2_symbol": "CYP2C9",
+      "g1_systematic": "VKORC1",
+      "g2_systematic": "CYP2C9",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 6546,
+      "g1_panel_count": 57,
+      "g2_panel_count": 288,
+      "g1_rep_maf": 0.5,
+      "g2_rep_maf": 0.48596491228070177,
+      "M2": {
+        "n_tested": 54975,
+        "ground_truth_rank": 21079,
+        "ground_truth_p": 0.013375222517471896,
+        "ground_truth_q": 1.0,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 16416,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 0.0007176489352770851,
+        "best_pair": [
+          "chr16:31846193:G:C",
+          "chr10:94587192:C:T"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.HLA-B_KIR3DS1",
+      "g1_symbol": "HLA-B",
+      "g2_symbol": "KIR3DS1",
+      "g1_systematic": "HLA-B",
+      "g2_systematic": null,
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "UNTESTABLE_HGNC_NOT_RESOLVABLE",
+      "g1_raw": "HLA-B",
+      "g2_raw": "KIR3DS1"
+    },
+    {
+      "pair_id": "human.BRCA1_PARP1",
+      "g1_symbol": "BRCA1",
+      "g2_symbol": "PARP1",
+      "g1_systematic": "BRCA1",
+      "g2_systematic": "PARP1",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": false,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 7009,
+      "g1_panel_count": 533,
+      "g2_panel_count": 265,
+      "g1_rep_maf": 0.46473779385171793,
+      "g2_rep_maf": 0.44106699751861045,
+      "M2": {
+        "n_tested": 85760,
+        "ground_truth_rank": 45808,
+        "ground_truth_p": 0.0008519619713496815,
+        "ground_truth_q": 1.0,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 141245,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 5.281214650561949e-05,
+        "best_pair": [
+          "chr17:43002233:C:T",
+          "chr1:226488232:C:T"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.HFE_C282Y_H63D",
+      "g1_symbol": "HFE",
+      "g2_symbol": "HFE",
+      "g1_systematic": "HFE",
+      "g2_systematic": "HFE",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 11439,
+      "g1_panel_count": 127,
+      "g2_panel_count": 127,
+      "g1_rep_maf": 0.463785046728972,
+      "g2_rep_maf": 0.463785046728972,
+      "M2": {
+        "n_tested": 35192,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 1.4287290401660647e-05,
+        "ground_truth_q": 0.10515083854183069,
+        "detected_motif": "same_gene"
+      },
+      "M5_star": {
+        "n_tested": 64262,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 2.423575539424536e-12,
+        "best_pair": [
+          "chr6:26134444:G:A",
+          "chr6:26090153:C:G"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.HLA-DQA1_DQB1",
+      "g1_symbol": "HLA-DQA1",
+      "g2_symbol": "HLA-DQB1",
+      "g1_systematic": "HLA-DQA1",
+      "g2_systematic": "HLA-DQB1",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 36119,
+      "g1_panel_count": 1942,
+      "g2_panel_count": 722,
+      "g1_rep_maf": 0.4087779690189329,
+      "g2_rep_maf": 0.4689655172413793,
+      "M2": {
+        "n_tested": 94144,
+        "ground_truth_rank": 74,
+        "ground_truth_p": 0.0001768834829711945,
+        "ground_truth_q": 0.18288339232279777,
+        "detected_motif": "same_gene"
+      },
+      "M5_star": {
+        "n_tested": 5608112,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 1.2204192420540675e-11,
+        "best_pair": [
+          "chr6:32482281:C:T",
+          "chr6:32916980:A:G"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.HLA-DRB1_DR3_DR4",
+      "g1_symbol": "HLA-DRB1",
+      "g2_symbol": "HLA-DRB1",
+      "g1_systematic": "HLA-DRB1",
+      "g2_systematic": "HLA-DRB1",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 34087,
+      "g1_panel_count": 231,
+      "g2_panel_count": 231,
+      "g1_rep_maf": 0.4353112840466926,
+      "g2_rep_maf": 0.4353112840466926,
+      "M2": {
+        "n_tested": 78405,
+        "ground_truth_rank": 2,
+        "ground_truth_p": 2.0786549664037695e-05,
+        "ground_truth_q": 0.39033847554930445,
+        "detected_motif": "same_gene"
+      },
+      "M5_star": {
+        "n_tested": 212982,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 6.6629591833348764e-06,
+        "best_pair": [
+          "chr6:33130809:A:G",
+          "chr6:33156753:C:A"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.Arp23_protein_complex",
+      "g1_symbol": "ACTR2",
+      "g2_symbol": "ACTR3",
+      "g1_systematic": "ACTR2",
+      "g2_systematic": "ACTR3",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 9215,
+      "g1_panel_count": 210,
+      "g2_panel_count": 663,
+      "g1_rep_maf": 0.47150259067357514,
+      "g2_rep_maf": 0.4897435897435897,
+      "M2": {
+        "n_tested": 38786,
+        "ground_truth_rank": 5695,
+        "ground_truth_p": 0.00010541016137018997,
+        "ground_truth_q": 0.9355772228899093,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 139230,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 0.00023817001953266393,
+        "best_pair": [
+          "chr2:65226310:G:A",
+          "chr2:113836228:A:G"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.CCC-Wash_WASH1_FAM21C_complex",
+      "g1_symbol": "C16orf62",
+      "g2_symbol": "CCDC22",
+      "g1_systematic": "VPS35L",
+      "g2_systematic": "CCDC22",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "UNTESTABLE_NO_PANEL_VARIATION",
+      "g1_panel_count": 366,
+      "g2_panel_count": 0,
+      "n_dosage_variants": 3815
+    },
+    {
+      "pair_id": "human.billmann.CIN85_complex_CIN85_CRK_BCAR1_CBL_PIK3R1_GRB2_SOS1",
+      "g1_symbol": "BCAR1",
+      "g2_symbol": "CBL",
+      "g1_systematic": "BCAR1",
+      "g2_systematic": "CBL",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 9190,
+      "g1_panel_count": 895,
+      "g2_panel_count": 306,
+      "g1_rep_maf": 0.4868421052631579,
+      "g2_rep_maf": 0.5,
+      "M2": {
+        "n_tested": 53832,
+        "ground_truth_rank": 17807,
+        "ground_truth_p": 0.15770546055325738,
+        "ground_truth_q": 0.9789065975387775,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 0,
+        "ground_truth_rank": null,
+        "ground_truth_p": null
+      }
+    },
+    {
+      "pair_id": "human.billmann.CRKL-PDGFRA-CRK-RAPGEF1_complex",
+      "g1_symbol": "CRKL",
+      "g2_symbol": "RAPGEF1",
+      "g1_systematic": "CRKL",
+      "g2_systematic": "RAPGEF1",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 10004,
+      "g1_panel_count": 369,
+      "g2_panel_count": 395,
+      "g1_rep_maf": 0.46,
+      "g2_rep_maf": 0.4864864864864865,
+      "M2": {
+        "n_tested": 63764,
+        "ground_truth_rank": 25200,
+        "ground_truth_p": 0.0609169871618559,
+        "ground_truth_q": 1.0,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 145755,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 0.0006417413056585541,
+        "best_pair": [
+          "chr22:20959352:A:G",
+          "chr9:131578589:G:A"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.GIT1-ARHGEF7-PAK1-PXN_complex",
+      "g1_symbol": "ARHGEF7",
+      "g2_symbol": "GIT1",
+      "g1_systematic": "ARHGEF7",
+      "g2_systematic": "GIT1",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 8636,
+      "g1_panel_count": 670,
+      "g2_panel_count": 206,
+      "g1_rep_maf": 0.4854368932038835,
+      "g2_rep_maf": 0.4261586802827965,
+      "M2": {
+        "n_tested": 37576,
+        "ground_truth_rank": 10498,
+        "ground_truth_p": 0.0027107565405991114,
+        "ground_truth_q": 0.842222068044329,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 138020,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 1.661691511851888e-05,
+        "best_pair": [
+          "chr13:111131339:C:T",
+          "chr17:29339285:C:T"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.LGR4-RSPO_supercomplex",
+      "g1_symbol": "IQGAP1",
+      "g2_symbol": "PTK2",
+      "g1_systematic": "IQGAP1",
+      "g2_systematic": "PTK2",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 10176,
+      "g1_panel_count": 877,
+      "g2_panel_count": 534,
+      "g1_rep_maf": 0.4927536231884058,
+      "g2_rep_maf": 0.44804318488529016,
+      "M2": {
+        "n_tested": 37460,
+        "ground_truth_rank": 7251,
+        "ground_truth_p": 0.012339394715208585,
+        "ground_truth_q": 0.9650316505688163,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 468318,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 6.379071831642386e-05,
+        "best_pair": [
+          "chr15:90224308:A:G",
+          "chr8:140631205:C:T"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.WIP-WASp-actin-myosin-IIa_complex",
+      "g1_symbol": "MYH9",
+      "g2_symbol": "MYL6",
+      "g1_systematic": "MYH9",
+      "g2_systematic": "MYL6",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 9725,
+      "g1_panel_count": 167,
+      "g2_panel_count": 14,
+      "g1_rep_maf": 0.42276785714285714,
+      "g2_rep_maf": 0.14337152209492635,
+      "M2": {
+        "n_tested": 85316,
+        "ground_truth_rank": 13344,
+        "ground_truth_p": 8.023509463703394e-20,
+        "ground_truth_q": 6.845337334053188e-15,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 2338,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 5.1851546609808985e-33,
+        "best_pair": [
+          "chr22:36278965:A:G",
+          "chr12:55654419:T:C"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.Wave-2_complex",
+      "g1_symbol": "ABI1",
+      "g2_symbol": "BRK1",
+      "g1_systematic": "ABI1",
+      "g2_systematic": "BRK1",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 11210,
+      "g1_panel_count": 223,
+      "g2_panel_count": 492,
+      "g1_rep_maf": 0.4582392776523702,
+      "g2_rep_maf": 0.3780977896851976,
+      "M2": {
+        "n_tested": 40929,
+        "ground_truth_rank": 6307,
+        "ground_truth_p": 0.012207286803321414,
+        "ground_truth_q": 1.0,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 109716,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 0.00024885754223533953,
+        "best_pair": [
+          "chr10:27272061:G:A",
+          "chr3:10148977:A:G"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.BAF_complex",
+      "g1_symbol": "ACTG1",
+      "g2_symbol": "ARID1B",
+      "g1_systematic": "ACTG1",
+      "g2_systematic": "ARID1B",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 6677,
+      "g1_panel_count": 206,
+      "g2_panel_count": 64,
+      "g1_rep_maf": 0.4852941176470588,
+      "g2_rep_maf": 0.360447381799695,
+      "M2": {
+        "n_tested": 54830,
+        "ground_truth_rank": 25881,
+        "ground_truth_p": 0.0009549976790338022,
+        "ground_truth_q": 1.0,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 13184,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 0.00017237336074112482,
+        "best_pair": [
+          "chr17:81525077:G:A",
+          "chr6:157220366:G:A"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.E2F-6_complex",
+      "g1_symbol": "E2F6",
+      "g2_symbol": "EHMT1",
+      "g1_systematic": "E2F6",
+      "g2_systematic": "EHMT1",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 5460,
+      "g1_panel_count": 144,
+      "g2_panel_count": 331,
+      "g1_rep_maf": 0.41818181818181815,
+      "g2_rep_maf": 0.48009950248756217,
+      "M2": {
+        "n_tested": 26548,
+        "ground_truth_rank": 1899,
+        "ground_truth_p": 0.2920675080713273,
+        "ground_truth_q": 1.0,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 47664,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 0.001487750446654293,
+        "best_pair": [
+          "chr2:11459150:C:T",
+          "chr9:137558903:G:A"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.PBAF_complex_Polybromo-_and_BAF_containing_complex",
+      "g1_symbol": "ARID2",
+      "g2_symbol": "PBRM1",
+      "g1_systematic": "ARID2",
+      "g2_systematic": "PBRM1",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 8191,
+      "g1_panel_count": 317,
+      "g2_panel_count": 51,
+      "g1_rep_maf": 0.46613545816733065,
+      "g2_rep_maf": 0.49145299145299143,
+      "M2": {
+        "n_tested": 48827,
+        "ground_truth_rank": 33769,
+        "ground_truth_p": 0.029811562368670445,
+        "ground_truth_q": 1.0,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 16167,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 5.8549648377918316e-05,
+        "best_pair": [
+          "chr12:45691956:A:G",
+          "chr3:53220322:C:G"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.p27-cyclinE-Cdk2_-_Ubiquitin_E3_ligase_SKP1A_SKP2_CUL1_CKS1B",
+      "g1_symbol": "CCNE1",
+      "g2_symbol": "CDK2",
+      "g1_systematic": "CCNE1",
+      "g2_systematic": "CDK2",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 7588,
+      "g1_panel_count": 229,
+      "g2_panel_count": 69,
+      "g1_rep_maf": 0.5,
+      "g2_rep_maf": 0.4074784276126558,
+      "M2": {
+        "n_tested": 36200,
+        "ground_truth_rank": 9247,
+        "ground_truth_p": 0.0032685928166851386,
+        "ground_truth_q": 0.9183616760060505,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 0,
+        "ground_truth_rank": null,
+        "ground_truth_p": null
+      }
+    },
+    {
+      "pair_id": "human.billmann.E2F-1-DP-1-cyclinA-CDK2_complex",
+      "g1_symbol": "CCNA1",
+      "g2_symbol": "E2F1",
+      "g1_systematic": "CCNA1",
+      "g2_systematic": "E2F1",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 7655,
+      "g1_panel_count": 461,
+      "g2_panel_count": 213,
+      "g1_rep_maf": 0.458477508650519,
+      "g2_rep_maf": 0.49206349206349204,
+      "M2": {
+        "n_tested": 42896,
+        "ground_truth_rank": 5114,
+        "ground_truth_p": 0.0024017020714043576,
+        "ground_truth_q": 0.9596103699823485,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 0,
+        "ground_truth_rank": null,
+        "ground_truth_p": null
+      }
+    },
+    {
+      "pair_id": "human.billmann.RBL2_complex_DNMT1_E2F4_E2F5_HDAC1_SUV39H1_RBL2",
+      "g1_symbol": "DNMT1",
+      "g2_symbol": "E2F4",
+      "g1_systematic": "DNMT1",
+      "g2_systematic": "E2F4",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 5457,
+      "g1_panel_count": 61,
+      "g2_panel_count": 9,
+      "g1_rep_maf": 0.42188771358828314,
+      "g2_rep_maf": 0.06715948411450141,
+      "M2": {
+        "n_tested": 61958,
+        "ground_truth_rank": null
+      },
+      "M5_star": {
+        "n_tested": 549,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 3.511149718741963e-35,
+        "best_pair": [
+          "chr19:10207436:G:C",
+          "chr16:66881543:G:A"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.DAB_complex",
+      "g1_symbol": "GTF2B",
+      "g2_symbol": "TAF11",
+      "g1_systematic": "GTF2B",
+      "g2_systematic": "TAF11",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 8624,
+      "g1_panel_count": 1,
+      "g2_panel_count": 175,
+      "g1_rep_maf": 0.052980132450331126,
+      "g2_rep_maf": 0.4579728059332509,
+      "M2": {
+        "n_tested": 48369,
+        "ground_truth_rank": 28109,
+        "ground_truth_p": 0.0031400789942388966,
+        "ground_truth_q": 1.0,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 0,
+        "ground_truth_rank": null,
+        "ground_truth_p": null
+      }
+    },
+    {
+      "pair_id": "human.billmann.KICSTOR_complex",
+      "g1_symbol": "C12orf66",
+      "g2_symbol": "ITFG2",
+      "g1_systematic": "KICS2",
+      "g2_systematic": "ITFG2",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 9907,
+      "g1_panel_count": 54,
+      "g2_panel_count": 93,
+      "g1_rep_maf": 0.40507462686567164,
+      "g2_rep_maf": 0.38652256834075016,
+      "M2": {
+        "n_tested": 23211,
+        "ground_truth_rank": null
+      },
+      "M5_star": {
+        "n_tested": 0,
+        "ground_truth_rank": null,
+        "ground_truth_p": null
+      }
+    },
+    {
+      "pair_id": "human.billmann.Polycomb_repressive_complex_1_PRC1_hPRC-H",
+      "g1_symbol": "BMI1",
+      "g2_symbol": "CBX4",
+      "g1_systematic": "BMI1",
+      "g2_systematic": "CBX4",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 8477,
+      "g1_panel_count": 30,
+      "g2_panel_count": 41,
+      "g1_rep_maf": 0.41954022988505746,
+      "g2_rep_maf": 0.4562841530054645,
+      "M2": {
+        "n_tested": 24652,
+        "ground_truth_rank": 3923,
+        "ground_truth_p": 0.0010684899229964904,
+        "ground_truth_q": 0.7981943509608933,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 1230,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 0.0033873450346206275,
+        "best_pair": [
+          "chr10:23018277:A:G",
+          "chr17:79928990:G:C"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.CTLH_complex",
+      "g1_symbol": "MAEA",
+      "g2_symbol": "MKLN1",
+      "g1_systematic": "MAEA",
+      "g2_systematic": "MKLN1",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 11016,
+      "g1_panel_count": 250,
+      "g2_panel_count": 91,
+      "g1_rep_maf": 0.4679144385026738,
+      "g2_rep_maf": 0.3706086095992083,
+      "M2": {
+        "n_tested": 50844,
+        "ground_truth_rank": 30799,
+        "ground_truth_p": 0.002633531270108834,
+        "ground_truth_q": 0.9916858975726913,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 22750,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 1.6259029156689315e-05,
+        "best_pair": [
+          "chr4:1416703:T:C",
+          "chr7:131324249:G:C"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.MSL_complex",
+      "g1_symbol": "MSL2",
+      "g2_symbol": "MSL3",
+      "g1_systematic": "MSL2",
+      "g2_systematic": "MSL3",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "UNTESTABLE_NO_PANEL_VARIATION",
+      "g1_panel_count": 229,
+      "g2_panel_count": 0,
+      "n_dosage_variants": 4132
+    },
+    {
+      "pair_id": "human.billmann.BASC_complex_BRCA1-associated_genome_surveillance_complex",
+      "g1_symbol": "ATM",
+      "g2_symbol": "NBN",
+      "g1_systematic": "ATM",
+      "g2_systematic": "NBN",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 9671,
+      "g1_panel_count": 494,
+      "g2_panel_count": 847,
+      "g1_rep_maf": 0.47580645161290325,
+      "g2_rep_maf": 0.5,
+      "M2": {
+        "n_tested": 18743,
+        "ground_truth_rank": 5867,
+        "ground_truth_p": 0.0022905275408374353,
+        "ground_truth_q": 0.8874818225698641,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 0,
+        "ground_truth_rank": null,
+        "ground_truth_p": null
+      }
+    },
+    {
+      "pair_id": "human.billmann.BRCA1_A_complex",
+      "g1_symbol": "BARD1",
+      "g2_symbol": "FAM175A",
+      "g1_systematic": "BARD1",
+      "g2_systematic": "ABRAXAS1",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 9483,
+      "g1_panel_count": 611,
+      "g2_panel_count": 203,
+      "g1_rep_maf": 0.494475138121547,
+      "g2_rep_maf": 0.3882730455075846,
+      "M2": {
+        "n_tested": 13657,
+        "ground_truth_rank": 2929,
+        "ground_truth_p": 0.0024026163394968328,
+        "ground_truth_q": 1.0,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 124033,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 7.06595414632761e-05,
+        "best_pair": [
+          "chr2:214872121:A:G",
+          "chr4:83795877:C:T"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.BRCC_complex",
+      "g1_symbol": "BRCA1",
+      "g2_symbol": "BRCC3",
+      "g1_systematic": "BRCA1",
+      "g2_systematic": "BRCC3",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "UNTESTABLE_NO_PANEL_VARIATION",
+      "g1_panel_count": 533,
+      "g2_panel_count": 0,
+      "n_dosage_variants": 3940
+    },
+    {
+      "pair_id": "human.billmann.FA_core_complex_Fanconi_anemia_core_complex",
+      "g1_symbol": "FANCB",
+      "g2_symbol": "FANCC",
+      "g1_systematic": "FANCB",
+      "g2_systematic": "FANCC",
+      "is_anchor": true,
+      "panel_natural_variation_claimed": true,
+      "status": "UNTESTABLE_NO_PANEL_VARIATION",
+      "g1_panel_count": 0,
+      "g2_panel_count": 253,
+      "n_dosage_variants": 5056
+    },
+    {
+      "pair_id": "human.billmann.RAD51B-RAD51C-RAD51D-XRCC2-XRCC3_complex",
+      "g1_symbol": "RAD51B",
+      "g2_symbol": "RAD51C",
+      "g1_systematic": "RAD51B",
+      "g2_systematic": "RAD51C",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 7982,
+      "g1_panel_count": 47,
+      "g2_panel_count": 548,
+      "g1_rep_maf": 0.4680365296803653,
+      "g2_rep_maf": 0.4566929133858268,
+      "M2": {
+        "n_tested": 44132,
+        "ground_truth_rank": 10070,
+        "ground_truth_p": 0.0045543963021932735,
+        "ground_truth_q": 1.0,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 0,
+        "ground_truth_rank": null,
+        "ground_truth_p": null
+      }
+    },
+    {
+      "pair_id": "human.billmann.Condensin_I-PARP-1-XRCC1_complex",
+      "g1_symbol": "PARP1",
+      "g2_symbol": "XRCC1",
+      "g1_systematic": "PARP1",
+      "g2_systematic": "XRCC1",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 9374,
+      "g1_panel_count": 265,
+      "g2_panel_count": 82,
+      "g1_rep_maf": 0.44106699751861045,
+      "g2_rep_maf": 0.2983835736129314,
+      "M2": {
+        "n_tested": 55186,
+        "ground_truth_rank": 12052,
+        "ground_truth_p": 0.001157012091058519,
+        "ground_truth_q": 0.9712506885703764,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 21730,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 6.399669532901997e-29,
+        "best_pair": [
+          "chr1:226387602:A:G",
+          "chr19:42941293:A:T"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.DNA_double-strand_break_end-joining_complex",
+      "g1_symbol": "LIG4",
+      "g2_symbol": "XRCC4",
+      "g1_systematic": "LIG4",
+      "g2_systematic": "XRCC4",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 11263,
+      "g1_panel_count": 147,
+      "g2_panel_count": 135,
+      "g1_rep_maf": 0.4494264859228363,
+      "g2_rep_maf": 0.48480662983425415,
+      "M2": {
+        "n_tested": 13605,
+        "ground_truth_rank": 849,
+        "ground_truth_p": 0.0038690802662645165,
+        "ground_truth_q": 1.0,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 19845,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 0.00029043783692025423,
+        "best_pair": [
+          "chr13:108274047:A:T",
+          "chr5:83204476:T:C"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.MDC1-MRN-ATM-FANCD2_complex",
+      "g1_symbol": "FANCD2",
+      "g2_symbol": "MDC1",
+      "g1_systematic": "FANCD2",
+      "g2_systematic": "MDC1",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 24229,
+      "g1_panel_count": 34,
+      "g2_panel_count": 7,
+      "g1_rep_maf": 0.44881170018281535,
+      "g2_rep_maf": 0.07613168724279835,
+      "M2": {
+        "n_tested": 107471,
+        "ground_truth_rank": 21034,
+        "ground_truth_p": 0.801291804453373,
+        "ground_truth_q": 1.0,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 238,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 4.282904350941381e-25,
+        "best_pair": [
+          "chr3:10612854:A:G",
+          "chr6:30680958:A:G"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.Gamma-BAR-AP1_complex",
+      "g1_symbol": "AP1AR",
+      "g2_symbol": "AP1B1",
+      "g1_systematic": "AP1AR",
+      "g2_systematic": "AP1B1",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 8497,
+      "g1_panel_count": 456,
+      "g2_panel_count": 256,
+      "g1_rep_maf": 0.4250425894378194,
+      "g2_rep_maf": 0.5,
+      "M2": {
+        "n_tested": 40614,
+        "ground_truth_rank": null
+      },
+      "M5_star": {
+        "n_tested": 0,
+        "ground_truth_rank": null,
+        "ground_truth_p": null
+      }
+    },
+    {
+      "pair_id": "human.billmann.HRD1_complex",
+      "g1_symbol": "AUP1",
+      "g2_symbol": "BSG",
+      "g1_systematic": "AUP1",
+      "g2_systematic": "BSG",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 9344,
+      "g1_panel_count": 159,
+      "g2_panel_count": 163,
+      "g1_rep_maf": 0.5,
+      "g2_rep_maf": 0.48297213622291024,
+      "M2": {
+        "n_tested": 74663,
+        "ground_truth_rank": 6117,
+        "ground_truth_p": 0.01636212147506581,
+        "ground_truth_q": 1.0,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 0,
+        "ground_truth_rank": null,
+        "ground_truth_p": null
+      }
+    },
+    {
+      "pair_id": "human.billmann.GAA1-GPI8-PIGT-PIG-PIGS_complex",
+      "g1_symbol": "GPAA1",
+      "g2_symbol": "PIGK",
+      "g1_systematic": "GPAA1",
+      "g2_systematic": "PIGK",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 9174,
+      "g1_panel_count": 226,
+      "g2_panel_count": 454,
+      "g1_rep_maf": 0.4896694214876033,
+      "g2_rep_maf": 0.4368836291913215,
+      "M2": {
+        "n_tested": 81411,
+        "ground_truth_rank": 22838,
+        "ground_truth_p": 0.926545188269296,
+        "ground_truth_q": 1.0,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 102604,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 0.0014202435661931987,
+        "best_pair": [
+          "chr8:144106920:G:A",
+          "chr1:77283101:A:G"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.GPI-GnT_activity_complex",
+      "g1_symbol": "PIGA",
+      "g2_symbol": "PIGH",
+      "g1_systematic": "PIGA",
+      "g2_systematic": "PIGH",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "UNTESTABLE_NO_PANEL_VARIATION",
+      "g1_panel_count": 0,
+      "g2_panel_count": 215,
+      "n_dosage_variants": 3587
+    },
+    {
+      "pair_id": "human.billmann.KAT2A-Oxoglutarate_dehydrogenase_complex",
+      "g1_symbol": "DLD",
+      "g2_symbol": "OGDH",
+      "g1_systematic": "DLD",
+      "g2_systematic": "OGDH",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 9194,
+      "g1_panel_count": 319,
+      "g2_panel_count": 220,
+      "g1_rep_maf": 0.4838709677419355,
+      "g2_rep_maf": 0.4280035335689046,
+      "M2": {
+        "n_tested": 38263,
+        "ground_truth_rank": 8028,
+        "ground_truth_p": 6.477387466112595e-05,
+        "ground_truth_q": 0.4875308955278087,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 70180,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 3.135912998591277e-05,
+        "best_pair": [
+          "chr7:107945041:G:T",
+          "chr7:44656126:T:C"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.55S_ribosome_mitochondrial",
+      "g1_symbol": "MRPL1",
+      "g2_symbol": "MRPL10",
+      "g1_systematic": "MRPL1",
+      "g2_systematic": "MRPL10",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 8338,
+      "g1_panel_count": 186,
+      "g2_panel_count": 185,
+      "g1_rep_maf": 0.40286144578313254,
+      "g2_rep_maf": 0.46111111111111114,
+      "M2": {
+        "n_tested": 49467,
+        "ground_truth_rank": 5105,
+        "ground_truth_p": 0.00046431974242539724,
+        "ground_truth_q": 0.6834981423562445,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 0,
+        "ground_truth_rank": null,
+        "ground_truth_p": null
+      }
+    },
+    {
+      "pair_id": "human.billmann.Cytochrome_c_oxidase_mitochondrial",
+      "g1_symbol": "COA1",
+      "g2_symbol": "COX14",
+      "g1_systematic": "COA1",
+      "g2_systematic": "COX14",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 8098,
+      "g1_panel_count": 1091,
+      "g2_panel_count": 798,
+      "g1_rep_maf": 0.46333897349125774,
+      "g2_rep_maf": 0.5,
+      "M2": {
+        "n_tested": 52963,
+        "ground_truth_rank": 12265,
+        "ground_truth_p": 0.0027800793144422582,
+        "ground_truth_q": 0.9188043503010002,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 870618,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 7.037191891917371e-05,
+        "best_pair": [
+          "chr7:43621023:T:A",
+          "chr12:50350130:C:T"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.F1F0-ATP_synthase_mitochondrial",
+      "g1_symbol": "ATP5A1",
+      "g2_symbol": "ATP5B",
+      "g1_systematic": "ATP5F1A",
+      "g2_systematic": "ATP5F1B",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 7881,
+      "g1_panel_count": 562,
+      "g2_panel_count": 54,
+      "g1_rep_maf": 0.47770700636942676,
+      "g2_rep_maf": 0.4569672131147541,
+      "M2": {
+        "n_tested": 69037,
+        "ground_truth_rank": 14552,
+        "ground_truth_p": 0.007642725982457736,
+        "ground_truth_q": 1.0,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 30348,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 0.0014668671922147586,
+        "best_pair": [
+          "chr18:46167861:A:T",
+          "chr12:56703271:G:A"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.MIB_complex",
+      "g1_symbol": "CHCHD3",
+      "g2_symbol": "DNAJC11",
+      "g1_systematic": "CHCHD3",
+      "g2_systematic": "DNAJC11",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 9512,
+      "g1_panel_count": 278,
+      "g2_panel_count": 166,
+      "g1_rep_maf": 0.4811320754716981,
+      "g2_rep_maf": 0.4587765957446808,
+      "M2": {
+        "n_tested": 22493,
+        "ground_truth_rank": 2678,
+        "ground_truth_p": 0.0006724242204398721,
+        "ground_truth_q": 1.0,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 46148,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 8.320794608880758e-05,
+        "best_pair": [
+          "chr7:133112449:C:G",
+          "chr1:6781663:A:G"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.Respiratory_chain_complex_I_holoenzyme_mitochondrial",
+      "g1_symbol": "NDUFA1",
+      "g2_symbol": "NDUFA10",
+      "g1_systematic": "NDUFA1",
+      "g2_systematic": "NDUFA10",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "UNTESTABLE_NO_PANEL_VARIATION",
+      "g1_panel_count": 0,
+      "g2_panel_count": 363,
+      "n_dosage_variants": 6629
+    },
+    {
+      "pair_id": "human.billmann.TIM_TIM17A_TIM17B_TIM23_TIM44_complex_mitochondrial",
+      "g1_symbol": "TIMM17A",
+      "g2_symbol": "TIMM17B",
+      "g1_systematic": "TIMM17A",
+      "g2_systematic": "TIMM17B",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "UNTESTABLE_NO_PANEL_VARIATION",
+      "g1_panel_count": 277,
+      "g2_panel_count": 0,
+      "n_dosage_variants": 5285
+    },
+    {
+      "pair_id": "human.billmann.protein_complex_DDX28DHX30GRSF1FASTKD2FASTKD5",
+      "g1_symbol": "DDX28",
+      "g2_symbol": "DHX30",
+      "g1_systematic": "DDX28",
+      "g2_systematic": "DHX30",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 5177,
+      "g1_panel_count": 177,
+      "g2_panel_count": 246,
+      "g1_rep_maf": 0.5,
+      "g2_rep_maf": 0.4577922077922078,
+      "M2": {
+        "n_tested": 68590,
+        "ground_truth_rank": 17441,
+        "ground_truth_p": 0.07158159312699836,
+        "ground_truth_q": 0.8876842293583109,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 43542,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 0.004156713558794812,
+        "best_pair": [
+          "chr16:68562786:A:G",
+          "chr3:47816085:T:C"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.prohibitin_2_complex_mitochondrial",
+      "g1_symbol": "HAX1",
+      "g2_symbol": "PHB",
+      "g1_systematic": "HAX1",
+      "g2_systematic": "PHB1",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 8066,
+      "g1_panel_count": 107,
+      "g2_panel_count": 7,
+      "g1_rep_maf": 0.43462343096234307,
+      "g2_rep_maf": 0.2782485875706215,
+      "M2": {
+        "n_tested": 96897,
+        "ground_truth_rank": null
+      },
+      "M5_star": {
+        "n_tested": 749,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 1.7135500515169952e-36,
+        "best_pair": [
+          "chr1:154140798:G:C",
+          "chr17:50033907:T:A"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.CCT_complex_chaperonin_containing_TCP1_complex",
+      "g1_symbol": "CCT3",
+      "g2_symbol": "CCT4",
+      "g1_systematic": "CCT3",
+      "g2_systematic": "CCT4",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 7431,
+      "g1_panel_count": 218,
+      "g2_panel_count": 90,
+      "g1_rep_maf": 0.4284,
+      "g2_rep_maf": 0.4388888888888889,
+      "M2": {
+        "n_tested": 54890,
+        "ground_truth_rank": 16817,
+        "ground_truth_p": 0.0020871180607449774,
+        "ground_truth_q": 1.0,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 19620,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 3.293398153154696e-11,
+        "best_pair": [
+          "chr1:156243466:G:A",
+          "chr2:62405459:G:C"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.CENP-A_NAC-CAD_complex",
+      "g1_symbol": "CENPC",
+      "g2_symbol": "CENPL",
+      "g1_systematic": "CENPC",
+      "g2_systematic": "CENPL",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 9800,
+      "g1_panel_count": 944,
+      "g2_panel_count": 281,
+      "g1_rep_maf": 0.46134020618556704,
+      "g2_rep_maf": 0.47106109324758844,
+      "M2": {
+        "n_tested": 38792,
+        "ground_truth_rank": 2444,
+        "ground_truth_p": 0.0004071729204948574,
+        "ground_truth_q": 0.40388589591201907,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 265264,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 8.324529162813257e-05,
+        "best_pair": [
+          "chr4:66704387:T:C",
+          "chr1:174118509:G:A"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.Condensin_II",
+      "g1_symbol": "NCAPD3",
+      "g2_symbol": "NCAPG2",
+      "g1_systematic": "NCAPD3",
+      "g2_systematic": "NCAPG2",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 10384,
+      "g1_panel_count": 271,
+      "g2_panel_count": 714,
+      "g1_rep_maf": 0.42378497790868924,
+      "g2_rep_maf": 0.5,
+      "M2": {
+        "n_tested": 17998,
+        "ground_truth_rank": 4599,
+        "ground_truth_p": 0.0038107866071167185,
+        "ground_truth_q": 1.0,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 193494,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 0.00011525690785243618,
+        "best_pair": [
+          "chr11:134095712:A:T",
+          "chr7:158444949:C:G"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.HAUS_augmin-like_complex",
+      "g1_symbol": "HAUS2",
+      "g2_symbol": "HAUS3",
+      "g1_systematic": "HAUS2",
+      "g2_systematic": "HAUS3",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 6704,
+      "g1_panel_count": 185,
+      "g2_panel_count": 149,
+      "g1_rep_maf": 0.46830985915492956,
+      "g2_rep_maf": 0.3688118811881188,
+      "M2": {
+        "n_tested": 56230,
+        "ground_truth_rank": 34325,
+        "ground_truth_p": 0.047052330943905436,
+        "ground_truth_q": 1.0,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 27565,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 2.34162888521242e-06,
+        "best_pair": [
+          "chr15:42587559:G:T",
+          "chr4:2040967:C:G"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.Prefoldin_complex",
+      "g1_symbol": "PFDN1",
+      "g2_symbol": "PFDN4",
+      "g1_systematic": "PFDN1",
+      "g2_systematic": "PFDN4",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 7849,
+      "g1_panel_count": 207,
+      "g2_panel_count": 44,
+      "g1_rep_maf": 0.5,
+      "g2_rep_maf": 0.353121801432958,
+      "M2": {
+        "n_tested": 44711,
+        "ground_truth_rank": 16220,
+        "ground_truth_p": 0.009201871373261845,
+        "ground_truth_q": 1.0,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 9108,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 0.00041956588972330686,
+        "best_pair": [
+          "chr5:140225811:A:G",
+          "chr20:54311003:G:A"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.CCR4-NOT_complex",
+      "g1_symbol": "CNOT1",
+      "g2_symbol": "CNOT10",
+      "g1_systematic": "CNOT1",
+      "g2_systematic": "CNOT10",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 9373,
+      "g1_panel_count": 344,
+      "g2_panel_count": 11,
+      "g1_rep_maf": 0.5,
+      "g2_rep_maf": 0.40584415584415584,
+      "M2": {
+        "n_tested": 25894,
+        "ground_truth_rank": 2195,
+        "ground_truth_p": 0.016599120208018542,
+        "ground_truth_q": 1.0,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 3784,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 0.010803905324880922,
+        "best_pair": [
+          "chr16:58574532:A:G",
+          "chr3:32791184:C:T"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.DSS1Integrator_complex",
+      "g1_symbol": "BRCA2",
+      "g2_symbol": "INTS2",
+      "g1_systematic": "BRCA2",
+      "g2_systematic": "INTS2",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 7267,
+      "g1_panel_count": 149,
+      "g2_panel_count": 34,
+      "g1_rep_maf": 0.42750197005516155,
+      "g2_rep_maf": 0.37926136363636365,
+      "M2": {
+        "n_tested": 20268,
+        "ground_truth_rank": 6216,
+        "ground_truth_p": 0.0010277289722234683,
+        "ground_truth_q": 0.8796848399573785,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 0,
+        "ground_truth_rank": null,
+        "ground_truth_p": null
+      }
+    },
+    {
+      "pair_id": "human.billmann.Decapping_complex",
+      "g1_symbol": "DCP2",
+      "g2_symbol": "DDX6",
+      "g1_systematic": "DCP2",
+      "g2_systematic": "DDX6",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 11060,
+      "g1_panel_count": 998,
+      "g2_panel_count": 781,
+      "g1_rep_maf": 0.5,
+      "g2_rep_maf": 0.48134328358208955,
+      "M2": {
+        "n_tested": 57253,
+        "ground_truth_rank": 16175,
+        "ground_truth_p": 0.00044982802284797925,
+        "ground_truth_q": 0.9356126465855896,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 0,
+        "ground_truth_rank": null,
+        "ground_truth_p": null
+      }
+    },
+    {
+      "pair_id": "human.billmann.SNAPc_small_nuclear_RNA-activating_protein_complex",
+      "g1_symbol": "SNAPC1",
+      "g2_symbol": "SNAPC5",
+      "g1_systematic": "SNAPC1",
+      "g2_systematic": "SNAPC5",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 9444,
+      "g1_panel_count": 284,
+      "g2_panel_count": 368,
+      "g1_rep_maf": 0.44416243654822335,
+      "g2_rep_maf": 0.4787234042553192,
+      "M2": {
+        "n_tested": 26841,
+        "ground_truth_rank": 4365,
+        "ground_truth_p": 0.002828035744122359,
+        "ground_truth_q": 0.7190125001415578,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 104512,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 6.008907911303684e-07,
+        "best_pair": [
+          "chr14:61812372:C:G",
+          "chr15:66243234:T:C"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.DCS_complex_PTBP1_PTBP2_HNRPH1_HNRPF",
+      "g1_symbol": "HNRNPF",
+      "g2_symbol": "HNRNPH1",
+      "g1_systematic": "HNRNPF",
+      "g2_systematic": "HNRNPH1",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 12194,
+      "g1_panel_count": 292,
+      "g2_panel_count": 303,
+      "g1_rep_maf": 0.4685466377440347,
+      "g2_rep_maf": 0.46629213483146065,
+      "M2": {
+        "n_tested": 39308,
+        "ground_truth_rank": 19677,
+        "ground_truth_p": 0.0007107122804977537,
+        "ground_truth_q": 0.37849615296328304,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 0,
+        "ground_truth_rank": null,
+        "ground_truth_p": null
+      }
+    },
+    {
+      "pair_id": "human.billmann.CORVET_complex",
+      "g1_symbol": "TGFBRAP1",
+      "g2_symbol": "VPS33A",
+      "g1_systematic": "TGFBRAP1",
+      "g2_systematic": "VPS33A",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 9345,
+      "g1_panel_count": 241,
+      "g2_panel_count": 115,
+      "g1_rep_maf": 0.4097612359550562,
+      "g2_rep_maf": 0.4771689497716895,
+      "M2": {
+        "n_tested": 50559,
+        "ground_truth_rank": 26961,
+        "ground_truth_p": 0.0028695160133510506,
+        "ground_truth_q": 1.0,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 27715,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 0.00175920929732775,
+        "best_pair": [
+          "chr2:105301609:G:A",
+          "chr12:122206498:T:A"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.HOPS_complex",
+      "g1_symbol": "VPS16",
+      "g2_symbol": "VPS18",
+      "g1_systematic": "VPS16",
+      "g2_systematic": "VPS18",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 8330,
+      "g1_panel_count": 268,
+      "g2_panel_count": 8,
+      "g1_rep_maf": 0.4080675422138837,
+      "g2_rep_maf": 0.44329896907216493,
+      "M2": {
+        "n_tested": 57459,
+        "ground_truth_rank": 24285,
+        "ground_truth_p": 7.462226714523825e-06,
+        "ground_truth_q": 0.4287720847898245,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 2144,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 7.462226714523825e-06,
+        "best_pair": [
+          "chr20:2801369:T:C",
+          "chr15:40908833:G:A"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.v-ATPase-Ragulator-AXINLKB1-AMPK_complex",
+      "g1_symbol": "ATP6V0D1",
+      "g2_symbol": "LAMTOR1",
+      "g1_systematic": "ATP6V0D1",
+      "g2_systematic": "LAMTOR1",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 8150,
+      "g1_panel_count": 906,
+      "g2_panel_count": 84,
+      "g1_rep_maf": 0.4828767123287671,
+      "g2_rep_maf": 0.4638752052545156,
+      "M2": {
+        "n_tested": 59239,
+        "ground_truth_rank": 10316,
+        "ground_truth_p": 0.05803261248977591,
+        "ground_truth_q": 0.9036042986807232,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 0,
+        "ground_truth_rank": null,
+        "ground_truth_p": null
+      }
+    },
+    {
+      "pair_id": "human.billmann.AFF4_super_elongation_complex_SEC",
+      "g1_symbol": "AFF1",
+      "g2_symbol": "AFF4",
+      "g1_systematic": "AFF1",
+      "g2_systematic": "AFF4",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 9633,
+      "g1_panel_count": 643,
+      "g2_panel_count": 201,
+      "g1_rep_maf": 0.43788437884378845,
+      "g2_rep_maf": 0.5,
+      "M2": {
+        "n_tested": 41777,
+        "ground_truth_rank": 22218,
+        "ground_truth_p": 0.00045084862846125364,
+        "ground_truth_q": 0.7660330042038282,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 129243,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 2.807464159470337e-05,
+        "best_pair": [
+          "chr4:87201242:G:A",
+          "chr5:132986581:A:G"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.GATOR_complex",
+      "g1_symbol": "MIOS",
+      "g2_symbol": "WDR24",
+      "g1_systematic": "MIOS",
+      "g2_systematic": "WDR24",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 8791,
+      "g1_panel_count": 516,
+      "g2_panel_count": 6,
+      "g1_rep_maf": 0.5,
+      "g2_rep_maf": 0.42850467289719624,
+      "M2": {
+        "n_tested": 57639,
+        "ground_truth_rank": 17370,
+        "ground_truth_p": 0.009479826758468838,
+        "ground_truth_q": 0.8416833662963259,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 3096,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 0.0001335507491274259,
+        "best_pair": [
+          "chr7:7627065:C:T",
+          "chr16:619708:T:G"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.Mediator_complex",
+      "g1_symbol": "MED1",
+      "g2_symbol": "MED10",
+      "g1_systematic": "MED1",
+      "g2_systematic": "MED10",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 7724,
+      "g1_panel_count": 33,
+      "g2_panel_count": 197,
+      "g1_rep_maf": 0.408929836995039,
+      "g2_rep_maf": 0.44642857142857145,
+      "M2": {
+        "n_tested": 47120,
+        "ground_truth_rank": 11163,
+        "ground_truth_p": 0.11937873270859078,
+        "ground_truth_q": 1.0,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 0,
+        "ground_truth_rank": null,
+        "ground_truth_p": null
+      }
+    },
+    {
+      "pair_id": "human.billmann.SAGA_complex_GCN5-linked",
+      "g1_symbol": "ATXN7L3",
+      "g2_symbol": "SUPT20H",
+      "g1_systematic": "ATXN7L3",
+      "g2_systematic": "SUPT20H",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 6962,
+      "g1_panel_count": 27,
+      "g2_panel_count": 234,
+      "g1_rep_maf": 0.30846681922196795,
+      "g2_rep_maf": 0.4684813753581662,
+      "M2": {
+        "n_tested": 50009,
+        "ground_truth_rank": 33754,
+        "ground_truth_p": 6.263075547904423e-07,
+        "ground_truth_q": 0.031321014507515225,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 0,
+        "ground_truth_rank": null,
+        "ground_truth_p": null
+      }
+    },
+    {
+      "pair_id": "human.billmann.STAGA_complex_SPT3-linked",
+      "g1_symbol": "ATXN7",
+      "g2_symbol": "TADA3",
+      "g1_systematic": "ATXN7",
+      "g2_systematic": "TADA3",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 10254,
+      "g1_panel_count": 260,
+      "g2_panel_count": 73,
+      "g1_rep_maf": 0.43460076045627377,
+      "g2_rep_maf": 0.3939507094846901,
+      "M2": {
+        "n_tested": 34026,
+        "ground_truth_rank": 8065,
+        "ground_truth_p": 1.2993669176212212e-14,
+        "ground_truth_q": 2.4303463217379827e-10,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 18980,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 9.377639374729676e-15,
+        "best_pair": [
+          "chr3:63625547:T:C",
+          "chr3:10581683:T:C"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.TRAP_complex",
+      "g1_symbol": "THRA",
+      "g2_symbol": "THRAP3",
+      "g1_systematic": "THRA",
+      "g2_systematic": "THRAP3",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 5905,
+      "g1_panel_count": 3,
+      "g2_panel_count": 32,
+      "g1_rep_maf": 0.37112239142695996,
+      "g2_rep_maf": 0.3987941429801895,
+      "M2": {
+        "n_tested": 51289,
+        "ground_truth_rank": 17135,
+        "ground_truth_p": 2.744480527201478e-05,
+        "ground_truth_q": 0.46273790893530864,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 96,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 7.102179697652483e-31,
+        "best_pair": [
+          "chr17:40075600:T:C",
+          "chr1:36161590:T:C"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.Multiprotein_complex_mRNA_turnover",
+      "g1_symbol": "CSDE1",
+      "g2_symbol": "PABPC1",
+      "g1_systematic": "CSDE1",
+      "g2_systematic": "PABPC1",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 7316,
+      "g1_panel_count": 92,
+      "g2_panel_count": 163,
+      "g1_rep_maf": 0.40897435897435896,
+      "g2_rep_maf": 0.4429065743944637,
+      "M2": {
+        "n_tested": 19027,
+        "ground_truth_rank": 2957,
+        "ground_truth_p": 0.00028200265136000196,
+        "ground_truth_q": 0.5961849386029731,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 14996,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 1.791924978175799e-05,
+        "best_pair": [
+          "chr1:114627245:G:A",
+          "chr8:100801840:G:A"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.P2X7_receptor_signalling_complex",
+      "g1_symbol": "HSP90AB1",
+      "g2_symbol": "PTPRB",
+      "g1_systematic": "HSP90AB1",
+      "g2_systematic": "PTPRB",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 9061,
+      "g1_panel_count": 86,
+      "g2_panel_count": 98,
+      "g1_rep_maf": 0.4186320754716981,
+      "g2_rep_maf": 0.3853944562899787,
+      "M2": {
+        "n_tested": 33080,
+        "ground_truth_rank": null
+      },
+      "M5_star": {
+        "n_tested": 0,
+        "ground_truth_rank": null,
+        "ground_truth_p": null
+      }
+    },
+    {
+      "pair_id": "human.billmann.ULK1-ATG13-ATG14-PIK3C3_complex",
+      "g1_symbol": "ATG13",
+      "g2_symbol": "ATG14",
+      "g1_systematic": "ATG13",
+      "g2_systematic": "ATG14",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 8006,
+      "g1_panel_count": 552,
+      "g2_panel_count": 562,
+      "g1_rep_maf": 0.4859154929577465,
+      "g2_rep_maf": 0.4722222222222222,
+      "M2": {
+        "n_tested": 39083,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 3.536010645697952e-05,
+        "ground_truth_q": 0.3454947601645326,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 0,
+        "ground_truth_rank": null,
+        "ground_truth_p": null
+      }
+    },
+    {
+      "pair_id": "human.billmann.eIF3_complex_EIF3S6_EIF3S5_EIF3S4_EIF3S3_EIF3S6IP_EIF3S2_EIF",
+      "g1_symbol": "EIF3B",
+      "g2_symbol": "EIF3F",
+      "g1_systematic": "EIF3B",
+      "g2_systematic": "EIF3F",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 12244,
+      "g1_panel_count": 280,
+      "g2_panel_count": 393,
+      "g1_rep_maf": 0.4830508474576271,
+      "g2_rep_maf": 0.4683794466403162,
+      "M2": {
+        "n_tested": 37373,
+        "ground_truth_rank": 4631,
+        "ground_truth_p": 3.167642276624821e-05,
+        "ground_truth_q": 0.8031877241703804,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 0,
+        "ground_truth_rank": null,
+        "ground_truth_p": null
+      }
+    },
+    {
+      "pair_id": "human.billmann.Ribosome_cytoplasmic",
+      "g1_symbol": "RPL11",
+      "g2_symbol": "RPL18",
+      "g1_systematic": "RPL11",
+      "g2_systematic": "RPL18",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 11499,
+      "g1_panel_count": 110,
+      "g2_panel_count": 37,
+      "g1_rep_maf": 0.4248181083265966,
+      "g2_rep_maf": 0.2331006612784717,
+      "M2": {
+        "n_tested": 100421,
+        "ground_truth_rank": 32276,
+        "ground_truth_p": 0.0009569064880876139,
+        "ground_truth_q": 0.9024055485736155,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 4070,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 5.590541470231404e-57,
+        "best_pair": [
+          "chr1:24318866:A:G",
+          "chr19:48388596:G:C"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.COG_complex",
+      "g1_symbol": "COG1",
+      "g2_symbol": "COG2",
+      "g1_systematic": "COG1",
+      "g2_systematic": "COG2",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 11273,
+      "g1_panel_count": 262,
+      "g2_panel_count": 307,
+      "g1_rep_maf": 0.46511627906976744,
+      "g2_rep_maf": 0.47928994082840237,
+      "M2": {
+        "n_tested": 25493,
+        "ground_truth_rank": 2542,
+        "ground_truth_p": 0.0012204644983998282,
+        "ground_truth_q": 1.0,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 80434,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 0.00019588693195447978,
+        "best_pair": [
+          "chr17:73283913:T:A",
+          "chr1:230653013:G:A"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.Coat_protein_complex_II_SAR1B_PREB_SEC23A__SEC24B_SEC23IP",
+      "g1_symbol": "SEC23IP",
+      "g2_symbol": "SEC24B",
+      "g1_systematic": "SEC23IP",
+      "g2_systematic": "SEC24B",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 9387,
+      "g1_panel_count": 502,
+      "g2_panel_count": 369,
+      "g1_rep_maf": 0.44714587737843553,
+      "g2_rep_maf": 0.44018817204301075,
+      "M2": {
+        "n_tested": 19931,
+        "ground_truth_rank": 2991,
+        "ground_truth_p": 0.004610972188435588,
+        "ground_truth_q": 1.0,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 185238,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 0.00013095528540695963,
+        "best_pair": [
+          "chr10:119681431:T:C",
+          "chr4:109399918:T:C"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.Exocyst_complex",
+      "g1_symbol": "EXOC1",
+      "g2_symbol": "EXOC2",
+      "g1_systematic": "EXOC1",
+      "g2_systematic": "EXOC2",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 8409,
+      "g1_panel_count": 92,
+      "g2_panel_count": 616,
+      "g1_rep_maf": 0.4407699901283317,
+      "g2_rep_maf": 0.4962686567164179,
+      "M2": {
+        "n_tested": 21054,
+        "ground_truth_rank": 4145,
+        "ground_truth_p": 0.0024456272990058467,
+        "ground_truth_q": 1.0,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 56672,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 0.00010386350335796107,
+        "best_pair": [
+          "chr4:55907707:C:A",
+          "chr6:571853:C:T"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.GARP_complex",
+      "g1_symbol": "VPS51",
+      "g2_symbol": "VPS53",
+      "g1_systematic": "VPS51",
+      "g2_systematic": "VPS53",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "UNTESTABLE_NO_PANEL_VARIATION",
+      "g1_panel_count": 0,
+      "g2_panel_count": 303,
+      "n_dosage_variants": 7129
+    },
+    {
+      "pair_id": "human.billmann.SNARE_complex_SNAP25_VAMP3_VAMP2_NAPB_STX13",
+      "g1_symbol": "VAMP2",
+      "g2_symbol": "VAMP3",
+      "g1_systematic": "VAMP2",
+      "g2_systematic": "VAMP3",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 9106,
+      "g1_panel_count": 111,
+      "g2_panel_count": 258,
+      "g1_rep_maf": 0.48201438848920863,
+      "g2_rep_maf": 0.4911504424778761,
+      "M2": {
+        "n_tested": 61541,
+        "ground_truth_rank": 9319,
+        "ground_truth_p": 0.017957367047922078,
+        "ground_truth_q": 1.0,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 28638,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 0.00169458267559,
+        "best_pair": [
+          "chr17:8158390:G:A",
+          "chr1:7908954:G:A"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.SNARE_complex_VAMP4_STX6_STX16_VTI1a_VTI1b",
+      "g1_symbol": "STX16",
+      "g2_symbol": "VTI1A",
+      "g1_systematic": "STX16",
+      "g2_systematic": "VTI1A",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 8188,
+      "g1_panel_count": 113,
+      "g2_panel_count": 70,
+      "g1_rep_maf": 0.4024691358024691,
+      "g2_rep_maf": 0.4475341028331584,
+      "M2": {
+        "n_tested": 19396,
+        "ground_truth_rank": 3644,
+        "ground_truth_p": 1.6230595004712047e-16,
+        "ground_truth_q": 3.1480862071139487e-12,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 7910,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 1.15574399085022e-16,
+        "best_pair": [
+          "chr20:58742772:G:C",
+          "chr10:112825400:A:G"
+        ]
+      }
+    },
+    {
+      "pair_id": "human.billmann.TRAPP_complex",
+      "g1_symbol": "TRAPPC1",
+      "g2_symbol": "TRAPPC11",
+      "g1_systematic": "TRAPPC1",
+      "g2_systematic": "TRAPPC11",
+      "is_anchor": false,
+      "panel_natural_variation_claimed": true,
+      "status": "TESTED",
+      "n_samples": 3202,
+      "n_dosage_variants": 10285,
+      "g1_panel_count": 19,
+      "g2_panel_count": 122,
+      "g1_rep_maf": 0.5,
+      "g2_rep_maf": 0.4573643410852713,
+      "M2": {
+        "n_tested": 59477,
+        "ground_truth_rank": 22419,
+        "ground_truth_p": 0.005258414389318752,
+        "ground_truth_q": 1.0,
+        "detected_motif": "protein_interaction"
+      },
+      "M5_star": {
+        "n_tested": 2318,
+        "ground_truth_rank": 1,
+        "ground_truth_p": 0.002186506922895878,
+        "best_pair": [
+          "chr17:7620390:C:T",
+          "chr4:183658730:A:T"
+        ]
+      }
+    }
+  ]
+}

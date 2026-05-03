@@ -557,17 +557,25 @@ yeast            & 10        & 4 (no panel variation)    & 6      & \textbf{6/6}
 \emph{Arabidopsis} & 9       & 0                          & 9      & \textbf{9/9}       & 3/9\\
 \emph{O.~sativa}, positive & 9 & 0                       & 9      & \textbf{9/9}       & 1/9\\
 \emph{O.~sativa}, negative control (GW2$\times$GW5) & 1 & 0 & 1 & \textbf{NF/0} (correct) & NF/14{,}767\\
+\emph{H.~sapiens} (Billmann + GWAS catalogue) & 79 & 9$^{\dagger}$ & 70 & \textbf{50/70} (binary STRING-PPI) & 3/70\\
+\hphantom{\emph{H.~sapiens}} \textit{(weighted Billmann+DepMap+STRING)} &  &  &  & \textbf{51/70} (+1 rescue) & 3/70\\
 \midrule
-\textbf{total positive controls} & \textbf{28} & \textbf{4} & \textbf{24} & \textbf{24/24} & 7/24\\
+\textbf{total positive controls} & \textbf{107} & \textbf{13} & \textbf{94} & \textbf{74--75/94} & 10/94\\
 \bottomrule
 \end{tabular}
-\end{center}
+
+\noindent {\small $^{\dagger}$ Human untestable: 1 HGNC unresolvable
+(KIR3DS1 polymorphic locus) + 8 panel-MAF gaps (CCC-Wash, MSL, BRCC,
+FA-core anchor, GPI-GnT, Resp.\ Chain~I, TIM, GARP — these CORUM
+complexes have $<3$ MAF$\geq 0.05$ variants per gene in 1KG-3202;
+some include chrX hemizygous-male MAF artefacts).}\end{center}
 
 \textbf{Headline:} M5$^\star$ produces non-zero
-$g_1\!\times\!g_2$ cross-pair RWR mass for every testable positive
-control --- 24 of 24 catalogue pairs across three phyla, with the
-simulated-causal pair surfacing at rank 1 on the resulting
-interaction-LR list. The rice negative control GW2$\times$GW5 (an
+$g_1\!\times\!g_2$ cross-pair RWR mass for every testable
+plant/yeast catalogue pair (24/24) and for 50/70 testable human pairs
+under a binary STRING-PPI substrate (51/70 with the
+weighted Billmann+DepMap+STRING substrate; see ``Binary-vs-weighted''
+paragraph below). The rice negative control GW2$\times$GW5 (an
 established yield-pleiotropy pair without a direct biochemical
 interaction; \texttt{anchor=false}, \texttt{validation:}
 ``independent-pathway QTL contributions'') correctly returns
@@ -576,6 +584,46 @@ substrate sensitivity is governed by the canonical-PPI edge list, and
 GW2$\times$GW5 is deliberately absent from \texttt{RICE\_CANONICAL\_EDGES}.
 This is a structural, not statistical, falsification: the negative
 control fails because the bridge is absent, not because $p$ is large.
+
+\paragraph{Human pipeline: substrate, cohort, and the four-species view.}
+The human arm comprises 79 catalogue entries (8 GWAS / pharmacogenetic
+pairs from the original literature audit + 71 CORUM protein-complex
+pairs derived from Billmann \emph{et al.}\ 2026 \cite{billmann2026hap1};
+see §\ref{sec:catalogue_extension} above and
+\texttt{paper/epistasis\_v1/results\_summary\_y8\_catalogue\_extension.md}).
+Cohort: 1KG high-coverage 1KG-3202 ($n=3{,}202$) loaded across all 22
+autosomes via per-chromosome tabix-sliced VCFs around each catalogue
+gene-pair window ($\pm 100\,$kb each + a chr18 control window). Cache:
+the per-chromosome \texttt{human\_graph\_cache\_v2\_chr*} files that
+already shipped with the Estaji 2026 fine-mapping work
+(STRING~v12 PPI populated for $\sim 80$\% of variants; pathways
+unpopulated for human in this cache release). Total runtime for all 79
+pairs on a single CPU: $\sim 80\,$min.
+
+\textbf{Binary-vs-weighted substrate, head-to-head on human.}
+We then re-ran the same 79 catalogue pairs with the
+§\ref{sec:m5_substrate} weighted substrate, augmenting the cache's
+binary STRING-PPI with the Billmann HAP1 qGI edges
+($1.19\times 10^5$ pairs at $|qGI|>0.3$, $\mathrm{FDR}<0.1$) and
+DepMap ED scores ($1.15\times 10^4$ cross-validated pairs). On the
+catalogue-relevant gene windows actually loaded, the typical pair sees
+the weighted substrate add only $0$--$2$ extra gene-gene edges beyond
+binary STRING (per the
+\texttt{weighted\_substrate.~loaded~119,318~edges,~N~added~to~G})
+diagnostic, because STRING~v12 already covers the bulk of these
+biochemically-curated complexes. Net effect: \textbf{exactly one pair
+flips from M5$^\star$ NF/0 to rank~1} --- the
+Condensin-I~$\times$~PARP-1~$\times$~XRCC1 complex
+(NCAPD3$\times$PARP1: rank~1 of $21{,}730$ tested cross-pairs) gains
+its bridge from the weighted layer. \emph{No pair regresses.} This is
+honest empirical evidence that the weighted substrate is a strict
+generalisation of binary STRING (per the §\ref{sec:m5_substrate} A/B
+correctness check on rice), but its marginal recall on a
+biochemically-curated catalogue is small precisely because that
+catalogue overlaps STRING by construction. The expected payoff is
+larger for queries outside curated complexes (population-scale
+disease-modifier scans, novel pairs from biobank summary statistics)
+where STRING is sparse but Billmann~/~DepMap may carry a signal.
 
 \textbf{Catalogue$\to$cache reporting gap and its remediation.} The
 initial benchmark surfaced 8 untestable positive-control pairs across

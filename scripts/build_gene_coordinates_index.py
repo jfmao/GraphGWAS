@@ -30,6 +30,10 @@ SPECIES_CACHE_FILES = {
         REPO_ROOT / "data" / "rice_3k" / "annotations" / f"rice_graph_cache_v2_Chr{c}.json"
         for c in (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
     ],
+    "human": [
+        REPO_ROOT / "data" / "annotations" / f"human_graph_cache_v2_chr{c}.json"
+        for c in [str(i) for i in range(1, 23)] + ["X"]
+    ],
 }
 
 

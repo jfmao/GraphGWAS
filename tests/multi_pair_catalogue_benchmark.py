@@ -81,6 +81,16 @@ def load_species_cache_for_chroms(species: str, chroms: list) -> dict:
             if path.exists():
                 cache.update(json.loads(path.read_text()))
         return cache
+    if species == "human":
+        for c in chroms:
+            # Cache files use chr1, chr2, ..., chrX naming.  Strip any
+            # leading "chr" prefix that may have come from the gene index.
+            cn = str(c).replace("chr", "")
+            path = (REPO_ROOT / "data" / "annotations"
+                    / f"human_graph_cache_v2_chr{cn}.json")
+            if path.exists():
+                cache.update(json.loads(path.read_text()))
+        return cache
     sys.exit(f"unknown species {species}")
 
 
@@ -193,6 +203,56 @@ def load_rice_windows(windows: list) -> tuple:
     return dosages, vids, sample_ids
 
 
+def load_human_windows(windows: list) -> tuple:
+    """Load human dosages from the per-chromosome 1KG high-coverage VCFs.
+
+    windows: list of (chrom, start, end). chrom may be "1", "chr1", or "chrX".
+    Uses tabix for fast region slicing — each per-chr VCF has a .tbi index.
+
+    Returns (dosages, vids, sample_ids) shaped consistent with the other
+    species loaders.
+    """
+    rows: list = []
+    vids: list = []
+    sample_ids: list | None = None
+    for chrom, start, end in windows:
+        # Normalise: VCF files are named ...chr{N}..., region query uses "chrN"
+        cn = str(chrom).replace("chr", "")
+        vcf_path = (REPO_ROOT / "tests" / "data" / "human" / "1kGP_3202"
+                    / f"1kGP_high_coverage_Illumina.chr{cn}."
+                    f"filtered.SNV_INDEL_SV_phased_panel.vcf.gz")
+        if not vcf_path.exists():
+            print(f"      ⚠ human VCF missing for chr{cn}: {vcf_path.name}")
+            continue
+        vcf = VCF(str(vcf_path))
+        if sample_ids is None:
+            sample_ids = list(vcf.samples)
+        # 1KG VCFs use "chr1", "chr2", ... contig names
+        region_chrom = f"chr{cn}"
+        try:
+            iterator = vcf(f"{region_chrom}:{start}-{end}")
+        except Exception:
+            # Some VCFs may use bare "1" — fall back
+            iterator = vcf(f"{cn}:{start}-{end}")
+        for record in iterator:
+            if not record.is_snp or len(record.ALT) != 1:
+                continue
+            g = record.gt_types
+            d = np.where(g == 3, np.nan, g).astype(np.float64)
+            af = np.nanmean(d) / 2.0
+            maf = min(af, 1.0 - af)
+            if maf < 0.05:
+                continue
+            rows.append(d)
+            # Cache vids use "chr1:pos:REF:ALT" — match that
+            vids.append(f"chr{cn}:{record.POS}:{record.REF}:{record.ALT[0]}")
+        vcf.close()
+    if not rows:
+        return None, [], sample_ids or []
+    dosages = np.column_stack(rows)
+    return dosages, vids, sample_ids
+
+
 def load_yeast_windows(windows: list) -> tuple:
     """Load yeast dosages for given windows (chrom in 'chromosome9' form)."""
     vcf_path = REPO_ROOT / "tests" / "data" / "yeast" / "1011_snps_maf05.vcf.gz"
@@ -238,8 +298,17 @@ def compute_rwr_matrix_ppi(cache: dict,
                             annotated_vids: list,
                             seed_indices: list,
                             alpha: float = 0.15,
-                            n_iter: int = 30) -> tuple:
-    """Bipartite RWR with var→gene→gene'→var transition (PPI-bridged)."""
+                            n_iter: int = 30,
+                            weighted_edges_path: Path | None = None) -> tuple:
+    """Bipartite RWR with var→gene→gene'→var transition (PPI-bridged).
+
+    If `weighted_edges_path` is provided (TSV in graphgwas.weighted_substrate
+    format), the gene-gene transition matrix G is augmented with those
+    weighted edges using max-pool: each gene-pair gets the MAX of
+    (binary STRING edge from cache.ppi) and (any weighted source from
+    the file). Used for the §Y.7 binary-vs-weighted A/B comparison on
+    human (with Billmann qGI + DepMap ED in the TSV).
+    """
     A, cache_var_ids, gene_ids = _bipartite_from_dict(cache, annotated_vids)
     n_var, n_gene = A.shape
     var_deg = A.sum(axis=1, keepdims=True).clip(min=1e-12)
@@ -262,6 +331,24 @@ def compute_rwr_matrix_ppi(cache: dict,
                 ib = gene_to_idx[gb]
                 G[ia, ib] = 1.0
                 G[ib, ia] = 1.0
+
+    n_weighted_added = 0
+    if weighted_edges_path is not None and Path(weighted_edges_path).exists():
+        from graphgwas.weighted_substrate import load_weighted_edges
+        wedges = load_weighted_edges(weighted_edges_path)
+        for (g_a, g_b), src_to_w in wedges.items():
+            if g_a not in gene_to_idx or g_b not in gene_to_idx:
+                continue
+            ia, ib = gene_to_idx[g_a], gene_to_idx[g_b]
+            w = max(src_to_w.values())
+            new_w = max(G[ia, ib], w)
+            if new_w > G[ia, ib]:
+                G[ia, ib] = new_w
+                G[ib, ia] = new_w
+                n_weighted_added += 1
+        print(f"      weighted-substrate: loaded {len(wedges):,} edges, "
+              f"{n_weighted_added:,} added to G beyond binary STRING")
+
     G_row = G.sum(axis=1, keepdims=True).clip(min=1e-12)
     P_gg = G / G_row
     M_vv = P_vg @ P_gg @ P_gv
@@ -278,14 +365,20 @@ def compute_rwr_matrix_ppi(cache: dict,
 
 
 def run_m5_star(cache, annotated_vids, g1_seeds, g2_seeds,
-                 dosages, variant_ids, phenotype, mac_min: int = 10) -> dict:
-    """M5★ = PPI-bridge + focused seeds; rank g1×g2 cross-pairs by interaction p."""
+                 dosages, variant_ids, phenotype, mac_min: int = 10,
+                 weighted_edges_path: Path | None = None) -> dict:
+    """M5★ = PPI-bridge + focused seeds; rank g1×g2 cross-pairs by interaction p.
+
+    If `weighted_edges_path` is provided, the gene-gene transition matrix is
+    augmented with weighted edges (Billmann qGI + DepMap ED for human).
+    """
     seed_indices = sorted(set(g1_seeds + g2_seeds))
     if not g1_seeds or not g2_seeds:
         return {"n_tested": 0, "ground_truth_rank": None,
                 "ground_truth_p": None}
     P, A, cache_var_ids = compute_rwr_matrix_ppi(
         cache, annotated_vids, seed_indices, alpha=0.15, n_iter=30,
+        weighted_edges_path=weighted_edges_path,
     )
     seed_arr = np.asarray(seed_indices)
     P_seed = P[seed_arr, :]
@@ -395,22 +488,61 @@ def normalise_chrom_for_load(species: str, chrom: str) -> str:
     if species == "rice":
         # Cache uses "Chr6", pgen uses "Chr6" or "6" — return without prefix for windowing
         return chrom.replace("Chr", "")
+    if species == "human":
+        # Cache + VCF both use "chr1", "chrX", etc. Pass through unchanged.
+        return chrom if chrom.startswith("chr") else f"chr{chrom}"
     return chrom
 
 
 def gene_id_field(species: str) -> str:
     """Catalogue stores gene IDs under different keys per species."""
     return {"yeast": "systematic", "arabidopsis": "agi",
-             "rice": "locus", "human": "ensembl"}[species]
+             "rice": "locus", "human": "hgnc"}[species]
 
 
-def run_pair(species: str, pair: dict, gene_index: dict) -> dict:
+# HGNC alias mapping for catalogue symbols that don't directly match the
+# human cache (which was built using a slightly different HGNC release).
+HUMAN_HGNC_ALIASES: dict[str, str] = {
+    "ATP5A1":   "ATP5F1A",   # renamed in HGNC 2017 update
+    "ATP5B":    "ATP5F1B",
+    "C12orf66": "KICS2",     # KICSTOR complex member, renamed
+    "C16orf62": "VPS35L",    # CCC complex member, renamed
+    "FAM175A":  "ABRAXAS1",  # BRCA1 A complex, renamed
+    "PHB":      "PHB1",
+    # KIR3DS1 — HLA region complexity; leave unmapped for now (1 catalogue pair)
+}
+
+
+def resolve_human_gene_id(raw_id: str, gene_index: dict) -> str | None:
+    """Return the cache-resolvable HGNC symbol for a catalogue HGNC, or None."""
+    if raw_id in gene_index:
+        return raw_id
+    alias = HUMAN_HGNC_ALIASES.get(raw_id)
+    if alias and alias in gene_index:
+        return alias
+    return None
+
+
+def run_pair(species: str, pair: dict, gene_index: dict,
+              weighted_edges_path: Path | None = None) -> dict:
     pair_id = pair.get("id", f"{pair['gene_1'].get('standard','?')}_{pair['gene_2'].get('standard','?')}")
     id_field = gene_id_field(species)
-    g1_sys = pair["gene_1"][id_field]
-    g2_sys = pair["gene_2"][id_field]
-    g1_sym = pair["gene_1"].get("standard") or pair["gene_1"].get("symbol", g1_sys)
-    g2_sym = pair["gene_2"].get("standard") or pair["gene_2"].get("symbol", g2_sys)
+    g1_raw = pair["gene_1"][id_field]
+    g2_raw = pair["gene_2"][id_field]
+    g1_sym = pair["gene_1"].get("standard") or pair["gene_1"].get("hgnc") or g1_raw
+    g2_sym = pair["gene_2"].get("standard") or pair["gene_2"].get("hgnc") or g2_raw
+
+    # For human, resolve the raw catalogue HGNC against the cache via
+    # the alias table (HGNC drift between catalogue source and cache).
+    if species == "human":
+        g1_sys = resolve_human_gene_id(g1_raw, gene_index)
+        g2_sys = resolve_human_gene_id(g2_raw, gene_index)
+        if g1_sys != g1_raw and g1_sys is not None:
+            print(f"  HGNC alias: {g1_raw} → {g1_sys}")
+        if g2_sys != g2_raw and g2_sys is not None:
+            print(f"  HGNC alias: {g2_raw} → {g2_sys}")
+    else:
+        g1_sys, g2_sys = g1_raw, g2_raw
 
     print(f"\n--- {species} {pair_id} ({g1_sym}×{g2_sym}) ---")
     base = {
@@ -420,6 +552,12 @@ def run_pair(species: str, pair: dict, gene_index: dict) -> dict:
         "is_anchor": bool(pair.get("anchor")),
         "panel_natural_variation_claimed": pair.get("panel_natural_variation"),
     }
+
+    if g1_sys is None or g2_sys is None:
+        print(f"  UNTESTABLE: catalogue HGNC unresolvable to cache "
+              f"(g1='{g1_raw}'→{g1_sys}, g2='{g2_raw}'→{g2_sys})")
+        return {**base, "status": "UNTESTABLE_HGNC_NOT_RESOLVABLE",
+                "g1_raw": g1_raw, "g2_raw": g2_raw}
 
     w1 = discover_window(gene_index, g1_sys)
     w2 = discover_window(gene_index, g2_sys)
@@ -434,17 +572,28 @@ def run_pair(species: str, pair: dict, gene_index: dict) -> dict:
     chrom_load_2 = normalise_chrom_for_load(species, w2[0])
     windows = [(chrom_load_1, w1[1], w1[2]),
                (chrom_load_2, w2[1], w2[2])]
-    # Also load a small control window on chr1 (or another chrom not in g1/g2)
+    # Also load a small control window on a chromosome that is neither g1 nor g2
     if species == "arabidopsis":
         ctrl_chrom = "3" if chrom_load_1 != "3" and chrom_load_2 != "3" else "1"
         windows.append((ctrl_chrom, 1_000_000, 1_100_000))
     elif species == "rice":
         ctrl_chrom = "5" if chrom_load_1 != "5" and chrom_load_2 != "5" else "1"
         windows.append((ctrl_chrom, 1_000_000, 1_200_000))
+    elif species == "human":
+        # Human gene windows are larger (~few hundred kb after PAD); pad them
+        # up to ±100 kb beyond the discovered min/max for safety.
+        windows = [(c, max(0, s - 50_000), e + 50_000) for (c, s, e) in windows]
+        ctrl_chrom = ("chr18" if chrom_load_1 not in ("chr18",) and chrom_load_2 not in ("chr18",)
+                       else "chr21")
+        windows.append((ctrl_chrom, 10_000_000, 10_200_000))
     # For yeast keep two-window scope (it's small)
 
     # Load cache for the involved chromosomes
-    needed_chroms = list({w1[0].replace("Chr", ""), w2[0].replace("Chr", "")})
+    if species == "human":
+        # Strip "chr" prefix for the cache loader's filename builder
+        needed_chroms = list({w1[0].replace("chr", ""), w2[0].replace("chr", "")})
+    else:
+        needed_chroms = list({w1[0].replace("Chr", ""), w2[0].replace("Chr", "")})
     print(f"  loading cache for chroms: {needed_chroms}")
     t0 = time.time()
     cache = load_species_cache_for_chroms(species, needed_chroms)
@@ -470,6 +619,8 @@ def run_pair(species: str, pair: dict, gene_index: dict) -> dict:
         dosages, variant_ids, sample_ids = load_rice_windows(windows)
     elif species == "yeast":
         dosages, variant_ids, sample_ids = load_yeast_windows(windows)
+    elif species == "human":
+        dosages, variant_ids, sample_ids = load_human_windows(windows)
     else:
         dosages = None
     if dosages is None or dosages.shape[1] == 0:
@@ -541,7 +692,8 @@ def run_pair(species: str, pair: dict, gene_index: dict) -> dict:
     t0 = time.time()
     try:
         m5_res = run_m5_star(cache, annotated_vids, g1_seeds, g2_seeds,
-                              dosages, variant_ids, phenotype, mac_min=10)
+                              dosages, variant_ids, phenotype, mac_min=10,
+                              weighted_edges_path=weighted_edges_path)
     except Exception as e:
         m5_res = {"error": str(e), "trace": traceback.format_exc()}
     print(f"      M5★: rank={m5_res.get('ground_truth_rank')}/{m5_res.get('n_tested')} "
@@ -571,17 +723,25 @@ def run_pair(species: str, pair: dict, gene_index: dict) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
-    parser.add_argument("--species", choices=["yeast", "arabidopsis", "rice", "all"],
+    parser.add_argument("--species",
+                        choices=["yeast", "arabidopsis", "rice", "human", "all"],
                         default="all")
     parser.add_argument("--max-pairs", type=int, default=None,
                         help="cap number of pairs per species (debug)")
+    parser.add_argument("--substrate", choices=["binary", "weighted"],
+                        default="binary",
+                        help="binary: cache.ppi (STRING) only; weighted: also "
+                             "augment with data/weighted_edges/<species>.tsv "
+                             "(Billmann qGI + DepMap ED for human).")
+    parser.add_argument("--output-suffix", default="",
+                        help="appended to results JSON filename, e.g. '_weighted'")
     args = parser.parse_args()
 
     catalogue = json.loads(CATALOGUE.read_text())
     gene_index_full = json.loads(GENE_INDEX.read_text())["species"]
 
-    species_list = ["yeast", "arabidopsis", "rice"] if args.species == "all" \
-                    else [args.species]
+    species_list = (["yeast", "arabidopsis", "rice", "human"]
+                    if args.species == "all" else [args.species])
 
     all_results: dict = {}
     for sp in species_list:
@@ -590,10 +750,20 @@ def main() -> None:
         if args.max_pairs:
             pairs = pairs[:args.max_pairs]
         gene_index = gene_index_full.get(sp, {})
+        # Resolve weighted-edges path if requested
+        wpath = None
+        if args.substrate == "weighted":
+            cand = REPO_ROOT / "data" / "weighted_edges" / f"{sp}.tsv"
+            if cand.exists():
+                wpath = cand
+                print(f"  [substrate=weighted] using {cand.name}")
+            else:
+                print(f"  [substrate=weighted] no edges file for {sp}, "
+                      f"falling back to binary")
         sp_results: list = []
         for p in pairs:
             try:
-                r = run_pair(sp, p, gene_index)
+                r = run_pair(sp, p, gene_index, weighted_edges_path=wpath)
             except Exception as e:
                 r = {"pair_id": p.get("id", "?"), "status": "RUNNER_ERROR",
                      "error": str(e), "trace": traceback.format_exc()}
@@ -630,9 +800,12 @@ def main() -> None:
             else:
                 print(f"    {anchor} {pid:<35}  {status}")
 
-    RESULTS_OUT.parent.mkdir(parents=True, exist_ok=True)
-    RESULTS_OUT.write_text(json.dumps(all_results, indent=2))
-    print(f"\n  Wrote {RESULTS_OUT}")
+    out = RESULTS_OUT
+    if args.output_suffix:
+        out = out.with_name(out.stem + args.output_suffix + out.suffix)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(all_results, indent=2))
+    print(f"\n  Wrote {out}")
 
 
 if __name__ == "__main__":
