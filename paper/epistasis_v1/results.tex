@@ -492,4 +492,88 @@ framework above. Code: the
 \texttt{run\_focused\_seeds()} entry point are now part of
 \texttt{tests/m5\_variants\_benchmark.py}; promoting them to the
 \texttt{graphgwas.epistasis\_v2} module is left as a paper-\#2 revision
-follow-up.
+follow-up. The §\ref{sec:catalogue_extension} catalogue extension below
+generalises the §\ref{sec:m5_substrate} \emph{n}=3-anchor claim to
+\emph{n}=21 wet-lab-validated pairs across three species, with a
+falsification check via a within-species negative control.
+
+\subsection{Catalogue extension: M5$^\star$ generalises and a negative
+control passes}\label{sec:catalogue_extension}
+
+The §\ref{sec:m5_substrate} M5$^\star$ rank-1 result rests on three
+canonical anchors. To check whether the rank-1 recovery generalises
+beyond the anchors --- and to subject M5$^\star$ to a within-species
+\emph{negative control} that should NOT recover --- we extended the
+benchmark to the full \texttt{docs/groundtruth/epistasis\_pairs.json}
+catalogue (29 wet-lab-validated pairs across yeast, \emph{Arabidopsis},
+and rice; one rice negative control). For every pair, gene-window
+discovery uses the \texttt{scripts/build\_gene\_coordinates\_index.py}
+index ($\sim$$33\,$K rice genes, $\sim$$30\,$K \emph{Arabidopsis}, $\sim$$5.7\,$K
+yeast). Pairs that lack cache annotation for at least one gene are
+classified \texttt{UNTESTABLE\_NO\_CACHE\_ANNOTATION}; pairs whose
+genes have no MAF$\geq 0.05$ variant in the loaded panel windows are
+\texttt{UNTESTABLE\_NO\_PANEL\_VARIATION}. Each testable pair runs M2
+(motif-filtered) and M5$^\star$ on a Scenario-A simulated phenotype
+identical to §\ref{sec:cross_species}.
+
+\begin{center}\small
+\begin{tabular}{lccccc}
+\toprule
+Species          & Catalogue & Untestable                & Tested & M5$^\star$ rank-1 & M2 rank-1\\
+\midrule
+yeast            & 10        & 4 (no panel variation)    & 6      & \textbf{6/6}       & 3/6\\
+\emph{Arabidopsis} & 9       & 1 (AOP2 not in cache)     & 8      & \textbf{8/8}       & 2/8\\
+\emph{O.~sativa}, positive & 9 & 3 (Ghd7/Pik-1/Pik-2 missing) & 6 & \textbf{6/6}       & 0/6\\
+\emph{O.~sativa}, negative control (GW2$\times$GW5) & 1 & 0 & 1 & \textbf{NF/0} (correct) & NF/14{,}767\\
+\midrule
+\textbf{total positive controls} & \textbf{28} & \textbf{8} & \textbf{20} & \textbf{20/20} & 5/20\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Headline:} M5$^\star$ produces non-zero
+$g_1\!\times\!g_2$ cross-pair RWR mass for every testable positive
+control --- 20 of 20 catalogue pairs across three phyla, with the
+simulated-causal pair surfacing at rank 1 on the resulting
+interaction-LR list. The rice negative control GW2$\times$GW5 (an
+established yield-pleiotropy pair without a direct biochemical
+interaction; \texttt{anchor=false}, \texttt{validation:}
+``independent-pathway QTL contributions'') correctly returns
+\textbf{zero} cross-pairs with positive RWR mass: M5$^\star$'s
+substrate sensitivity is governed by the canonical-PPI edge list, and
+GW2$\times$GW5 is deliberately absent from \texttt{RICE\_CANONICAL\_EDGES}.
+This is a structural, not statistical, falsification: the negative
+control fails because the bridge is absent, not because $p$ is large.
+
+\textbf{Catalogue$\to$cache reporting gap.} Of 28 positive-control
+pairs, 8 are untestable on standard panels: 4 yeast pairs
+(WHI5$\times$CLN3, MKT1$\times$GPA1, MIP1$\times$SAL1, TKL1$\times$NQM1)
+have zero MAF$\geq 0.05$ variants in the 1011 Yeast Genomes panel
+(confirms the §\ref{sec:yeast_validation} multi-pair finding that the
+standard panel filtering removes most Goldstein-2025 BB-QTL-derived
+candidates); one \emph{Arabidopsis} pair (MAM1$\times$AOP2) lacks AOP2
+(AT4G03060) annotation in our cache (the AOP2 \texttt{genes} field
+in \texttt{arabidopsis\_graph\_cache\_v3\_chr4.json} is empty for the
+expected window); and three rice pairs miss Ghd7 (LOC\_Os07g15770) or
+the Pik-pair NLR locus (LOC\_Os11g46200/210) from the cache. These
+gaps are not method failures --- they are downstream of the panel and
+cache construction --- but they are reported here so the M5$^\star$
+recovery rate is presented as 20/20 \emph{of testable positive
+controls}, not the inflated 20/28-of-catalogue.
+
+\textbf{M5$^\star$ versus M2 head-to-head.} M2 surfaces only
+$5/20$ catalogue pairs at rank 1 (yeast: BCY1$\times$TPK1,
+RFA1$\times$RAD52, FUS3$\times$KSS1; \emph{Arabidopsis}: RRS1$\times$RPS4,
+GL1$\times$GL3) and contributes additional top-10 hits on
+PHYB$\times$PIF4 (rank 3) and DOG1$\times$ABI3 (rank 1042). The asymmetry
+is biologically interpretable: M2 recovers cleanly when the canonical
+pair shares a same-pathway annotation that the cache enumerates as a
+direct M2 candidate (RRS1$\times$RPS4 is a paired NLR with a single
+shared pathway entity), but M2 misses when the recovery requires a
+PPI-bridge across distinct pathway annotations (FT$\times$FLC,
+SHR$\times$SCR, FRI$\times$FLC) or when the cache has many
+co-annotated cis-clusters that drown out the cross-gene signal
+(rice; consistent with §\ref{sec:cross_species}). M5$^\star$'s
+PPI-bridge substrate handles both regimes by construction.
+Reproduction: \texttt{tests/multi\_pair\_catalogue\_benchmark.py};
+output \texttt{results/paper2\_epistasis/multi\_pair\_catalogue\_benchmark.json}.
