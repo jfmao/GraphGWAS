@@ -533,18 +533,22 @@ def _bipartite_from_dict(cache: dict,
                          variant_ids_to_keep: list) -> tuple:
     """Helper: build_bipartite_adjacency reads from JSON path; we already
     have the cache loaded as a dict, so we duplicate the logic here.
+
+    Returns (A, variant_ids_out, gene_ids) where variant_ids_out preserves
+    the order of ``variant_ids_to_keep`` (filtered to those present in
+    cache). Callers that build seed-index lists against
+    ``variant_ids_to_keep`` (e.g. M5 in validate_epistasis_cross_species
+    and m5_variants_benchmark) depend on this alignment.
     """
-    keep = set(variant_ids_to_keep)
-    cache_subset = {k: v for k, v in cache.items() if k in keep}
+    variant_ids_out = [v for v in variant_ids_to_keep if v in cache]
     gene_set: set = set()
-    for entry in cache_subset.values():
-        gene_set.update(entry.get("genes", []))
+    for vid in variant_ids_out:
+        gene_set.update(cache[vid].get("genes", []))
     gene_ids = sorted(gene_set)
     gene_to_col = {g: i for i, g in enumerate(gene_ids)}
-    variant_ids_out = list(cache_subset.keys())
     A = np.zeros((len(variant_ids_out), len(gene_ids)), dtype=np.float64)
     for vi, vid in enumerate(variant_ids_out):
-        for gene in cache_subset[vid].get("genes", []):
+        for gene in cache[vid].get("genes", []):
             A[vi, gene_to_col[gene]] = 1.0
     return A, variant_ids_out, gene_ids
 

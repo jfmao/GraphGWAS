@@ -358,16 +358,19 @@ and motif sets are identical to §\ref{sec:yeast_validation}
 (Scenario~A; same\_gene$\,+\,$same\_pathway$\,+\,$protein\_interaction).
 
 \begin{center}\small
-\begin{tabular}{llccccc}
+\begin{tabular}{llcccccc}
 \toprule
-Species & Pair & M1 & M2 & M3 & M4 & M5\\
+Species & Pair & M1 & M2 & M3 & M4 & M5 & M5$^\star$\\
 \midrule
-\emph{Sacch.\ cerevisiae} & BCY1$\times$TPK1   & NF & \textbf{1{,}148} ($q{=}1.7\!\times\!10^{-5}$) & NF & NF & NF\\
-\emph{Arabidopsis}        & FT$\times$FLC      & NF & \textbf{3} ($q{=}2.3\!\times\!10^{-2}$, PPI) & NF & NF & NF\\
-\emph{Oryza sativa}       & Hd1$\times$Hd3a    & \textbf{32} ($q{=}6.5\!\times\!10^{-287}$) & 19{,}057 (PPI, $q{\to}0$) & 2{,}405 ($q{=}3.6\!\times\!10^{-6}$) & sk. & NF\\
+\emph{Sacch.\ cerevisiae} & BCY1$\times$TPK1   & NF & \textbf{1{,}148} ($q{=}1.7\!\times\!10^{-5}$) & NF & NF & NF & \textbf{1}/10 ($q{=}1.8\!\times\!10^{-9}$)\\
+\emph{Arabidopsis}        & FT$\times$FLC      & NF & \textbf{3} ($q{=}2.3\!\times\!10^{-2}$, PPI) & NF & NF & NF & \textbf{1}/14{,}924 ($q{\to}0$)\\
+\emph{Oryza sativa}       & Hd1$\times$Hd3a    & \textbf{32} ($q{=}6.5\!\times\!10^{-287}$) & 19{,}057 (PPI, $q{\to}0$) & 2{,}405 ($q{=}3.6\!\times\!10^{-6}$) & sk. & NF & \textbf{1}/25{,}608 ($q{\to}0$)\\
 \bottomrule
 \end{tabular}
 \end{center}
+
+\noindent {\small M5 = original variant-priority RWR with 2{,}000-pair cap;
+M5$^\star$ = PPI-bridged substrate $+$ focused seeds (§\ref{sec:m5_substrate}).}
 
 \paragraph{No method dominates across species.}
 \emph{Arabidopsis} extends the yeast pattern: M2 ranks
@@ -415,3 +418,78 @@ best-of-three rank with method-attribution. The five-method runtime on
 the rice panel (M1$\,+\,$M2$\,+\,$M3$\,+\,$M5, no M4) is $\sim 90\,$s on
 a single CPU --- comparable in cost to a single REGENIE step-2 pass,
 and naturally parallelisable across pairs.
+
+\subsection{M5 RWR substrate rescue: the failure was structural, not parametric}\label{sec:m5_substrate}
+
+The §\ref{sec:cross_species} table reports M5 (variant-priority RWR) as
+NF for all three canonical pairs. We pursued this failure
+mechanistically. The default substrate is a bipartite (variant
+$\leftrightarrow$ annotated-gene) adjacency, on which the variant-variant
+transition matrix is $M_{vv} = P_{vg}P_{gv}$ (the 2-step
+variant$\to$gene$\to$variant walk). Because the canonical-PPI annotations
+live in the cache's \texttt{ppi} field rather than its \texttt{genes}
+field, this substrate IS BLIND to PPI edges: variants annotated to BCY1
+can only reach variants annotated to TPK1 if the two genes share a
+common annotated entity (e.g.\ a multi-gene pathway), and on the panel
+caches no such bridge exists. The walk is therefore structurally
+trapped within the BCY1 connected component and never visits TPK1
+variants --- no amount of cap-raising or hub deflation can rescue what
+random-walk mass never reaches.
+
+We benchmarked four orthogonal remediations on top of the default
+2{,}000-pair mutual-RWR scoring (script
+\texttt{tests/m5\_variants\_benchmark.py}; output
+\texttt{results/paper2\_epistasis/m5\_variants\_benchmark.json}):
+(A)~raise the cap to top-$50{,}000$ pairs; (B)~hub-deflated scoring
+$\mathrm{score}(i,j) = (P_{ij}{+}P_{ji})/(d_i d_j)$ with $d_i$ the
+variant's annotated-gene degree; (C)~focused seeds (RWR seeded only on
+$g_1\cup g_2$ variants, scoring the $g_1\!\times\!g_2$ cross-pairs only);
+(D)~PPI-augmented substrate (extend $M_{vv}$ to $P_{vg}P_{gg}P_{gv}$
+where $P_{gg}$ is row-normalised
+$I + \mathbf 1[(g_a,g_b)\in\mathrm{PPI}]$); (E)~the combination of (C)+(D).
+
+\begin{center}\small
+\begin{tabular}{lcccccc}
+\toprule
+Mode                                 & yeast    & arabi.   & rice    \\
+\midrule
+0 baseline (top-$2{,}000$, mutual)   & NF/1{,}975 & NF/1{,}994 & NF/2{,}000\\
+A high-cap (top-$50{,}000$)          & NF/20{,}036 & NF/49{,}994 & NF/49{,}782\\
+B hub-deflated (top-$2{,}000$)       & NF/1{,}977 & NF/1{,}994 & NF/2{,}000\\
+C focused seeds (no PPI bridge)      & NF/0     & NF/0     & NF/0    \\
+D PPI bridge $+$ unfocused seeds     & NF/1{,}996 & NF/1{,}994 & NF/2{,}000\\
+\textbf{E PPI bridge $+$ focused seeds} & \textbf{1/10} & \textbf{1/14{,}924} & \textbf{1/25{,}608}\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Mode~E recovers the canonical pair at \textbf{rank~1} for all three
+species (yeast: $p=1.76\!\times\!10^{-10}$, $q=1.76\!\times\!10^{-9}$;
+\emph{Arabidopsis} and rice: $p\to 0$ under LR underflow). The Mode~C
+counts of zero are the smoking gun: with the default substrate, the
+$g_1\!\times\!g_2$ cross-pairs receive \emph{exactly zero} mutual RWR
+mass --- the walks from $g_1$ seeds never visit $g_2$ variants, so the
+cross-pair score is identically zero for every cross-pair. The Mode~D
+unfocused result also fails because the PPI-bridged mass is then
+diluted across all $\sim 8{,}000$ annotated variants as competing
+seeds; only with focused seeding (Mode~E) does the mass
+concentrate on the small $g_1\cup g_2$ subspace where the bridge
+matters. The fix is therefore \emph{joint}: substrate AND seed
+restriction, not either alone.
+
+\paragraph{Two corollaries.}
+First, the §\ref{sec:higher_order} gene-priority RWR rescue is now
+seen as one instance of a more general substrate critique --- the
+variant-priority M5 fails because its bipartite substrate omits the
+PPI bridge that gene-priority RWR explicitly built into its gene-gene
+heterograph. Second, the M5$^\star$ workflow is naturally a
+\emph{two-stage refinement}: a coarse selector (M2 motif filtering, or
+the §\ref{sec:higher_order} gene-priority RWR) hands a candidate gene
+pair $(g_1,g_2)$ to M5$^\star$, which then finds the best variant-pair
+representative. This composes cleanly into the method-arbitration
+framework above. Code: the
+\texttt{compute\_rwr\_matrix(\dots,~use\_ppi\_bridge=True)} kernel and
+\texttt{run\_focused\_seeds()} entry point are now part of
+\texttt{tests/m5\_variants\_benchmark.py}; promoting them to the
+\texttt{graphgwas.epistasis\_v2} module is left as a paper-\#2 revision
+follow-up.
