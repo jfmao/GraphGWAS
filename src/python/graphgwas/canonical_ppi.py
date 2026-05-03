@@ -71,6 +71,57 @@ YEAST_CANONICAL_EDGES: list[tuple[str, str]] = [
 ]
 
 
+ARABIDOPSIS_CANONICAL_EDGES: list[tuple[str, str]] = [
+    # Flowering-time module
+    ("AT1G65480", "AT5G10140"),  # FT-FLC (anchor; FLC represses FT)
+    ("AT4G00650", "AT5G10140"),  # FRI-FLC (FRI activates FLC chromatin)
+    ("AT1G65480", "AT4G20370"),  # FT-TSF (paralog florigens; double mutant)
+    # Plant immunity
+    ("AT5G45260", "AT5G45250"),  # RRS1-RPS4 (paired NLR, obligate heterodimer)
+    # Root patterning
+    ("AT3G54810", "AT3G54220"),  # SHR-SCR (SHR moves into endodermis, SCR sequesters)
+    # Trichome MBW complex
+    ("AT5G66320", "AT5G41315"),  # GL1-GL3
+    ("AT5G66320", "AT5G24520"),  # GL1-TTG1
+    ("AT5G41315", "AT5G24520"),  # GL3-TTG1
+    # Light/temperature
+    ("AT2G18790", "AT2G43010"),  # PHYB-PIF4 (phyB binds and degrades PIF4)
+    # Brassinosteroid co-receptor
+    ("AT4G39400", "AT4G33430"),  # BRI1-BAK1
+    # Seed dormancy
+    ("AT5G45830", "AT3G24650"),  # DOG1-ABI3
+]
+
+
+RICE_CANONICAL_EDGES: list[tuple[str, str]] = [
+    # Flowering-time module
+    ("LOC_Os06g16370", "LOC_Os06g06320"),  # Hd1-Hd3a (anchor)
+    ("LOC_Os06g16370", "LOC_Os07g15770"),  # Hd1-Ghd7
+    ("LOC_Os06g16370", "LOC_Os08g07740"),  # Hd1-DTH8
+    ("LOC_Os07g15770", "LOC_Os08g07740"),  # Ghd7-DTH8
+    ("LOC_Os10g32600", "LOC_Os06g06320"),  # Ehd1-Hd3a
+    ("LOC_Os10g32600", "LOC_Os06g06300"),  # Ehd1-RFT1
+    # Grain quality × yield
+    ("LOC_Os08g41940", "LOC_Os07g41200"),  # GW8-GW7 (OsSPL16 directly represses)
+    ("LOC_Os03g44500", "LOC_Os01g66030"),  # GS3-Gn1a
+    ("LOC_Os03g44500", "LOC_Os08g39890"),  # GS3-IPA1/SPL14
+    # Paired NLRs (rice blast)
+    ("LOC_Os11g46200", "LOC_Os11g46210"),  # Pik-1 / Pik-2
+    ("LOC_Os11g11790", "LOC_Os11g11770"),  # RGA5 / RGA4 (Pia-2 / Pia-1)
+    # Tillering
+    ("LOC_Os01g11410", "LOC_Os03g49880"),  # OsMADS57-OsTB1/FC1
+    # Submergence (suppressive)
+    ("LOC_Os09g11460", "LOC_Os09g11480"),  # SUB1A-SUB1C
+]
+
+
+CANONICAL_EDGES_BY_SPECIES: dict[str, list[tuple[str, str]]] = {
+    "yeast": YEAST_CANONICAL_EDGES,
+    "arabidopsis": ARABIDOPSIS_CANONICAL_EDGES,
+    "rice": RICE_CANONICAL_EDGES,
+}
+
+
 # ---------------------------------------------------------------------------
 # Cache PPI injection
 # ---------------------------------------------------------------------------

@@ -301,13 +301,13 @@ interaction. Two adjacency choices were compared:
 \textbf{Implication}: graph-priority RWR succeeds where variant-priority
 RWR fails, but only when the gene-gene graph carries the canonical
 biological edge. The recovery is rate-limited by gene-gene graph
-quality, not by the RWR machinery. Paper-#2 recommends explicit
+quality, not by the RWR machinery. Paper-\#2 recommends explicit
 graph-curation (BioGRID/STRING for PPI, KEGG/Reactome for pathways,
 SGD/GO for gene-ontology) as a pre-method workflow step rather than
 treating the cache as a fixed input.
 
 \paragraph{$k=3$ triplet detection on cAMP-PKA core.}
-The structurally-unique paper-#2 claim is that graph methods reach
+The structurally-unique paper-\#2 claim is that graph methods reach
 $k\geq 3$ interactions that pairwise BOOST/MAPIT/MDR cannot formulate.
 We test this on the canonical yeast cAMP-PKA holoenzyme:
 BCY1 (regulatory) $\times$ TPK1 (catalytic) $\times$ TPK3 (catalytic) — the
@@ -335,17 +335,83 @@ trio in the top 1\% of its tested set.
 This is, to our knowledge, the first real-data evidence that
 graph-priority RWR enables $k=3$ epistasis detection at biobank-scale
 tractability. M6 (GNN-attention) and M7 (persistent-homology) remain
-deferred for paper-#2 revision.
+deferred for paper-\#2 revision.
 
 \subsection{Cross-species replication}\label{sec:cross_species}
 
-[DEFERRED --- the cross-species runner
-(\texttt{tests/validate\_epistasis\_cross\_species.py}) is scaffolded to
-test FT$\times$FLC in \emph{Arabidopsis} 1001 Genomes and Hd1$\times$Hd3a in
-3{,}000 Rice Genomes under the same 5-method framework. A preliminary
-\emph{Arabidopsis} run produced an unexpected M3 (differential
-subgraph) recovery at gene-pair rank 1, while M2 missed -- the inverse
-of the yeast pattern. This is a paper-#2 revision target because it
-suggests species-specific best-method choices and motivates a
-meta-analysis layer that arbitrates across methods by ground-truth
-ranking. Full Arabidopsis $+$ rice run pending.]
+We tested whether the §\ref{sec:yeast_validation} M2-dominance result
+generalises by replaying the same five-method framework on two further
+canonical epistatic pairs: \emph{FT}$\times$\emph{FLC} (the
+flowering-time switch) in the \emph{Arabidopsis thaliana} 1001 Genomes
+panel ($n=1{,}135$), and \emph{Hd1}$\times$\emph{Hd3a} (the canonical
+heading-date pair) in the 3{,}000 Rice Genomes panel ($n=3{,}024$).
+Both pairs have direct biochemical evidence in the literature
+(Searle~et~al.\ 2006 \cite{searle2006}; Tamaki~et~al.\ 2007
+\cite{tamaki2007}), and both gain a canonical PPI edge from
+\texttt{graphgwas.canonical\_ppi} prior to scoring (8 of 11 curated
+\emph{Arabidopsis} edges and 5 of 13 curated rice edges land on
+in-panel variants; the remainder name genes outside the loaded
+chromosomes). MAF\,$\geq 0.05$ filtering retains $13{,}800$
+\emph{Arabidopsis} and $9{,}779$ rice variants in the gene
+$\pm 50\,$kb $+$ control windows. Phenotype simulation, recovery rules
+and motif sets are identical to §\ref{sec:yeast_validation}
+(Scenario~A; same\_gene$\,+\,$same\_pathway$\,+\,$protein\_interaction).
+
+\begin{center}\small
+\begin{tabular}{llccccc}
+\toprule
+Species & Pair & M1 & M2 & M3 & M4 & M5\\
+\midrule
+\emph{Sacch.\ cerevisiae} & BCY1$\times$TPK1   & NF & \textbf{1{,}148} ($q{=}1.7\!\times\!10^{-5}$) & NF & NF & NF\\
+\emph{Arabidopsis}        & FT$\times$FLC      & NF & \textbf{3} ($q{=}2.3\!\times\!10^{-2}$, PPI) & NF & NF & NF\\
+\emph{Oryza sativa}       & Hd1$\times$Hd3a    & \textbf{32} ($q{=}6.5\!\times\!10^{-287}$) & 19{,}057 (PPI, $q{\to}0$) & 2{,}405 ($q{=}3.6\!\times\!10^{-6}$) & sk. & NF\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{No method dominates across species.}
+\emph{Arabidopsis} extends the yeast pattern: M2 ranks
+FT$\times$FLC at \textbf{rank~3 of 13{,}980} pairs surveyed
+($q=2.3\!\times\!10^{-2}$, BH-FDR), and the recovery is attributed to
+the \texttt{protein\_interaction} motif --- the canonical FT--FLC edge
+that injection added to the \emph{Arabidopsis} cache (the
+unaugmented cache also lacks this edge, paralleling the yeast
+BCY1--TPK1 curation gap). Rice flips the order: \emph{the linear
+co-occurrence baseline M1 ranks Hd1$\times$Hd3a at rank~32 of
+$55{,}617$ tested pairs} ($q=6.5\!\times\!10^{-287}$, beta$=-1.86$),
+while M2 ranks the same pair at $19{,}057$ of $43{,}502$ --- M2's
+top hits are dominated by tightly LD-correlated same\_gene cis-pairs
+inside Hd3a (best pair Chr6:2921530$\times$Chr6:2923797 at
+$p=5.3\!\times\!10^{-34}$). M3's case-unique edges recover the rice
+pair at intermediate rank ($2{,}405/15{,}840$, $q=3.6\!\times\!10^{-6}$,
+\texttt{case\_unique} edge type), and M5 (variant-priority RWR) fails
+on all three species under its default 2{,}000-pair cap.
+
+\paragraph{Why the rice flip.}
+Three converging factors push M1 ahead on rice: (i) the panel size is
+$\sim$3$\times$ yeast/Arabidopsis ($n=3{,}024$ vs $1{,}011/1{,}135$),
+which gives the LR interaction test enough power to clear Bonferroni
+correction over the post-prune 600-variant pair grid; (ii) Hd1
+and Hd3a are both common (MAF~$0.48$ and $0.50$), so LD pruning keeps
+both representatives instead of replacing them with intergenic
+proxies; (iii) M2's enumerated pair count drops to 43{,}502 because
+the cache has many co-located variant clusters in Hd1/Hd3a regions
+(194 + 132 cache annotations across the loaded windows), which inflate
+\texttt{same\_gene} candidate density and allow within-gene cis-pairs
+to outrank the cross-gene canonical pair. The M2--PPI hit for
+Hd1$\times$Hd3a remains structurally detected ($q\!\to\!0$
+nominally) but is buried in M2's BH ranking by the cis-pair tail.
+
+\paragraph{Implication for the paper-\#2 framework.}
+Across three species and three orthogonal canonical pairs, no single
+graph-native method is uniformly best: \emph{S.~cerevisiae} and
+\emph{Arabidopsis} favour M2 (motif-filtered), rice favours M1
+(LD-pruned linear), and M3 contributes a complementary case-enriched
+signal in rice but not in the other two. This motivates a
+\emph{method-arbitration layer} (paper~\#2 §\ref{sec:discussion}):
+rather than committing to a single graph-native estimator, run
+M1$\,+\,$M2$\,+\,$M3 in parallel, and report each canonical pair at the
+best-of-three rank with method-attribution. The five-method runtime on
+the rice panel (M1$\,+\,$M2$\,+\,$M3$\,+\,$M5, no M4) is $\sim 90\,$s on
+a single CPU --- comparable in cost to a single REGENIE step-2 pass,
+and naturally parallelisable across pairs.
