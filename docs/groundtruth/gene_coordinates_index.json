@@ -165680,6 +165680,13 @@
      "n_variants": 45
     }
    },
+   "AT4G03060": {
+    "4": {
+     "pos_min": 1351688,
+     "pos_max": 1354096,
+     "n_variants": 171
+    }
+   },
    "AT5G01010": {
     "5": {
      "pos_min": 996,
@@ -365147,6 +365154,41 @@
      "n_variants": 31
     }
    },
+   "LOC_Os07g15770": {
+    "Chr7": {
+     "pos_min": 9147362,
+     "pos_max": 9160836,
+     "n_variants": 1490
+    }
+   },
+   "LOC_Os07g15760": {
+    "Chr7": {
+     "pos_min": 9147362,
+     "pos_max": 9152376,
+     "n_variants": 500
+    }
+   },
+   "LOC_Os07g15740": {
+    "Chr7": {
+     "pos_min": 9147362,
+     "pos_max": 9147479,
+     "n_variants": 20
+    }
+   },
+   "LOC_Os07g15750": {
+    "Chr7": {
+     "pos_min": 9147362,
+     "pos_max": 9148766,
+     "n_variants": 217
+    }
+   },
+   "LOC_Os07g15780": {
+    "Chr7": {
+     "pos_min": 9155192,
+     "pos_max": 9160836,
+     "n_variants": 849
+    }
+   },
    "LOC_Os08g01080": {
     "Chr8": {
      "pos_min": 58576,
@@ -421257,6 +421299,55 @@
      "pos_min": 29006862,
      "pos_max": 29019739,
      "n_variants": 1287
+    }
+   },
+   "LOC_Os11g46200": {
+    "Chr11": {
+     "pos_min": 27973482,
+     "pos_max": 27988596,
+     "n_variants": 1977
+    }
+   },
+   "LOC_Os11g46190": {
+    "Chr11": {
+     "pos_min": 27973482,
+     "pos_max": 27979829,
+     "n_variants": 675
+    }
+   },
+   "LOC_Os11g46180": {
+    "Chr11": {
+     "pos_min": 27973482,
+     "pos_max": 27975126,
+     "n_variants": 37
+    }
+   },
+   "LOC_Os11g46210": {
+    "Chr11": {
+     "pos_min": 27979697,
+     "pos_max": 27994133,
+     "n_variants": 2128
+    }
+   },
+   "LOC_Os11g46220": {
+    "Chr11": {
+     "pos_min": 27985522,
+     "pos_max": 27994133,
+     "n_variants": 1435
+    }
+   },
+   "LOC_Os11g46230": {
+    "Chr11": {
+     "pos_min": 27986739,
+     "pos_max": 27994133,
+     "n_variants": 1213
+    }
+   },
+   "LOC_Os11g46240": {
+    "Chr11": {
+     "pos_min": 27993372,
+     "pos_max": 27994133,
+     "n_variants": 65
     }
    },
    "LOC_Os12g01010": {

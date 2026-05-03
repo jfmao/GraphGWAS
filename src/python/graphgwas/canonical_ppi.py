@@ -90,6 +90,11 @@ ARABIDOPSIS_CANONICAL_EDGES: list[tuple[str, str]] = [
     ("AT4G39400", "AT4G33430"),  # BRI1-BAK1
     # Seed dormancy
     ("AT5G45830", "AT3G24650"),  # DOG1-ABI3
+    # Glucosinolate biosynthesis (epistatic on alkenyl-glucosinolate yield)
+    ("AT5G23010", "AT4G03060"),  # MAM1-AOP2 (GS-ELONG x GS-AOP); AOP2 is a
+                                  # COL-0 pseudogene but functional in Cvi —
+                                  # the natural-variation epistasis is documented
+                                  # in Kliebenstein et al. 2001/Wentzell et al. 2007.
 ]
 
 

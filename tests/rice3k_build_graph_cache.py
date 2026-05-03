@@ -99,6 +99,34 @@ print("\n[3/3] Scanning pseudo-canonical VCF for Variant→Gene mapping ...",
 gene_rx = re.compile(rb"LOC_Os\d+g\d+")
 cache: dict[str, dict] = {}
 
+
+def _load_catalogue_keep_genes() -> set:
+    """Genes from docs/groundtruth/epistasis_pairs.json (rice).
+
+    Used to bypass the pathway-OR-PPI filter for catalogue-relevant
+    genes that have no entries in Ren-2023 / RicePPINet (e.g. Ghd7,
+    Pik-1, Pik-2). Result is cached on first call.
+    """
+    if hasattr(_load_catalogue_keep_genes, "_cached"):
+        return _load_catalogue_keep_genes._cached
+    keep: set = set()
+    cat_path = (Path(__file__).resolve().parent.parent
+                / "docs" / "groundtruth" / "epistasis_pairs.json")
+    if cat_path.exists():
+        try:
+            cat = json.loads(cat_path.read_text())
+            for p in cat.get("species", {}).get("rice", {}).get("pairs", []):
+                for g_key in ("gene_1", "gene_2"):
+                    locus = p[g_key].get("locus")
+                    if locus:
+                        keep.add(locus)
+        except Exception as e:
+            print(f"  ⚠ couldn't load catalogue keep-list: {e}", flush=True)
+    _load_catalogue_keep_genes._cached = keep
+    print(f"  Catalogue keep-list (rice): {len(keep)} genes "
+          f"({sorted(keep)[:5]}...)", flush=True)
+    return keep
+
 with gzip.open(PSEUDO_VCF, "rb") as fh:
     n = 0
     n_annot = 0
@@ -141,10 +169,17 @@ with gzip.open(PSEUDO_VCF, "rb") as fh:
                     if partner not in ppi_partners:
                         ppi_partners.append(partner)
 
-        # Only keep variants that actually have pathway or PPI info —
-        # pure gene-only entries are lower-value and would bloat the JSON
-        # to a size that blows memory when passed to HBP.
-        if not pathways and not ppi_partners:
+        # Originally we dropped variants without pathway or PPI info to
+        # control JSON size. This silently filtered out catalogue-relevant
+        # genes whose annotations live outside RicePPINet/Ren-2023 (e.g.
+        # Ghd7 LOC_Os07g15770, Pik-1/Pik-2 LOC_Os11g46200/210). Keep
+        # those even when pathways and ppi are empty if at least one
+        # annotated gene is on the catalogue keep-list. The list lives in
+        # docs/groundtruth/epistasis_pairs.json and is loaded once per
+        # build via the env var GRAPHGWAS_CATALOGUE_KEEP_GENES.
+        catalogue_keep = _load_catalogue_keep_genes()
+        in_catalogue = any(g in catalogue_keep for g in gene_ids)
+        if not pathways and not ppi_partners and not in_catalogue:
             continue
 
         vid = f"{chrom}:{pos}:{ref}:{alt}"

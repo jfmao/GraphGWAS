@@ -50,7 +50,10 @@ def parse_gff_genes() -> dict[str, list[tuple[int, int, str]]]:
             if len(f) < 9: continue
             chrom_ncbi = f[0]
             if chrom_ncbi not in NCBI_TO_CHROM: continue
-            if f[2] != "gene": continue
+            # Allow `pseudogene` too — some catalogue genes (e.g. AT4G03060
+            # / AOP2) are marked pseudogene in COL-0 but functional in
+            # other ecotypes (Cvi). See scripts/patch_caches_for_missing_genes.py.
+            if f[2] not in ("gene", "pseudogene"): continue
             try:
                 start, end = int(f[3]), int(f[4])
             except ValueError:
