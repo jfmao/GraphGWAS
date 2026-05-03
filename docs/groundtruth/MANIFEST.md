@@ -17,7 +17,45 @@ Machine-readable schema: `data/groundtruth/epistasis_pairs.json`
 | Yeast       | BCY1×TPK1   | 9  | 5 (Goldstein 2025-confirmed) | 0 |
 | Arabidopsis | FT×FLC      | 8  | 6 (allelic in 1001G)         | 0 |
 | Rice        | Hd1×Hd3a    | 9  | 9 (3K RG haplotyped)         | 1 (GW2×GW5 — independent pathways) |
-| Human       | (none)      | 8  | 7 (varies in 1KG/UKBB)       | 0 |
+| Human       | FANCB×FANCC | 78 | 8 GWAS + 71 cellular (HAP1)  | 0 (negative controls TBD) |
+
+### Human catalogue extension (added 2026-05-03)
+
+The human arm now has **79 catalogue entries** in two distinct tier
+families. Compared to the original 8 GWAS/pharmacogenetic pairs, the
+new Billmann-derived entries capture *cellular* epistasis (combinatorial
+CRISPR in HAP1) rather than *population* epistasis (GWAS / drug-response
+heritability). Both modalities matter for paper #2's bias-rescue framing.
+
+The Billmann CORUM-derived entries were added by
+`scripts/curate_billmann_human_pairs.py`, which downloads File_S11.xlsx
+(71 nonredundant CORUM complexes × 15 biological-process regions) and
+File_S22.xlsx (HAP1+DepMap integrated AUPRC per CORUM complex) from
+the Billmann supplement
+(https://boonelab.ccbr.utoronto.ca/supplement/billmanncostanzo2026/).
+
+| Tier | Source | Count | Notes |
+|---|---|---|---|
+| `A_gwas_pharmacogenetic` | population GWAS / pharmacogenetics | 6 | HLA-B×ERAP1, TPMT×NUDT15, VKORC1×CYP2C9, HLA-B×KIR3DS1, BRCA1/2×PARP1, HFE compound-het |
+| `B_disease_modifier` | mechanistic + limited population replication | 2 | HLA-DQA1×DQB1, HLA-DR3×DR4 |
+| `A_billmann_corum_high` | HAP1 GI + DepMap (integrated AUPRC ≥ 0.5 OR both component AUPRCs ≥ 0.4) | 13 | COG (AUPRC 0.96), HAUS augmin (0.94), HOPS (0.90), Wave-2 (0.84), GARP (0.83), FA core (0.66; **anchor**), RAD51B-RAD51C-RAD51D-XRCC2-XRCC3 (0.62), Complex I mitochondria (0.56), CCC-Wash (0.56), KICSTOR (0.54), GAA1-GPI8 (0.51), SNAPc (0.50), Exocyst (0.47) |
+| `B_billmann_corum_supported` | HAP1 GI + DepMap evaluated, integrated AUPRC < 0.5 | 54 | All other nonredundant CORUM complexes |
+| `C_billmann_corum_only` | HAP1 GI evidence only, no DepMap eval | 4 | 4 nonredundant complexes outside DepMap eval set |
+
+**Human anchor**: FANCB × FANCC (FA core complex; integrated AUPRC = 0.656).
+Picked because the Fanconi anemia complex is clinically famous AND in
+the Billmann AUPRC top-15 for nonredundant complexes. Replaces the
+previous "(none)" anchor entry.
+
+**What's still missing for the human arm**:
+- Per-gene chromosome / Ensembl IDs (`gene_x.locus` is `null` for the
+  71 Billmann entries) — to be filled when the human cache is wired
+  (paper-#2 revision target).
+- Calibrated negative-control pool — easy to add by sampling
+  non-significant qGI pairs from File_S4.xlsx (160 MB; deferred).
+- Existing 8 human GWAS/pharmacogenetic pairs are unchanged in content
+  but re-tiered to `A_gwas_pharmacogenetic` / `B_disease_modifier` for
+  clarity vs. the Billmann tiers.
 
 ## Tier-A pairs by species (most reliably testable)
 

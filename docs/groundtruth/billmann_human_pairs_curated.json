@@ -1,0 +1,2864 @@
+[
+ {
+  "id": "human.billmann.Arp23_protein_complex",
+  "gene_1": {
+   "hgnc": "ACTR2",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "ACTR3",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"Arp2;3 protein complex\""
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"Arp2;3 protein complex\" (bioprocess: actin cytoskeleton); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "C_billmann_corum_only",
+  "billmann_evidence": {
+   "complex_name": "Arp2;3 protein complex",
+   "bioprocess_region": "actin cytoskeleton",
+   "n_complex_members": 5,
+   "all_complex_members": [
+    "ACTR2",
+    "ACTR3",
+    "ARPC2",
+    "ARPC3",
+    "ARPC4"
+   ],
+   "auprc_integrated": null,
+   "auprc_depmap": null,
+   "auprc_gi": null
+  }
+ },
+ {
+  "id": "human.billmann.CCC-Wash_WASH1_FAM21C_complex",
+  "gene_1": {
+   "hgnc": "C16orf62",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "CCDC22",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"CCC-Wash (WASH1, FAM21C) complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.558 (DepMap-only: 0.506; GI-only: 0.322)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"CCC-Wash (WASH1, FAM21C) complex\" (bioprocess: actin cytoskeleton); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "A_billmann_corum_high",
+  "billmann_evidence": {
+   "complex_name": "CCC-Wash (WASH1, FAM21C) complex",
+   "bioprocess_region": "actin cytoskeleton",
+   "n_complex_members": 12,
+   "all_complex_members": [
+    "C16orf62",
+    "CCDC22",
+    "CCDC93",
+    "COMMD10",
+    "COMMD2",
+    "COMMD3",
+    "COMMD4",
+    "COMMD5",
+    "COMMD6",
+    "COMMD7",
+    "COMMD8",
+    "COMMD9"
+   ],
+   "auprc_integrated": 0.5576,
+   "auprc_depmap": 0.5063,
+   "auprc_gi": 0.3222
+  }
+ },
+ {
+  "id": "human.billmann.CIN85_complex_CIN85_CRK_BCAR1_CBL_PIK3R1_GRB2_SOS1",
+  "gene_1": {
+   "hgnc": "BCAR1",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "CBL",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"CIN85 complex (CIN85, CRK, BCAR1, CBL, PIK3R1, GRB2, SOS1)\"",
+   "HAP1+DepMap integrated AUPRC = 0.013 (DepMap-only: 0.014; GI-only: 0.010)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"CIN85 complex (CIN85, CRK, BCAR1, CBL, PIK3R1, GRB2, SOS1)\" (bioprocess: actin cytoskeleton); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "CIN85 complex (CIN85, CRK, BCAR1, CBL, PIK3R1, GRB2, SOS1)",
+   "bioprocess_region": "actin cytoskeleton",
+   "n_complex_members": 5,
+   "all_complex_members": [
+    "BCAR1",
+    "CBL",
+    "CRK",
+    "PIK3R1",
+    "SOS1"
+   ],
+   "auprc_integrated": 0.0129,
+   "auprc_depmap": 0.0143,
+   "auprc_gi": 0.0097
+  }
+ },
+ {
+  "id": "human.billmann.CRKL-PDGFRA-CRK-RAPGEF1_complex",
+  "gene_1": {
+   "hgnc": "CRKL",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "RAPGEF1",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"CRKL-PDGFRA-CRK-RAPGEF1 complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.038 (DepMap-only: 0.039; GI-only: 0.004)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"CRKL-PDGFRA-CRK-RAPGEF1 complex\" (bioprocess: actin cytoskeleton); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "CRKL-PDGFRA-CRK-RAPGEF1 complex",
+   "bioprocess_region": "actin cytoskeleton",
+   "n_complex_members": 2,
+   "all_complex_members": [
+    "CRKL",
+    "RAPGEF1"
+   ],
+   "auprc_integrated": 0.0378,
+   "auprc_depmap": 0.0387,
+   "auprc_gi": 0.0044
+  }
+ },
+ {
+  "id": "human.billmann.GIT1-ARHGEF7-PAK1-PXN_complex",
+  "gene_1": {
+   "hgnc": "ARHGEF7",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "GIT1",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"GIT1-ARHGEF7-PAK1-PXN complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.005 (DepMap-only: 0.010; GI-only: 0.000)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"GIT1-ARHGEF7-PAK1-PXN complex\" (bioprocess: actin cytoskeleton); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "GIT1-ARHGEF7-PAK1-PXN complex",
+   "bioprocess_region": "actin cytoskeleton",
+   "n_complex_members": 2,
+   "all_complex_members": [
+    "ARHGEF7",
+    "GIT1"
+   ],
+   "auprc_integrated": 0.0055,
+   "auprc_depmap": 0.0102,
+   "auprc_gi": 0.0003
+  }
+ },
+ {
+  "id": "human.billmann.LGR4-RSPO_supercomplex",
+  "gene_1": {
+   "hgnc": "IQGAP1",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "PTK2",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"LGR4-RSPO supercomplex\"",
+   "HAP1+DepMap integrated AUPRC = 0.004 (DepMap-only: 0.005; GI-only: 0.003)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"LGR4-RSPO supercomplex\" (bioprocess: actin cytoskeleton); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "LGR4-RSPO supercomplex",
+   "bioprocess_region": "actin cytoskeleton",
+   "n_complex_members": 4,
+   "all_complex_members": [
+    "IQGAP1",
+    "PTK2",
+    "PXN",
+    "WASL"
+   ],
+   "auprc_integrated": 0.0042,
+   "auprc_depmap": 0.0048,
+   "auprc_gi": 0.0033
+  }
+ },
+ {
+  "id": "human.billmann.WIP-WASp-actin-myosin-IIa_complex",
+  "gene_1": {
+   "hgnc": "MYH9",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "MYL6",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"WIP-WASp-actin-myosin-IIa complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.045 (DepMap-only: 0.010; GI-only: 0.010)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"WIP-WASp-actin-myosin-IIa complex\" (bioprocess: actin cytoskeleton); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "WIP-WASp-actin-myosin-IIa complex",
+   "bioprocess_region": "actin cytoskeleton",
+   "n_complex_members": 2,
+   "all_complex_members": [
+    "MYH9",
+    "MYL6"
+   ],
+   "auprc_integrated": 0.045,
+   "auprc_depmap": 0.0102,
+   "auprc_gi": 0.0104
+  }
+ },
+ {
+  "id": "human.billmann.Wave-2_complex",
+  "gene_1": {
+   "hgnc": "ABI1",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "BRK1",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"Wave-2 complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.835 (DepMap-only: 0.150; GI-only: 0.175)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"Wave-2 complex\" (bioprocess: actin cytoskeleton); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "A_billmann_corum_high",
+  "billmann_evidence": {
+   "complex_name": "Wave-2 complex",
+   "bioprocess_region": "actin cytoskeleton",
+   "n_complex_members": 4,
+   "all_complex_members": [
+    "ABI1",
+    "BRK1",
+    "CYFIP1",
+    "NCKAP1"
+   ],
+   "auprc_integrated": 0.8346,
+   "auprc_depmap": 0.1497,
+   "auprc_gi": 0.1754
+  }
+ },
+ {
+  "id": "human.billmann.BAF_complex",
+  "gene_1": {
+   "hgnc": "ACTG1",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "ARID1B",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"BAF complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.578 (DepMap-only: 0.234; GI-only: 0.241)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"BAF complex\" (bioprocess: cell cycle progression); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "A_billmann_corum_high",
+  "billmann_evidence": {
+   "complex_name": "BAF complex",
+   "bioprocess_region": "cell cycle progression",
+   "n_complex_members": 3,
+   "all_complex_members": [
+    "ACTG1",
+    "ARID1B",
+    "SMARCA2"
+   ],
+   "auprc_integrated": 0.5776,
+   "auprc_depmap": 0.2338,
+   "auprc_gi": 0.2408
+  }
+ },
+ {
+  "id": "human.billmann.E2F-6_complex",
+  "gene_1": {
+   "hgnc": "E2F6",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "EHMT1",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"E2F-6 complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.004 (DepMap-only: 0.002; GI-only: 0.044)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"E2F-6 complex\" (bioprocess: cell cycle progression); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "E2F-6 complex",
+   "bioprocess_region": "cell cycle progression",
+   "n_complex_members": 8,
+   "all_complex_members": [
+    "E2F6",
+    "EHMT1",
+    "EHMT2",
+    "L3MBTL2",
+    "MAX",
+    "MGA",
+    "RING1",
+    "RNF2"
+   ],
+   "auprc_integrated": 0.0042,
+   "auprc_depmap": 0.0024,
+   "auprc_gi": 0.0445
+  }
+ },
+ {
+  "id": "human.billmann.PBAF_complex_Polybromo-_and_BAF_containing_complex",
+  "gene_1": {
+   "hgnc": "ARID2",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "PBRM1",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"PBAF complex (Polybromo- and BAF containing complex)\"",
+   "HAP1+DepMap integrated AUPRC = 0.405 (DepMap-only: 0.122; GI-only: 0.189)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"PBAF complex (Polybromo- and BAF containing complex)\" (bioprocess: cell cycle progression); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "PBAF complex (Polybromo- and BAF containing complex)",
+   "bioprocess_region": "cell cycle progression",
+   "n_complex_members": 2,
+   "all_complex_members": [
+    "ARID2",
+    "PBRM1"
+   ],
+   "auprc_integrated": 0.405,
+   "auprc_depmap": 0.1224,
+   "auprc_gi": 0.1893
+  }
+ },
+ {
+  "id": "human.billmann.p27-cyclinE-Cdk2_-_Ubiquitin_E3_ligase_SKP1A_SKP2_CUL1_CKS1B",
+  "gene_1": {
+   "hgnc": "CCNE1",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "CDK2",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"p27-cyclinE-Cdk2 - Ubiquitin E3 ligase (SKP1A, SKP2, CUL1, CKS1B, RBX1) complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.184 (DepMap-only: 0.183; GI-only: 0.032)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"p27-cyclinE-Cdk2 - Ubiquitin E3 ligase (SKP1A, SKP2, CUL1, CKS1B, RBX1) complex\" (bioprocess: cell cycle progression); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "p27-cyclinE-Cdk2 - Ubiquitin E3 ligase (SKP1A, SKP2, CUL1, CKS1B, RBX1) complex",
+   "bioprocess_region": "cell cycle progression",
+   "n_complex_members": 6,
+   "all_complex_members": [
+    "CCNE1",
+    "CDK2",
+    "CUL1",
+    "RBX1",
+    "SKP1",
+    "SKP2"
+   ],
+   "auprc_integrated": 0.1842,
+   "auprc_depmap": 0.1829,
+   "auprc_gi": 0.0318
+  }
+ },
+ {
+  "id": "human.billmann.E2F-1-DP-1-cyclinA-CDK2_complex",
+  "gene_1": {
+   "hgnc": "CCNA1",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "E2F1",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"E2F-1-DP-1-cyclinA-CDK2 complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.142 (DepMap-only: 0.012; GI-only: 0.003)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"E2F-1-DP-1-cyclinA-CDK2 complex\" (bioprocess: cell cycle progression); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "E2F-1-DP-1-cyclinA-CDK2 complex",
+   "bioprocess_region": "cell cycle progression",
+   "n_complex_members": 2,
+   "all_complex_members": [
+    "CCNA1",
+    "E2F1"
+   ],
+   "auprc_integrated": 0.142,
+   "auprc_depmap": 0.0119,
+   "auprc_gi": 0.0032
+  }
+ },
+ {
+  "id": "human.billmann.RBL2_complex_DNMT1_E2F4_E2F5_HDAC1_SUV39H1_RBL2",
+  "gene_1": {
+   "hgnc": "DNMT1",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "E2F4",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"RBL2 complex (DNMT1, E2F4, E2F5, HDAC1, SUV39H1, RBL2)\"",
+   "HAP1+DepMap integrated AUPRC = 0.001 (DepMap-only: 0.001; GI-only: 0.002)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"RBL2 complex (DNMT1, E2F4, E2F5, HDAC1, SUV39H1, RBL2)\" (bioprocess: cell cycle progression); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "RBL2 complex (DNMT1, E2F4, E2F5, HDAC1, SUV39H1, RBL2)",
+   "bioprocess_region": "cell cycle progression",
+   "n_complex_members": 4,
+   "all_complex_members": [
+    "DNMT1",
+    "E2F4",
+    "E2F5",
+    "HDAC1"
+   ],
+   "auprc_integrated": 0.0007,
+   "auprc_depmap": 0.0007,
+   "auprc_gi": 0.0016
+  }
+ },
+ {
+  "id": "human.billmann.DAB_complex",
+  "gene_1": {
+   "hgnc": "GTF2B",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "TAF11",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"DAB complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.245 (DepMap-only: 0.081; GI-only: 0.049)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"DAB complex\" (bioprocess: cell proliferation); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "DAB complex",
+   "bioprocess_region": "cell proliferation",
+   "n_complex_members": 4,
+   "all_complex_members": [
+    "GTF2B",
+    "TAF11",
+    "TAF13",
+    "TAF3"
+   ],
+   "auprc_integrated": 0.2449,
+   "auprc_depmap": 0.081,
+   "auprc_gi": 0.0487
+  }
+ },
+ {
+  "id": "human.billmann.KICSTOR_complex",
+  "gene_1": {
+   "hgnc": "C12orf66",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "ITFG2",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"KICSTOR complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.544 (DepMap-only: 0.230; GI-only: 0.737)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"KICSTOR complex\" (bioprocess: cell proliferation); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "A_billmann_corum_high",
+  "billmann_evidence": {
+   "complex_name": "KICSTOR complex",
+   "bioprocess_region": "cell proliferation",
+   "n_complex_members": 3,
+   "all_complex_members": [
+    "C12orf66",
+    "ITFG2",
+    "KPTN"
+   ],
+   "auprc_integrated": 0.5436,
+   "auprc_depmap": 0.23,
+   "auprc_gi": 0.7371
+  }
+ },
+ {
+  "id": "human.billmann.Polycomb_repressive_complex_1_PRC1_hPRC-H",
+  "gene_1": {
+   "hgnc": "BMI1",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "CBX4",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"Polycomb repressive complex 1 (PRC1, hPRC-H)\"",
+   "HAP1+DepMap integrated AUPRC = 0.037 (DepMap-only: 0.017; GI-only: 0.009)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"Polycomb repressive complex 1 (PRC1, hPRC-H)\" (bioprocess: cell proliferation); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "Polycomb repressive complex 1 (PRC1, hPRC-H)",
+   "bioprocess_region": "cell proliferation",
+   "n_complex_members": 3,
+   "all_complex_members": [
+    "BMI1",
+    "CBX4",
+    "PHC3"
+   ],
+   "auprc_integrated": 0.037,
+   "auprc_depmap": 0.0165,
+   "auprc_gi": 0.0089
+  }
+ },
+ {
+  "id": "human.billmann.CTLH_complex",
+  "gene_1": {
+   "hgnc": "MAEA",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "MKLN1",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"CTLH complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.173 (DepMap-only: 0.108; GI-only: 0.022)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"CTLH complex\" (bioprocess: cell proliferation); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "CTLH complex",
+   "bioprocess_region": "cell proliferation",
+   "n_complex_members": 4,
+   "all_complex_members": [
+    "MAEA",
+    "MKLN1",
+    "RANBP9",
+    "RMND5A"
+   ],
+   "auprc_integrated": 0.1726,
+   "auprc_depmap": 0.1076,
+   "auprc_gi": 0.0217
+  }
+ },
+ {
+  "id": "human.billmann.MSL_complex",
+  "gene_1": {
+   "hgnc": "MSL2",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "MSL3",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"MSL complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.216 (DepMap-only: 0.056; GI-only: 0.002)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"MSL complex\" (bioprocess: cell proliferation); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "MSL complex",
+   "bioprocess_region": "cell proliferation",
+   "n_complex_members": 2,
+   "all_complex_members": [
+    "MSL2",
+    "MSL3"
+   ],
+   "auprc_integrated": 0.2156,
+   "auprc_depmap": 0.0562,
+   "auprc_gi": 0.0015
+  }
+ },
+ {
+  "id": "human.billmann.BASC_complex_BRCA1-associated_genome_surveillance_complex",
+  "gene_1": {
+   "hgnc": "ATM",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "NBN",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"BASC complex (BRCA1-associated genome surveillance complex)\"",
+   "HAP1+DepMap integrated AUPRC = 0.009 (DepMap-only: 0.016; GI-only: 0.014)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"BASC complex (BRCA1-associated genome surveillance complex)\" (bioprocess: DNA replication and repair); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "BASC complex (BRCA1-associated genome surveillance complex)",
+   "bioprocess_region": "DNA replication and repair",
+   "n_complex_members": 2,
+   "all_complex_members": [
+    "ATM",
+    "NBN"
+   ],
+   "auprc_integrated": 0.0088,
+   "auprc_depmap": 0.0164,
+   "auprc_gi": 0.0141
+  }
+ },
+ {
+  "id": "human.billmann.BRCA1_A_complex",
+  "gene_1": {
+   "hgnc": "BARD1",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "FAM175A",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"BRCA1 A complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.024 (DepMap-only: 0.005; GI-only: 0.042)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"BRCA1 A complex\" (bioprocess: DNA replication and repair); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "BRCA1 A complex",
+   "bioprocess_region": "DNA replication and repair",
+   "n_complex_members": 3,
+   "all_complex_members": [
+    "BARD1",
+    "FAM175A",
+    "UIMC1"
+   ],
+   "auprc_integrated": 0.0239,
+   "auprc_depmap": 0.0054,
+   "auprc_gi": 0.0418
+  }
+ },
+ {
+  "id": "human.billmann.BRCC_complex",
+  "gene_1": {
+   "hgnc": "BRCA1",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "BRCC3",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"BRCC complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.037 (DepMap-only: 0.014; GI-only: 0.040)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"BRCC complex\" (bioprocess: DNA replication and repair); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "BRCC complex",
+   "bioprocess_region": "DNA replication and repair",
+   "n_complex_members": 4,
+   "all_complex_members": [
+    "BRCA1",
+    "BRCC3",
+    "BRE",
+    "RAD51"
+   ],
+   "auprc_integrated": 0.0371,
+   "auprc_depmap": 0.0136,
+   "auprc_gi": 0.0404
+  }
+ },
+ {
+  "id": "human.billmann.FA_core_complex_Fanconi_anemia_core_complex",
+  "gene_1": {
+   "hgnc": "FANCB",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "FANCC",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"FA core complex (Fanconi anemia core complex)\"",
+   "HAP1+DepMap integrated AUPRC = 0.798 (DepMap-only: 0.711; GI-only: 0.575)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": true,
+  "mechanism": "Co-members of CORUM complex \"FA core complex (Fanconi anemia core complex)\" (bioprocess: DNA replication and repair); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "A_billmann_corum_high",
+  "billmann_evidence": {
+   "complex_name": "FA core complex (Fanconi anemia core complex)",
+   "bioprocess_region": "DNA replication and repair",
+   "n_complex_members": 6,
+   "all_complex_members": [
+    "FANCB",
+    "FANCC",
+    "FANCE",
+    "FANCG",
+    "FANCL",
+    "RMI1"
+   ],
+   "auprc_integrated": 0.798,
+   "auprc_depmap": 0.7113,
+   "auprc_gi": 0.5747
+  }
+ },
+ {
+  "id": "human.billmann.RAD51B-RAD51C-RAD51D-XRCC2-XRCC3_complex",
+  "gene_1": {
+   "hgnc": "RAD51B",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "RAD51C",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"RAD51B-RAD51C-RAD51D-XRCC2-XRCC3 complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.623 (DepMap-only: 0.761; GI-only: 0.026)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"RAD51B-RAD51C-RAD51D-XRCC2-XRCC3 complex\" (bioprocess: DNA replication and repair); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "A_billmann_corum_high",
+  "billmann_evidence": {
+   "complex_name": "RAD51B-RAD51C-RAD51D-XRCC2-XRCC3 complex",
+   "bioprocess_region": "DNA replication and repair",
+   "n_complex_members": 3,
+   "all_complex_members": [
+    "RAD51B",
+    "RAD51C",
+    "XRCC2"
+   ],
+   "auprc_integrated": 0.6229,
+   "auprc_depmap": 0.7607,
+   "auprc_gi": 0.026
+  }
+ },
+ {
+  "id": "human.billmann.Condensin_I-PARP-1-XRCC1_complex",
+  "gene_1": {
+   "hgnc": "PARP1",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "XRCC1",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"Condensin I-PARP-1-XRCC1 complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.054 (DepMap-only: 0.014; GI-only: 0.002)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"Condensin I-PARP-1-XRCC1 complex\" (bioprocess: DNA replication and repair); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "Condensin I-PARP-1-XRCC1 complex",
+   "bioprocess_region": "DNA replication and repair",
+   "n_complex_members": 2,
+   "all_complex_members": [
+    "PARP1",
+    "XRCC1"
+   ],
+   "auprc_integrated": 0.0536,
+   "auprc_depmap": 0.0138,
+   "auprc_gi": 0.0021
+  }
+ },
+ {
+  "id": "human.billmann.DNA_double-strand_break_end-joining_complex",
+  "gene_1": {
+   "hgnc": "LIG4",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "XRCC4",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"DNA double-strand break end-joining complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.021 (DepMap-only: 0.080; GI-only: 0.012)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"DNA double-strand break end-joining complex\" (bioprocess: DNA replication and repair); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "DNA double-strand break end-joining complex",
+   "bioprocess_region": "DNA replication and repair",
+   "n_complex_members": 2,
+   "all_complex_members": [
+    "LIG4",
+    "XRCC4"
+   ],
+   "auprc_integrated": 0.0215,
+   "auprc_depmap": 0.0797,
+   "auprc_gi": 0.0123
+  }
+ },
+ {
+  "id": "human.billmann.MDC1-MRN-ATM-FANCD2_complex",
+  "gene_1": {
+   "hgnc": "FANCD2",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "MDC1",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"MDC1-MRN-ATM-FANCD2 complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.021 (DepMap-only: 0.034; GI-only: 0.024)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"MDC1-MRN-ATM-FANCD2 complex\" (bioprocess: DNA replication and repair); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "MDC1-MRN-ATM-FANCD2 complex",
+   "bioprocess_region": "DNA replication and repair",
+   "n_complex_members": 3,
+   "all_complex_members": [
+    "FANCD2",
+    "MDC1",
+    "RAD50"
+   ],
+   "auprc_integrated": 0.0213,
+   "auprc_depmap": 0.034,
+   "auprc_gi": 0.0236
+  }
+ },
+ {
+  "id": "human.billmann.Gamma-BAR-AP1_complex",
+  "gene_1": {
+   "hgnc": "AP1AR",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "AP1B1",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"Gamma-BAR-AP1 complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.234 (DepMap-only: 0.035; GI-only: 0.042)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"Gamma-BAR-AP1 complex\" (bioprocess: endosytosis sterol); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "Gamma-BAR-AP1 complex",
+   "bioprocess_region": "endosytosis sterol",
+   "n_complex_members": 4,
+   "all_complex_members": [
+    "AP1AR",
+    "AP1B1",
+    "AP1G1",
+    "AP1M1"
+   ],
+   "auprc_integrated": 0.2341,
+   "auprc_depmap": 0.0355,
+   "auprc_gi": 0.042
+  }
+ },
+ {
+  "id": "human.billmann.HRD1_complex",
+  "gene_1": {
+   "hgnc": "AUP1",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "BSG",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"HRD1 complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.181 (DepMap-only: 0.029; GI-only: 0.106)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"HRD1 complex\" (bioprocess: glycosylation and protein folding); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "HRD1 complex",
+   "bioprocess_region": "glycosylation and protein folding",
+   "n_complex_members": 9,
+   "all_complex_members": [
+    "AUP1",
+    "BSG",
+    "DERL2",
+    "FAF2",
+    "HSP90B1",
+    "OS9",
+    "SEL1L",
+    "SYVN1",
+    "UBE2J1"
+   ],
+   "auprc_integrated": 0.1814,
+   "auprc_depmap": 0.0292,
+   "auprc_gi": 0.1057
+  }
+ },
+ {
+  "id": "human.billmann.GAA1-GPI8-PIGT-PIG-PIGS_complex",
+  "gene_1": {
+   "hgnc": "GPAA1",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "PIGK",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"GAA1-GPI8-PIGT-PIG-PIGS complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.508 (DepMap-only: 0.480; GI-only: 0.157)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"GAA1-GPI8-PIGT-PIG-PIGS complex\" (bioprocess: GPI biosynth); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "A_billmann_corum_high",
+  "billmann_evidence": {
+   "complex_name": "GAA1-GPI8-PIGT-PIG-PIGS complex",
+   "bioprocess_region": "GPI biosynth",
+   "n_complex_members": 4,
+   "all_complex_members": [
+    "GPAA1",
+    "PIGK",
+    "PIGS",
+    "PIGT"
+   ],
+   "auprc_integrated": 0.5084,
+   "auprc_depmap": 0.4801,
+   "auprc_gi": 0.1571
+  }
+ },
+ {
+  "id": "human.billmann.GPI-GnT_activity_complex",
+  "gene_1": {
+   "hgnc": "PIGA",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "PIGH",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"GPI-GnT activity complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.093 (DepMap-only: 0.076; GI-only: 0.171)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"GPI-GnT activity complex\" (bioprocess: GPI biosynth); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "GPI-GnT activity complex",
+   "bioprocess_region": "GPI biosynth",
+   "n_complex_members": 3,
+   "all_complex_members": [
+    "PIGA",
+    "PIGH",
+    "PIGQ"
+   ],
+   "auprc_integrated": 0.0928,
+   "auprc_depmap": 0.0761,
+   "auprc_gi": 0.1706
+  }
+ },
+ {
+  "id": "human.billmann.KAT2A-Oxoglutarate_dehydrogenase_complex",
+  "gene_1": {
+   "hgnc": "DLD",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "OGDH",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"KAT2A-Oxoglutarate dehydrogenase complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.162 (DepMap-only: 0.172; GI-only: 0.052)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"KAT2A-Oxoglutarate dehydrogenase complex\" (bioprocess: metabolism); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "KAT2A-Oxoglutarate dehydrogenase complex",
+   "bioprocess_region": "metabolism",
+   "n_complex_members": 2,
+   "all_complex_members": [
+    "DLD",
+    "OGDH"
+   ],
+   "auprc_integrated": 0.1623,
+   "auprc_depmap": 0.1724,
+   "auprc_gi": 0.0523
+  }
+ },
+ {
+  "id": "human.billmann.55S_ribosome_mitochondrial",
+  "gene_1": {
+   "hgnc": "MRPL1",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "MRPL10",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"55S ribosome, mitochondrial\"",
+   "HAP1+DepMap integrated AUPRC = 0.414 (DepMap-only: 0.572; GI-only: 0.160)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"55S ribosome, mitochondrial\" (bioprocess: mitochondria); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "55S ribosome, mitochondrial",
+   "bioprocess_region": "mitochondria",
+   "n_complex_members": 38,
+   "all_complex_members": [
+    "MRPL1",
+    "MRPL10",
+    "MRPL12",
+    "MRPL13",
+    "MRPL14",
+    "MRPL15",
+    "MRPL17",
+    "MRPL19",
+    "MRPL2",
+    "MRPL20",
+    "MRPL21",
+    "MRPL22",
+    "MRPL23",
+    "MRPL27",
+    "MRPL3",
+    "MRPL32",
+    "MRPL33",
+    "MRPL4",
+    "MRPL41",
+    "MRPL44",
+    "MRPL48",
+    "MRPL50",
+    "MRPL52",
+    "MRPL54",
+    "MRPL9",
+    "MRPS10",
+    "MRPS15",
+    "MRPS16",
+    "MRPS17",
+    "MRPS18C",
+    "MRPS21",
+    "MRPS23",
+    "MRPS26",
+    "MRPS31",
+    "MRPS33",
+    "MRPS34",
+    "MRPS35",
+    "MRPS9"
+   ],
+   "auprc_integrated": 0.4144,
+   "auprc_depmap": 0.5724,
+   "auprc_gi": 0.1601
+  }
+ },
+ {
+  "id": "human.billmann.Cytochrome_c_oxidase_mitochondrial",
+  "gene_1": {
+   "hgnc": "COA1",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "COX14",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"Cytochrome c oxidase, mitochondrial\"",
+   "HAP1+DepMap integrated AUPRC = 0.107 (DepMap-only: 0.017; GI-only: 0.012)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"Cytochrome c oxidase, mitochondrial\" (bioprocess: mitochondria); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "Cytochrome c oxidase, mitochondrial",
+   "bioprocess_region": "mitochondria",
+   "n_complex_members": 7,
+   "all_complex_members": [
+    "COA1",
+    "COX14",
+    "COX15",
+    "COX4I1",
+    "COX5A",
+    "SURF1",
+    "TIMM21"
+   ],
+   "auprc_integrated": 0.1069,
+   "auprc_depmap": 0.0174,
+   "auprc_gi": 0.0124
+  }
+ },
+ {
+  "id": "human.billmann.F1F0-ATP_synthase_mitochondrial",
+  "gene_1": {
+   "hgnc": "ATP5A1",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "ATP5B",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"F1F0-ATP synthase, mitochondrial\"",
+   "HAP1+DepMap integrated AUPRC = 0.372 (DepMap-only: n/a; GI-only: 0.465)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"F1F0-ATP synthase, mitochondrial\" (bioprocess: mitochondria); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "F1F0-ATP synthase, mitochondrial",
+   "bioprocess_region": "mitochondria",
+   "n_complex_members": 11,
+   "all_complex_members": [
+    "ATP5A1",
+    "ATP5B",
+    "ATP5C1",
+    "ATP5D",
+    "ATP5F1",
+    "ATP5H",
+    "ATP5I",
+    "ATP5J",
+    "ATP5L",
+    "ATP5O",
+    "ATPIF1"
+   ],
+   "auprc_integrated": 0.3723,
+   "auprc_depmap": null,
+   "auprc_gi": 0.4649
+  }
+ },
+ {
+  "id": "human.billmann.MIB_complex",
+  "gene_1": {
+   "hgnc": "CHCHD3",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "DNAJC11",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"MIB complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.153 (DepMap-only: 0.072; GI-only: 0.052)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"MIB complex\" (bioprocess: mitochondria); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "MIB complex",
+   "bioprocess_region": "mitochondria",
+   "n_complex_members": 5,
+   "all_complex_members": [
+    "CHCHD3",
+    "DNAJC11",
+    "IMMT",
+    "MTX1",
+    "MTX2"
+   ],
+   "auprc_integrated": 0.1529,
+   "auprc_depmap": 0.0717,
+   "auprc_gi": 0.0519
+  }
+ },
+ {
+  "id": "human.billmann.Respiratory_chain_complex_I_holoenzyme_mitochondrial",
+  "gene_1": {
+   "hgnc": "NDUFA1",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "NDUFA10",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"Respiratory chain complex I (holoenzyme), mitochondrial\"",
+   "HAP1+DepMap integrated AUPRC = 0.560 (DepMap-only: 0.472; GI-only: 0.559)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"Respiratory chain complex I (holoenzyme), mitochondrial\" (bioprocess: mitochondria); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "A_billmann_corum_high",
+  "billmann_evidence": {
+   "complex_name": "Respiratory chain complex I (holoenzyme), mitochondrial",
+   "bioprocess_region": "mitochondria",
+   "n_complex_members": 29,
+   "all_complex_members": [
+    "NDUFA1",
+    "NDUFA10",
+    "NDUFA11",
+    "NDUFA13",
+    "NDUFA2",
+    "NDUFA3",
+    "NDUFA4",
+    "NDUFA5",
+    "NDUFA6",
+    "NDUFA8",
+    "NDUFA9",
+    "NDUFB10",
+    "NDUFB11",
+    "NDUFB2",
+    "NDUFB4",
+    "NDUFB5",
+    "NDUFB6",
+    "NDUFB7",
+    "NDUFB8",
+    "NDUFB9",
+    "NDUFC1",
+    "NDUFS2",
+    "NDUFS3",
+    "NDUFS5",
+    "NDUFS6",
+    "NDUFS7",
+    "NDUFS8",
+    "NDUFV1",
+    "NDUFV2"
+   ],
+   "auprc_integrated": 0.56,
+   "auprc_depmap": 0.4721,
+   "auprc_gi": 0.5587
+  }
+ },
+ {
+  "id": "human.billmann.TIM_TIM17A_TIM17B_TIM23_TIM44_complex_mitochondrial",
+  "gene_1": {
+   "hgnc": "TIMM17A",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "TIMM17B",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"TIM (TIM17A, TIM17B, TIM23, TIM44) complex, mitochondrial\"",
+   "HAP1+DepMap integrated AUPRC = 0.123 (DepMap-only: 0.009; GI-only: 0.020)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"TIM (TIM17A, TIM17B, TIM23, TIM44) complex, mitochondrial\" (bioprocess: mitochondria); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "TIM (TIM17A, TIM17B, TIM23, TIM44) complex, mitochondrial",
+   "bioprocess_region": "mitochondria",
+   "n_complex_members": 4,
+   "all_complex_members": [
+    "TIMM17A",
+    "TIMM17B",
+    "TIMM23",
+    "TIMM44"
+   ],
+   "auprc_integrated": 0.1234,
+   "auprc_depmap": 0.0094,
+   "auprc_gi": 0.02
+  }
+ },
+ {
+  "id": "human.billmann.protein_complex_DDX28DHX30GRSF1FASTKD2FASTKD5",
+  "gene_1": {
+   "hgnc": "DDX28",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "DHX30",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"protein complex (DDX28;DHX30;GRSF1;FASTKD2;FASTKD5)\""
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"protein complex (DDX28;DHX30;GRSF1;FASTKD2;FASTKD5)\" (bioprocess: mitochondria); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "C_billmann_corum_only",
+  "billmann_evidence": {
+   "complex_name": "protein complex (DDX28;DHX30;GRSF1;FASTKD2;FASTKD5)",
+   "bioprocess_region": "mitochondria",
+   "n_complex_members": 5,
+   "all_complex_members": [
+    "DDX28",
+    "DHX30",
+    "FASTKD2",
+    "FASTKD5",
+    "GRSF1"
+   ],
+   "auprc_integrated": null,
+   "auprc_depmap": null,
+   "auprc_gi": null
+  }
+ },
+ {
+  "id": "human.billmann.prohibitin_2_complex_mitochondrial",
+  "gene_1": {
+   "hgnc": "HAX1",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "PHB",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"prohibitin 2 complex, mitochondrial\"",
+   "HAP1+DepMap integrated AUPRC = 0.005 (DepMap-only: 0.006; GI-only: 0.002)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"prohibitin 2 complex, mitochondrial\" (bioprocess: mitochondria); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "prohibitin 2 complex, mitochondrial",
+   "bioprocess_region": "mitochondria",
+   "n_complex_members": 3,
+   "all_complex_members": [
+    "HAX1",
+    "PHB",
+    "VDAC2"
+   ],
+   "auprc_integrated": 0.0049,
+   "auprc_depmap": 0.0058,
+   "auprc_gi": 0.0018
+  }
+ },
+ {
+  "id": "human.billmann.CCT_complex_chaperonin_containing_TCP1_complex",
+  "gene_1": {
+   "hgnc": "CCT3",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "CCT4",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"CCT complex (chaperonin containing TCP1 complex)\"",
+   "HAP1+DepMap integrated AUPRC = 0.022 (DepMap-only: 0.025; GI-only: 0.094)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"CCT complex (chaperonin containing TCP1 complex)\" (bioprocess: Mitosis); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "CCT complex (chaperonin containing TCP1 complex)",
+   "bioprocess_region": "Mitosis",
+   "n_complex_members": 7,
+   "all_complex_members": [
+    "CCT3",
+    "CCT4",
+    "CCT5",
+    "CCT6A",
+    "CCT7",
+    "CCT8",
+    "TCP1"
+   ],
+   "auprc_integrated": 0.0221,
+   "auprc_depmap": 0.0255,
+   "auprc_gi": 0.0944
+  }
+ },
+ {
+  "id": "human.billmann.CENP-A_NAC-CAD_complex",
+  "gene_1": {
+   "hgnc": "CENPC",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "CENPL",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"CENP-A NAC-CAD complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.235 (DepMap-only: 0.096; GI-only: 0.040)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"CENP-A NAC-CAD complex\" (bioprocess: Mitosis); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "CENP-A NAC-CAD complex",
+   "bioprocess_region": "Mitosis",
+   "n_complex_members": 6,
+   "all_complex_members": [
+    "CENPC",
+    "CENPL",
+    "CENPO",
+    "CENPP",
+    "CENPQ",
+    "CENPT"
+   ],
+   "auprc_integrated": 0.2349,
+   "auprc_depmap": 0.0962,
+   "auprc_gi": 0.0401
+  }
+ },
+ {
+  "id": "human.billmann.Condensin_II",
+  "gene_1": {
+   "hgnc": "NCAPD3",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "NCAPG2",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"Condensin II\"",
+   "HAP1+DepMap integrated AUPRC = 0.302 (DepMap-only: 0.220; GI-only: 0.202)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"Condensin II\" (bioprocess: Mitosis); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "Condensin II",
+   "bioprocess_region": "Mitosis",
+   "n_complex_members": 3,
+   "all_complex_members": [
+    "NCAPD3",
+    "NCAPG2",
+    "NCAPH2"
+   ],
+   "auprc_integrated": 0.3024,
+   "auprc_depmap": 0.2204,
+   "auprc_gi": 0.2015
+  }
+ },
+ {
+  "id": "human.billmann.HAUS_augmin-like_complex",
+  "gene_1": {
+   "hgnc": "HAUS2",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "HAUS3",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"HAUS augmin-like complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.936 (DepMap-only: 0.411; GI-only: 0.014)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"HAUS augmin-like complex\" (bioprocess: Mitosis); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "A_billmann_corum_high",
+  "billmann_evidence": {
+   "complex_name": "HAUS augmin-like complex",
+   "bioprocess_region": "Mitosis",
+   "n_complex_members": 3,
+   "all_complex_members": [
+    "HAUS2",
+    "HAUS3",
+    "HAUS6"
+   ],
+   "auprc_integrated": 0.9357,
+   "auprc_depmap": 0.4109,
+   "auprc_gi": 0.0141
+  }
+ },
+ {
+  "id": "human.billmann.Prefoldin_complex",
+  "gene_1": {
+   "hgnc": "PFDN1",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "PFDN4",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"Prefoldin complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.418 (DepMap-only: 0.372; GI-only: 0.437)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"Prefoldin complex\" (bioprocess: Mitosis); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "Prefoldin complex",
+   "bioprocess_region": "Mitosis",
+   "n_complex_members": 5,
+   "all_complex_members": [
+    "PFDN1",
+    "PFDN4",
+    "PFDN5",
+    "PFDN6",
+    "VBP1"
+   ],
+   "auprc_integrated": 0.4182,
+   "auprc_depmap": 0.3724,
+   "auprc_gi": 0.437
+  }
+ },
+ {
+  "id": "human.billmann.CCR4-NOT_complex",
+  "gene_1": {
+   "hgnc": "CNOT1",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "CNOT10",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"CCR4-NOT complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.263 (DepMap-only: 0.159; GI-only: 0.118)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"CCR4-NOT complex\" (bioprocess: mRNA processing); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "CCR4-NOT complex",
+   "bioprocess_region": "mRNA processing",
+   "n_complex_members": 6,
+   "all_complex_members": [
+    "CNOT1",
+    "CNOT10",
+    "CNOT11",
+    "CNOT2",
+    "CNOT6",
+    "CNOT7"
+   ],
+   "auprc_integrated": 0.2632,
+   "auprc_depmap": 0.1591,
+   "auprc_gi": 0.1183
+  }
+ },
+ {
+  "id": "human.billmann.DSS1Integrator_complex",
+  "gene_1": {
+   "hgnc": "BRCA2",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "INTS2",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"DSS1/Integrator complex\""
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"DSS1/Integrator complex\" (bioprocess: mRNA processing); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "C_billmann_corum_only",
+  "billmann_evidence": {
+   "complex_name": "DSS1/Integrator complex",
+   "bioprocess_region": "mRNA processing",
+   "n_complex_members": 7,
+   "all_complex_members": [
+    "BRCA2",
+    "INTS2",
+    "INTS5",
+    "INTS6",
+    "INTS7",
+    "INTS8",
+    "LENG8"
+   ],
+   "auprc_integrated": null,
+   "auprc_depmap": null,
+   "auprc_gi": null
+  }
+ },
+ {
+  "id": "human.billmann.Decapping_complex",
+  "gene_1": {
+   "hgnc": "DCP2",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "DDX6",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"Decapping complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.417 (DepMap-only: 0.372; GI-only: 0.359)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"Decapping complex\" (bioprocess: mRNA processing); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "Decapping complex",
+   "bioprocess_region": "mRNA processing",
+   "n_complex_members": 4,
+   "all_complex_members": [
+    "DCP2",
+    "DDX6",
+    "EDC3",
+    "EDC4"
+   ],
+   "auprc_integrated": 0.4167,
+   "auprc_depmap": 0.3718,
+   "auprc_gi": 0.3594
+  }
+ },
+ {
+  "id": "human.billmann.SNAPc_small_nuclear_RNA-activating_protein_complex",
+  "gene_1": {
+   "hgnc": "SNAPC1",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "SNAPC5",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"SNAPc (small nuclear RNA-activating protein) complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.500 (DepMap-only: 0.225; GI-only: 0.014)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"SNAPc (small nuclear RNA-activating protein) complex\" (bioprocess: mRNA processing); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "A_billmann_corum_high",
+  "billmann_evidence": {
+   "complex_name": "SNAPc (small nuclear RNA-activating protein) complex",
+   "bioprocess_region": "mRNA processing",
+   "n_complex_members": 2,
+   "all_complex_members": [
+    "SNAPC1",
+    "SNAPC5"
+   ],
+   "auprc_integrated": 0.5002,
+   "auprc_depmap": 0.2247,
+   "auprc_gi": 0.0136
+  }
+ },
+ {
+  "id": "human.billmann.DCS_complex_PTBP1_PTBP2_HNRPH1_HNRPF",
+  "gene_1": {
+   "hgnc": "HNRNPF",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "HNRNPH1",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"DCS complex (PTBP1, PTBP2, HNRPH1, HNRPF)\"",
+   "HAP1+DepMap integrated AUPRC = 0.001 (DepMap-only: 0.000; GI-only: 0.010)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"DCS complex (PTBP1, PTBP2, HNRPH1, HNRPF)\" (bioprocess: mRNA processing); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "DCS complex (PTBP1, PTBP2, HNRPH1, HNRPF)",
+   "bioprocess_region": "mRNA processing",
+   "n_complex_members": 2,
+   "all_complex_members": [
+    "HNRNPF",
+    "HNRNPH1"
+   ],
+   "auprc_integrated": 0.0005,
+   "auprc_depmap": 0.0004,
+   "auprc_gi": 0.0097
+  }
+ },
+ {
+  "id": "human.billmann.CORVET_complex",
+  "gene_1": {
+   "hgnc": "TGFBRAP1",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "VPS33A",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"CORVET complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.300 (DepMap-only: 0.439; GI-only: 0.213)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"CORVET complex\" (bioprocess: nutrient sensing); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "CORVET complex",
+   "bioprocess_region": "nutrient sensing",
+   "n_complex_members": 3,
+   "all_complex_members": [
+    "TGFBRAP1",
+    "VPS33A",
+    "VPS8"
+   ],
+   "auprc_integrated": 0.3005,
+   "auprc_depmap": 0.4391,
+   "auprc_gi": 0.2135
+  }
+ },
+ {
+  "id": "human.billmann.HOPS_complex",
+  "gene_1": {
+   "hgnc": "VPS16",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "VPS18",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"HOPS complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.900 (DepMap-only: 0.872; GI-only: 0.815)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"HOPS complex\" (bioprocess: nutrient sensing); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "A_billmann_corum_high",
+  "billmann_evidence": {
+   "complex_name": "HOPS complex",
+   "bioprocess_region": "nutrient sensing",
+   "n_complex_members": 4,
+   "all_complex_members": [
+    "VPS16",
+    "VPS18",
+    "VPS39",
+    "VPS41"
+   ],
+   "auprc_integrated": 0.9,
+   "auprc_depmap": 0.872,
+   "auprc_gi": 0.8154
+  }
+ },
+ {
+  "id": "human.billmann.v-ATPase-Ragulator-AXINLKB1-AMPK_complex",
+  "gene_1": {
+   "hgnc": "ATP6V0D1",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "LAMTOR1",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"v-ATPase-Ragulator-AXIN;LKB1-AMPK complex\""
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"v-ATPase-Ragulator-AXIN;LKB1-AMPK complex\" (bioprocess: nutrient sensing); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "C_billmann_corum_only",
+  "billmann_evidence": {
+   "complex_name": "v-ATPase-Ragulator-AXIN;LKB1-AMPK complex",
+   "bioprocess_region": "nutrient sensing",
+   "n_complex_members": 7,
+   "all_complex_members": [
+    "ATP6V0D1",
+    "LAMTOR1",
+    "LAMTOR2",
+    "LAMTOR3",
+    "LAMTOR4",
+    "LAMTOR5",
+    "PRKAB1"
+   ],
+   "auprc_integrated": null,
+   "auprc_depmap": null,
+   "auprc_gi": null
+  }
+ },
+ {
+  "id": "human.billmann.AFF4_super_elongation_complex_SEC",
+  "gene_1": {
+   "hgnc": "AFF1",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "AFF4",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"AFF4 super elongation complex (SEC)\"",
+   "HAP1+DepMap integrated AUPRC = 0.005 (DepMap-only: 0.003; GI-only: 0.006)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"AFF4 super elongation complex (SEC)\" (bioprocess: transcription & chromatin organization); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "AFF4 super elongation complex (SEC)",
+   "bioprocess_region": "transcription & chromatin organization",
+   "n_complex_members": 7,
+   "all_complex_members": [
+    "AFF1",
+    "AFF4",
+    "CCNT1",
+    "CCNT2",
+    "EAF1",
+    "ELL",
+    "MLLT1"
+   ],
+   "auprc_integrated": 0.0049,
+   "auprc_depmap": 0.0029,
+   "auprc_gi": 0.0062
+  }
+ },
+ {
+  "id": "human.billmann.GATOR_complex",
+  "gene_1": {
+   "hgnc": "MIOS",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "WDR24",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"GATOR complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.259 (DepMap-only: 0.222; GI-only: 0.045)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"GATOR complex\" (bioprocess: transcription & chromatin organization); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "GATOR complex",
+   "bioprocess_region": "transcription & chromatin organization",
+   "n_complex_members": 3,
+   "all_complex_members": [
+    "MIOS",
+    "WDR24",
+    "WDR59"
+   ],
+   "auprc_integrated": 0.2592,
+   "auprc_depmap": 0.2224,
+   "auprc_gi": 0.0452
+  }
+ },
+ {
+  "id": "human.billmann.Mediator_complex",
+  "gene_1": {
+   "hgnc": "MED1",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "MED10",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"Mediator complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.347 (DepMap-only: 0.177; GI-only: 0.061)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"Mediator complex\" (bioprocess: transcription & chromatin organization); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "Mediator complex",
+   "bioprocess_region": "transcription & chromatin organization",
+   "n_complex_members": 13,
+   "all_complex_members": [
+    "MED1",
+    "MED10",
+    "MED13",
+    "MED13L",
+    "MED15",
+    "MED16",
+    "MED18",
+    "MED19",
+    "MED23",
+    "MED25",
+    "MED26",
+    "MED6",
+    "MED9"
+   ],
+   "auprc_integrated": 0.3474,
+   "auprc_depmap": 0.1767,
+   "auprc_gi": 0.0607
+  }
+ },
+ {
+  "id": "human.billmann.SAGA_complex_GCN5-linked",
+  "gene_1": {
+   "hgnc": "ATXN7L3",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "SUPT20H",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"SAGA complex, GCN5-linked\"",
+   "HAP1+DepMap integrated AUPRC = 0.269 (DepMap-only: 0.218; GI-only: 0.041)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"SAGA complex, GCN5-linked\" (bioprocess: transcription & chromatin organization); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "SAGA complex, GCN5-linked",
+   "bioprocess_region": "transcription & chromatin organization",
+   "n_complex_members": 5,
+   "all_complex_members": [
+    "ATXN7L3",
+    "SUPT20H",
+    "SUPT3H",
+    "SUPT7L",
+    "TAF9B"
+   ],
+   "auprc_integrated": 0.269,
+   "auprc_depmap": 0.2182,
+   "auprc_gi": 0.0414
+  }
+ },
+ {
+  "id": "human.billmann.STAGA_complex_SPT3-linked",
+  "gene_1": {
+   "hgnc": "ATXN7",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "TADA3",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"STAGA complex, SPT3-linked\"",
+   "HAP1+DepMap integrated AUPRC = 0.391 (DepMap-only: 0.337; GI-only: 0.093)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"STAGA complex, SPT3-linked\" (bioprocess: transcription & chromatin organization); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "STAGA complex, SPT3-linked",
+   "bioprocess_region": "transcription & chromatin organization",
+   "n_complex_members": 7,
+   "all_complex_members": [
+    "ATXN7",
+    "TADA3",
+    "TAF10",
+    "TAF5L",
+    "TAF6L",
+    "TRRAP",
+    "USP22"
+   ],
+   "auprc_integrated": 0.3914,
+   "auprc_depmap": 0.3366,
+   "auprc_gi": 0.093
+  }
+ },
+ {
+  "id": "human.billmann.TRAP_complex",
+  "gene_1": {
+   "hgnc": "THRA",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "THRAP3",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"TRAP complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.116 (DepMap-only: 0.097; GI-only: 0.042)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"TRAP complex\" (bioprocess: transcription & chromatin organization); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "TRAP complex",
+   "bioprocess_region": "transcription & chromatin organization",
+   "n_complex_members": 2,
+   "all_complex_members": [
+    "THRA",
+    "THRAP3"
+   ],
+   "auprc_integrated": 0.1162,
+   "auprc_depmap": 0.0966,
+   "auprc_gi": 0.042
+  }
+ },
+ {
+  "id": "human.billmann.Multiprotein_complex_mRNA_turnover",
+  "gene_1": {
+   "hgnc": "CSDE1",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "PABPC1",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"Multiprotein complex (mRNA turnover)\"",
+   "HAP1+DepMap integrated AUPRC = 0.001 (DepMap-only: 0.001; GI-only: 0.001)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"Multiprotein complex (mRNA turnover)\" (bioprocess: translation, mRNA decay, autophagy); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "Multiprotein complex (mRNA turnover)",
+   "bioprocess_region": "translation, mRNA decay, autophagy",
+   "n_complex_members": 2,
+   "all_complex_members": [
+    "CSDE1",
+    "PABPC1"
+   ],
+   "auprc_integrated": 0.0005,
+   "auprc_depmap": 0.0011,
+   "auprc_gi": 0.0013
+  }
+ },
+ {
+  "id": "human.billmann.P2X7_receptor_signalling_complex",
+  "gene_1": {
+   "hgnc": "HSP90AB1",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "PTPRB",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"P2X7 receptor signalling complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.002 (DepMap-only: 0.002; GI-only: 0.001)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"P2X7 receptor signalling complex\" (bioprocess: translation, mRNA decay, autophagy); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "P2X7 receptor signalling complex",
+   "bioprocess_region": "translation, mRNA decay, autophagy",
+   "n_complex_members": 2,
+   "all_complex_members": [
+    "HSP90AB1",
+    "PTPRB"
+   ],
+   "auprc_integrated": 0.0016,
+   "auprc_depmap": 0.0021,
+   "auprc_gi": 0.0013
+  }
+ },
+ {
+  "id": "human.billmann.ULK1-ATG13-ATG14-PIK3C3_complex",
+  "gene_1": {
+   "hgnc": "ATG13",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "ATG14",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"ULK1-ATG13-ATG14-PIK3C3 complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.189 (DepMap-only: 0.036; GI-only: 0.007)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"ULK1-ATG13-ATG14-PIK3C3 complex\" (bioprocess: translation, mRNA decay, autophagy); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "ULK1-ATG13-ATG14-PIK3C3 complex",
+   "bioprocess_region": "translation, mRNA decay, autophagy",
+   "n_complex_members": 3,
+   "all_complex_members": [
+    "ATG13",
+    "ATG14",
+    "ULK1"
+   ],
+   "auprc_integrated": 0.1893,
+   "auprc_depmap": 0.0365,
+   "auprc_gi": 0.0066
+  }
+ },
+ {
+  "id": "human.billmann.eIF3_complex_EIF3S6_EIF3S5_EIF3S4_EIF3S3_EIF3S6IP_EIF3S2_EIF",
+  "gene_1": {
+   "hgnc": "EIF3B",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "EIF3F",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"eIF3 complex (EIF3S6, EIF3S5, EIF3S4, EIF3S3, EIF3S6IP, EIF3S2, EIF3S9, EIF3S12,  EIF3S10, EIF3S8,  EIF3S1, EIF3S7, PCID1)\"",
+   "HAP1+DepMap integrated AUPRC = 0.140 (DepMap-only: 0.074; GI-only: 0.021)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"eIF3 complex (EIF3S6, EIF3S5, EIF3S4, EIF3S3, EIF3S6IP, EIF3S2, EIF3S9, EIF3S12,  EIF3S10, EIF3S8,  EIF3S1, EIF3S7, PCID1)\" (bioprocess: translation, mRNA decay, autophagy); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "eIF3 complex (EIF3S6, EIF3S5, EIF3S4, EIF3S3, EIF3S6IP, EIF3S2, EIF3S9, EIF3S12,  EIF3S10, EIF3S8,  EIF3S1, EIF3S7, PCID1)",
+   "bioprocess_region": "translation, mRNA decay, autophagy",
+   "n_complex_members": 8,
+   "all_complex_members": [
+    "EIF3B",
+    "EIF3F",
+    "EIF3G",
+    "EIF3H",
+    "EIF3J",
+    "EIF3K",
+    "EIF3L",
+    "EIF3M"
+   ],
+   "auprc_integrated": 0.1395,
+   "auprc_depmap": 0.0736,
+   "auprc_gi": 0.0212
+  }
+ },
+ {
+  "id": "human.billmann.Ribosome_cytoplasmic",
+  "gene_1": {
+   "hgnc": "RPL11",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "RPL18",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"Ribosome, cytoplasmic\"",
+   "HAP1+DepMap integrated AUPRC = 0.234 (DepMap-only: 0.195; GI-only: 0.058)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"Ribosome, cytoplasmic\" (bioprocess: translation, mRNA decay, autophagy); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "Ribosome, cytoplasmic",
+   "bioprocess_region": "translation, mRNA decay, autophagy",
+   "n_complex_members": 18,
+   "all_complex_members": [
+    "RPL11",
+    "RPL18",
+    "RPL19",
+    "RPL23",
+    "RPL35A",
+    "RPL36",
+    "RPL36A",
+    "RPL38",
+    "RPL7A",
+    "RPLP0",
+    "RPLP2",
+    "RPS10",
+    "RPS12",
+    "RPS16",
+    "RPS18",
+    "RPS21",
+    "RPS25",
+    "RPS3"
+   ],
+   "auprc_integrated": 0.2335,
+   "auprc_depmap": 0.1951,
+   "auprc_gi": 0.0576
+  }
+ },
+ {
+  "id": "human.billmann.COG_complex",
+  "gene_1": {
+   "hgnc": "COG1",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "COG2",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"COG complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.964 (DepMap-only: 0.843; GI-only: 0.491)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"COG complex\" (bioprocess: vesicle); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "A_billmann_corum_high",
+  "billmann_evidence": {
+   "complex_name": "COG complex",
+   "bioprocess_region": "vesicle",
+   "n_complex_members": 7,
+   "all_complex_members": [
+    "COG1",
+    "COG2",
+    "COG3",
+    "COG4",
+    "COG5",
+    "COG6",
+    "COG8"
+   ],
+   "auprc_integrated": 0.9643,
+   "auprc_depmap": 0.843,
+   "auprc_gi": 0.4909
+  }
+ },
+ {
+  "id": "human.billmann.Coat_protein_complex_II_SAR1B_PREB_SEC23A__SEC24B_SEC23IP",
+  "gene_1": {
+   "hgnc": "SEC23IP",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "SEC24B",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"Coat protein complex II (SAR1B, PREB, SEC23A , SEC24B, SEC23IP)\"",
+   "HAP1+DepMap integrated AUPRC = 0.013 (DepMap-only: 0.003; GI-only: 0.002)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"Coat protein complex II (SAR1B, PREB, SEC23A , SEC24B, SEC23IP)\" (bioprocess: vesicle); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "Coat protein complex II (SAR1B, PREB, SEC23A , SEC24B, SEC23IP)",
+   "bioprocess_region": "vesicle",
+   "n_complex_members": 2,
+   "all_complex_members": [
+    "SEC23IP",
+    "SEC24B"
+   ],
+   "auprc_integrated": 0.0132,
+   "auprc_depmap": 0.0026,
+   "auprc_gi": 0.0019
+  }
+ },
+ {
+  "id": "human.billmann.Exocyst_complex",
+  "gene_1": {
+   "hgnc": "EXOC1",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "EXOC2",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"Exocyst complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.472 (DepMap-only: 0.313; GI-only: 0.031)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"Exocyst complex\" (bioprocess: vesicle); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "Exocyst complex",
+   "bioprocess_region": "vesicle",
+   "n_complex_members": 5,
+   "all_complex_members": [
+    "EXOC1",
+    "EXOC2",
+    "EXOC4",
+    "EXOC7",
+    "EXOC8"
+   ],
+   "auprc_integrated": 0.4723,
+   "auprc_depmap": 0.3131,
+   "auprc_gi": 0.0311
+  }
+ },
+ {
+  "id": "human.billmann.GARP_complex",
+  "gene_1": {
+   "hgnc": "VPS51",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "VPS53",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"GARP complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.833 (DepMap-only: 0.833; GI-only: 0.833)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"GARP complex\" (bioprocess: vesicle); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "A_billmann_corum_high",
+  "billmann_evidence": {
+   "complex_name": "GARP complex",
+   "bioprocess_region": "vesicle",
+   "n_complex_members": 3,
+   "all_complex_members": [
+    "VPS51",
+    "VPS53",
+    "VPS54"
+   ],
+   "auprc_integrated": 0.8333,
+   "auprc_depmap": 0.8333,
+   "auprc_gi": 0.8333
+  }
+ },
+ {
+  "id": "human.billmann.SNARE_complex_SNAP25_VAMP3_VAMP2_NAPB_STX13",
+  "gene_1": {
+   "hgnc": "VAMP2",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "VAMP3",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"SNARE complex (SNAP25, VAMP3, VAMP2, NAPB, STX13)\"",
+   "HAP1+DepMap integrated AUPRC = 0.002 (DepMap-only: 0.001; GI-only: 0.001)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"SNARE complex (SNAP25, VAMP3, VAMP2, NAPB, STX13)\" (bioprocess: vesicle); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "SNARE complex (SNAP25, VAMP3, VAMP2, NAPB, STX13)",
+   "bioprocess_region": "vesicle",
+   "n_complex_members": 2,
+   "all_complex_members": [
+    "VAMP2",
+    "VAMP3"
+   ],
+   "auprc_integrated": 0.0021,
+   "auprc_depmap": 0.0014,
+   "auprc_gi": 0.0005
+  }
+ },
+ {
+  "id": "human.billmann.SNARE_complex_VAMP4_STX6_STX16_VTI1a_VTI1b",
+  "gene_1": {
+   "hgnc": "STX16",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "VTI1A",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"SNARE complex (VAMP4, STX6, STX16, VTI1a, VTI1b)\"",
+   "HAP1+DepMap integrated AUPRC = 0.001 (DepMap-only: 0.001; GI-only: 0.029)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"SNARE complex (VAMP4, STX6, STX16, VTI1a, VTI1b)\" (bioprocess: vesicle); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "SNARE complex (VAMP4, STX6, STX16, VTI1a, VTI1b)",
+   "bioprocess_region": "vesicle",
+   "n_complex_members": 2,
+   "all_complex_members": [
+    "STX16",
+    "VTI1A"
+   ],
+   "auprc_integrated": 0.0007,
+   "auprc_depmap": 0.0006,
+   "auprc_gi": 0.0292
+  }
+ },
+ {
+  "id": "human.billmann.TRAPP_complex",
+  "gene_1": {
+   "hgnc": "TRAPPC1",
+   "locus": null
+  },
+  "gene_2": {
+   "hgnc": "TRAPPC11",
+   "locus": null
+  },
+  "phenotype": "Cellular fitness in HAP1 (proxy for cell viability/proliferation)",
+  "validation": [
+   "HAP1 combinatorial CRISPR-CRISPR screen (Billmann et al. 2026 Cell, ~4M gene-pairs tested, qGI+FDR)",
+   "CORUM nonredundant protein complex co-membership: \"TRAPP complex\"",
+   "HAP1+DepMap integrated AUPRC = 0.183 (DepMap-only: 0.017; GI-only: 0.030)"
+  ],
+  "panel_natural_variation": true,
+  "anchor": false,
+  "mechanism": "Co-members of CORUM complex \"TRAPP complex\" (bioprocess: vesicle); double-perturbation in HAP1 produces a detectable qGI score, integrated with DepMap co-essentiality where AUPRC available.",
+  "primary_citation": "Billmann et al. 2026 Cell doi:10.1016/j.cell.2026.03.044; Tsitsiridis et al. 2023 NAR doi:10.1093/nar/gkac1015 (CORUM 4.0)",
+  "expected_motif": [
+   "protein_interaction"
+  ],
+  "tier": "B_billmann_corum_supported",
+  "billmann_evidence": {
+   "complex_name": "TRAPP complex",
+   "bioprocess_region": "vesicle",
+   "n_complex_members": 5,
+   "all_complex_members": [
+    "TRAPPC1",
+    "TRAPPC11",
+    "TRAPPC12",
+    "TRAPPC2L",
+    "TRAPPC3"
+   ],
+   "auprc_integrated": 0.1829,
+   "auprc_depmap": 0.0168,
+   "auprc_gi": 0.0304
+  }
+ }
+]
