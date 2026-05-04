@@ -332,10 +332,24 @@ methods used the same per-locus z-statistics (BETA/SE), the same
 in-sample 3kRG LD matrix, and the same 95\% credible-set
 coverage; GAFM and HBP additionally use the rice multi-omics graph
 prior (RAP-DB variant--gene + Ren 2023 gene--pathway +
-RicePPINet PPI). SBayesRC \cite{zheng2024leveraging} was omitted
-because the public LD reference is human HM3-EUR; an in-sample
-3kRG HM3-substitute LD reference for SBayesRC is being prepared
-and will be added in the next revision. Validation used 250~kb-window overlap
+RicePPINet PPI). SBayesRC \cite{zheng2024leveraging} is included as the 6th method
+in the v0.1.4 release. The public SBayesRC LD reference is
+human HM3-EUR (wrong species), so a 3kRG-specific LD reference
+was constructed from scratch using gctb 2.05beta and the R
+SBayesRC \texttt{LDstep1}--\texttt{LDstep4} pipeline. We define
+23 non-overlapping blocks covering all 41 fine-mapped leads
+(merging $\pm$250\,kb intervals around each lead; mean block
+size $\sim$600\,kb, range 500\,kb--1.1\,Mb). Block construction
+restricts to the 188\,K MAF~$\geq$~0.05 variants in those windows
+extracted from the 3kRG \texttt{.pgen}; gctb computes a per-block
+full LD matrix (\texttt{--make-full-ldm}); SBayesRC's
+\texttt{LDstep3} eigen-decomposes each block at variance
+threshold 0.995. SBayesRC is then run per trait at default
+\texttt{niter=3000, burn=1000} with the four-component mixture
+prior (\texttt{startPi=(0.99, 0.005, 0.003, 0.001, 0.001)},
+\texttt{gamma=(0, 0.001, 0.01, 0.1, 1)}). Per-variant posterior
+PIPs are extracted at the 41 fine-map windows and merged into
+the per-locus 6-method scorecard. Validation used 250~kb-window overlap
 against literature catalogues: Bloom 2015\cite{bloom2015genetic} +
 Peter 2018\cite{peter2018genome} for yeast,
 AraGWAS\cite{togninalli2018aragwas} Bonferroni hits + canonical

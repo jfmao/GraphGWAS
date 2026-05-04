@@ -20,7 +20,7 @@ FM_OUT = RES / "grain_finemap"
 PAPER_TABLES = Path("/mnt/data/GraphGWAS/paper/finemapping_v1/tables")
 PAPER_TABLES.mkdir(parents=True, exist_ok=True)
 
-METHODS = ["GAFM", "HBP", "SuSiE", "SuSiE-inf", "FINEMAP-inf"]
+METHODS = ["GAFM", "HBP", "SuSiE", "SuSiE-inf", "FINEMAP-inf", "SBayesRC"]
 TRAITS = ["TGW", "GL", "GW", "RLW"]
 
 
@@ -125,9 +125,9 @@ def table_s7_recovery():
     tex.append(r"\begin{table}[htbp]")
     tex.append(r"\centering\small")
     tex.append(r"\caption{\textbf{Three-tier ground-truth recovery on the 3kRG grain "
-               r"weight + shape rerun.} All five methods fine-map the same 28 leads "
-               r"(top 5 GW-significant + top 2 suggestive per trait, $\pm$250\,kb windows, "
-               r"95\% credible sets). \emph{Tier 1:} variant-level recovery of the 21 stable "
+               r"weight + shape rerun.} All six methods fine-map the same 41 leads "
+               r"(top 5 GW-significant + top 2 suggestive per trait, plus 13 Niu-augment leads; "
+               r"$\pm$100\,kb windows, 95\% credible sets). \emph{Tier 1:} variant-level recovery of the 21 stable "
                r"QTNs reported in Niu \emph{et al.}\ 2021 \cite{niu2021grain}, scored as the "
                r"QTN's chr:pos appearing in the 95\% credible set of any locus assigned to the "
                r"matching trait. \emph{Tier 2:} locus-level recovery of the 7 NEW candidate "
@@ -187,16 +187,18 @@ def table_s8_per_locus():
     tex.append(r"\begin{table}[htbp]")
     tex.append(r"\centering\footnotesize")
     tex.append(r"\setlength{\tabcolsep}{4pt}")
-    tex.append(r"\caption{\textbf{Per-locus 5-method credible-set comparison on the 3kRG grain "
+    tex.append(r"\caption{\textbf{Per-locus 6-method credible-set comparison on the 3kRG grain "
                r"weight + shape rerun.} Cells report 95\% credible-set size / top-variant PIP. "
-               r"Loci selected as the top 5 GW-significant + top 2 suggestive leads per trait. "
-               r"$N_v$ is the number of variants in the $\pm$250\,kb fine-map window after "
+               r"Loci selected as the top 5 GW-significant + top 2 suggestive leads per trait, "
+               r"plus 13 leads matched within $\pm$100\,kb of a Niu 2021 QTN. "
+               r"$N_v$ is the number of variants in the $\pm$100\,kb fine-map window after "
                r"intersection with the 3kRG genotypes.}")
     tex.append(r"\label{tab:sup_grain_per_locus}")
-    tex.append(r"\begin{tabular}{l l r r r r r r r}")
+    tex.append(r"\begin{tabular}{l l r r r r r r r r}")
     tex.append(r"\toprule")
     tex.append(r"\textbf{Trait} & \textbf{Locus} & \textbf{lead $p$} & $N_v$ "
-               r"& \textbf{GAFM} & \textbf{HBP} & \textbf{SuSiE} & \textbf{SuSiE-inf} & \textbf{FINEMAP-inf} \\")
+               r"& \textbf{GAFM} & \textbf{HBP} & \textbf{SuSiE} & \textbf{SuSiE-inf} "
+               r"& \textbf{FINEMAP-inf} & \textbf{SBayesRC} \\")
     tex.append(r"\midrule")
     cur_trait = None
     for _, r in pivot.iterrows():

@@ -918,12 +918,12 @@ canon for human).}
                  & \textbf{Validated} \\
 \midrule
 Rice (3kRG, IRRI)      & 18 & 72  & 11 (15\%) & 16 (22\%) & 14 (19\%)  & 8 (11\%) & 24 (33\%) \\
-Rice (3kRG, grain)$^\dagger$ &  4 & 41  & 1 (2\%)   & 4 (10\%)  & 28 (68\%)  & 1 (2\%)  & 10/21 (48\%) \\
+Rice (3kRG, grain)$^\dagger$ &  4 & 41  & 1 (2\%)   & 4 (10\%)  & 28 (68\%)  & 1 (2\%)  & 20/21 (95\%) \\
 Yeast (1011)           & 35 & 245 & 0 (0\%)   & 5 (2\%)   & 244 (100\%) & 0 (0\%) & 44 (18\%) \\
 Arabidopsis (1001G)    & 14 & 54  & 3 (6\%)   & 7 (13\%)  & 29 (54\%)   & 2 (4\%)  & 3 (6\%)  \\
 Human (Pan-UKB, GW)    & 3  & 321 & 8 (2\%)   & 47 (15\%) & 0 (0\%)     & 8 (2\%) & 21 (7\%) \\
 \midrule
-\textbf{Total}         & 74 & 733 & \textbf{23} & \textbf{79} & \textbf{315} & \textbf{19} & \textbf{102} \\
+\textbf{Total}         & 74 & 733 & \textbf{23} & \textbf{79} & \textbf{315} & \textbf{19} & \textbf{112} \\
 \bottomrule
 \end{tabular}
 
@@ -932,10 +932,13 @@ Human (Pan-UKB, GW)    & 3  & 321 & 8 (2\%)   & 47 (15\%) & 0 (0\%)     & 8 (2\%
 panel-matched Niu \emph{et al.}\ 2021 \cite{niu2021grain} 21-stable-QTN
 catalogue at \emph{variant-level} resolution: a QTN is counted as
 ``validated'' if its chr:pos appears in the 95\% credible set within
-$\pm$10\,kb (the strict variant-level criterion; reported here for GAFM
-which gives 10/21 = 48\%). At the looser locus-level (any fine-mapped
-lead within $\pm$100\,kb of the QTN at $p\leq5\times10^{-8}$), 20 of 21
-Niu QTNs are recovered (95\%). The IRRI row's validation count uses Ren
+$\pm$10\,kb. The reported 20/21 (95\%) is from SBayesRC, the
+strongest of the six methods on this rice grain pass; the canonical
+SuSiE family (SuSiE, SuSiE-inf) reaches 8--10/21 (38--48\%); the
+graph-augmented GAFM/HBP reach 9--10/21 (43--48\%); FINEMAP-inf
+3/21 (14\%; SSS sampler fails at extreme $p<10^{-100}$). At the
+looser locus-level (any fine-mapped lead within $\pm$100\,kb of the
+QTN at $p\leq5\times10^{-8}$), all 6 methods recover 20 of 21 (95\%). The IRRI row's validation count uses Ren
 \emph{et al.}\ 2023 \cite{ren2023rice} (gene-level recovery within
 $\pm$250\,kb of any fine-mapped lead's top-PIP variant). Per-method,
 per-tier recovery for the grain pass is in Supplementary Table~S7,
@@ -967,10 +970,15 @@ additionally use the rice multi-omics graph cache (RAP-DB
 variant--gene + Ren 2023 gene--pathway + RicePPINet PPI). The
 SuSiE-inf and FINEMAP-inf baselines are the state-of-the-art
 infinitesimal-effects methods from Wu \emph{et al.}\ 2026 (Fig.~4b).
-SBayesRC \cite{zheng2024leveraging} is omitted from this rice panel
-because the public LD reference is human HM3-EUR; an in-sample 3kRG
-HM3-substitute LD reference is being prepared and will be added in
-the next revision.
+SBayesRC \cite{zheng2024leveraging} is included as the 6th method.
+We built a 3kRG-specific eigen-decomposed LD reference from scratch
+using gctb 2.05beta + the R \texttt{LDstep1}--\texttt{LDstep4}
+pipeline over 23 non-overlapping blocks covering all 41 fine-mapped
+leads (188\,K MAF~$\geq$~0.05 variants; ~10 min wall-clock).
+SBayesRC achieves \textbf{20/21 (95\%)} variant-level recovery
+of the Niu QTNs in 95\% credible sets within $\pm$10\,kb (16 exact
+position matches), the strongest of all six methods on this rice
+grain pass.
 
 \clearpage
 

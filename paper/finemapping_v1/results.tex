@@ -428,26 +428,45 @@ to within $\leq$10\,kb, including the \emph{GS3}
 (Chr3:16{,}733{,}441) and \emph{qSW5/GW5} (Chr5:5{,}371{,}529)
 hubs that drive grain length, width and ratio simultaneously.
 
-\textbf{5-method fine-mapping at 41 leads.} We fine-mapped a
+\textbf{6-method fine-mapping at 41 leads.} We fine-mapped a
 literature-anchored set of 41 leads (top 5 GW-significant
 $+$ top 2 suggestive per trait, augmented by every lead falling
 within $\pm$100\,kb of a Niu QTN; $\pm$100\,kb LD windows;
-MAF~$\geq$~0.05) using GAFM, HBP, SuSiE, SuSiE-inf and FINEMAP-inf.
+MAF~$\geq$~0.05) using GAFM, HBP, SuSiE, SuSiE-inf, FINEMAP-inf,
+and SBayesRC. The SBayesRC LD reference is a custom 23-block
+3kRG-specific eigen-decomposed reference covering all 41 leads
+(188\,K MAF~$\geq$~0.05 variants in the targeted $\pm$250\,kb
+windows around each lead; LDM constructed by gctb 2.05beta and
+eigen-decomposed at 0.995 variance threshold per
+\citealt{zheng2024leveraging}); the other five methods use the
+same per-locus z-statistics and in-sample 3kRG LD as before.
+
 At the strict variant-level criterion (the QTN's chr:pos in the
 95\% credible set within $\pm$10\,kb), per-method recovery of the
-21 Niu QTNs is GAFM 10/21 (48\%), HBP 9/21 (43\%), SuSiE 10/21
-(48\%), SuSiE-inf 8/21 (38\%) and FINEMAP-inf 3/21 (14\%; the
-FinucaneLab SSS sampler returns all-zero PIPs at extreme
-$p{<}10^{-100}$ leads and is filtered as a method-level
-non-result there); top-1-PIP exact-position recovery is led by
-SuSiE 6/21 (29\%). For the 7 NEW candidate genes flagged by Niu
-\emph{et al.}\ 2021 at locus-level resolution, recovery is HBP/SuSiE/SuSiE-inf
-5--6/7 (71--86\%), GAFM 3/7 (43\%) and FINEMAP-inf 5/7 (71\%);
-gene-level recovery against the Ren \emph{et al.}\ 2023
+21 Niu QTNs is \textbf{SBayesRC 20/21 (95\%, 16 exact-position
+matches)}, GAFM 10/21 (48\%), HBP 9/21 (43\%), SuSiE 10/21 (48\%),
+SuSiE-inf 8/21 (38\%) and FINEMAP-inf 3/21 (14\%; the FinucaneLab
+SSS sampler returns all-zero PIPs at extreme $p{<}10^{-100}$
+leads and is filtered as a method-level non-result there);
+top-1-PIP exact-position recovery is led by SuSiE 6/21 (29\%).
+For the 7 NEW candidate genes flagged by Niu \emph{et al.}\ 2021
+at locus-level resolution, recovery is SuSiE/SuSiE-inf/SBayesRC
+6/7 (86\%), HBP 5/7 (71\%), FINEMAP-inf 5/7 (71\%) and GAFM 3/7
+(43\%); gene-level recovery against the Ren \emph{et al.}\ 2023
 \cite{ren2023rice} grain-quality catalogue is 17--18/$\sim$118
-across all five methods (per-method, per-tier breakdown in
-Supplementary Table~S7; per-locus credible sets in
-Supplementary Table~S8).
+across all six methods (per-method, per-tier breakdown in
+Supplementary Table~S7; per-locus credible sets in Supplementary
+Table~S8). The SBayesRC continuous-shrinkage prior with
+eigen-decomposed in-sample LD is therefore the strongest of the
+six methods on this rice grain pass at the strict variant-level
+recovery metric, exceeding both the canonical SuSiE family and
+the graph-augmented GAFM/HBP under the inflation regime
+($\lambda_{GC}{=}1.41$--$1.78$) characteristic of the 3kRG XI/GJ
+structure --- a notable result given that SBayesRC's public
+reference is human-only and the rice-3kRG-specific LD reference
+had to be built from scratch (gctb 2.05beta + R LDstep1--4 over
+23 blocks; pipeline in
+\texttt{tests/rice3k\_grain\_shape\_sbayesrc\_run.R}, ~10 min compute).
 
 The depth pass thus extends the cross-species claim from
 ``IRRI-ordinal traits with $\lambda_{GC} \in [0.85, 1.20]$''

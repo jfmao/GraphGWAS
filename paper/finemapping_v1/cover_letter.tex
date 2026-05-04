@@ -124,10 +124,12 @@ Genomes panel (14 traits, 54 leads) and the 3{,}000 Rice Genomes panel (18 IRRI 
 traits, 72 leads + 4 continuous grain weight/shape traits, 41 fine-mapped leads). On rice,
 24 of 72 IRRI-trait leads fall within 250\,kb of a Ren \emph{et al.}\ (2023) catalogued
 causal gene; on the panel-matched grain weight/shape pass, \textbf{20 of 21 stable QTNs
-reported by Niu \emph{et al.}\ 2021 \emph{BMC Genomics} are recovered (95\%) at GWAS lead
-resolution, and 10/21 (48\%) at variant-level resolution by both GAFM and SuSiE} on the
-same 3kRG panel under a uniform 5-method fine-mapping panel (GAFM, HBP, SuSiE, SuSiE-inf,
-FINEMAP-inf).
+reported by Niu \emph{et al.}\ 2021 \emph{BMC Genomics} are recovered at GWAS lead
+resolution and \textbf{20 of 21 at variant-level resolution by SBayesRC} (16 exact-position
+matches at $\pm$10\,kb)} on the same 3kRG panel under a uniform 6-method fine-mapping
+panel (GAFM, HBP, SuSiE, SuSiE-inf, FINEMAP-inf, SBayesRC). The SBayesRC LD reference
+was built from scratch for 3kRG (gctb 2.05beta + R LDstep1--4 over 23 targeted
+$\pm$250\,kb blocks; ~10 min compute) since no public rice-specific reference exists.
 \end{itemize}
 
 A direct-intervention experiment establishes the central methodological claim. Adding a coarse

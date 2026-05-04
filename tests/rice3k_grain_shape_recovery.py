@@ -33,7 +33,7 @@ QTNS = pd.read_csv(GT / "niu2021_qtns.tsv", sep="\t")
 REN = pd.read_csv(GT / "grain_quality_causal_genes.tsv", sep="\t")
 GENE_IDX = pd.read_csv(GT / "gene_position_index.tsv", sep="\t")
 
-METHODS = ["GAFM", "HBP", "SuSiE", "SuSiE-inf", "FINEMAP-inf"]
+METHODS = ["GAFM", "HBP", "SuSiE", "SuSiE-inf", "FINEMAP-inf", "SBayesRC"]
 TRAITS = ["TGW", "GL", "GW", "RLW"]
 TIER1_NEAR_WINDOW = 10_000   # ±bp around Niu QTN to count as "in CS (near)"
 TIER2_WINDOW = 100_000   # ±bp around Niu 2021 QTN to call its candidate gene "recovered"
