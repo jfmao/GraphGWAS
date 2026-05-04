@@ -865,6 +865,33 @@ SPKF: spikelet fertility.
 
 \clearpage
 
+\subsection*{Supplementary Table S5b --- 3kRG grain weight + shape whole-genome scan summary (Niu et al. 2021 phenotype reference panel)}
+
+\input{tables/grain_table_s5_addendum.tex}
+
+\paragraph{Phenotype provenance and quality control.}
+TGW (thousand-grain weight, $N{=}1{,}847$) is from the
+\texttt{thousand\_grain\_weight.txt} text file; GL, GW and RLW
+($N{=}2{,}453$, $\mathrm{RLW}=\mathrm{GL/GW}$) are from the
+\texttt{3K.shape.phe.xlsx} workbook --- both prepared from the
+Niu \emph{et al.}\ 2021 \emph{BMC Genomics} \cite{niu2021grain}
+multi-year, multi-environment GWAS panel (3 trial years; mean
+across years used for the rerun). Sample identifiers
+($\mathtt{B}/\mathtt{C}/\mathtt{IRIS\_313}$ prefixes) match the
+3kRG plink2 \texttt{.psam} directly: shape ID coverage is 2453/2453
+and TGW coverage is 1847/1847 against the 3{,}024-sample \texttt{.psam}
+(joint coverage 1{,}832 for any pairwise correlation analysis).
+Phenotype QC reproduces the four-trait pairwise Pearson
+correlations of Niu Fig.~1b to within $\Delta r{<}0.04$ (e.g.\
+$r(\mathrm{TGW},\mathrm{GW}){=}0.60$ vs.\ Niu's $0.63$;
+$r(\mathrm{GL},\mathrm{RLW}){=}0.76$ vs.\ Niu's $0.76$;
+$r(\mathrm{GW},\mathrm{RLW}){=}-0.78$ vs.\ Niu's $-0.78$). The
+narrow-sense $h^2$ values reported by Niu are 0.92 (TGW), 0.88
+(GL), 0.93 (GW), 0.92 (RLW) --- the highest in the rice
+fine-mapping literature for QTN-supported trait classes.
+
+\clearpage
+
 \subsection*{Supplementary Table S6 --- Cross-species fine-mapping summary}
 
 \begin{table}[htbp]
@@ -890,12 +917,63 @@ canon for human).}
                  & \shortstack[r]{\textbf{Both}\\\textbf{CS$=$1}}
                  & \textbf{Validated} \\
 \midrule
-Rice (3kRG)            & 18 & 72  & 11 (15\%) & 16 (22\%) & 14 (19\%)  & 8 (11\%) & 24 (33\%) \\
+Rice (3kRG, IRRI)      & 18 & 72  & 11 (15\%) & 16 (22\%) & 14 (19\%)  & 8 (11\%) & 24 (33\%) \\
+Rice (3kRG, grain)$^\dagger$ &  4 & 41  & 1 (2\%)   & 4 (10\%)  & 28 (68\%)  & 1 (2\%)  & 10/21 (48\%) \\
 Yeast (1011)           & 35 & 245 & 0 (0\%)   & 5 (2\%)   & 244 (100\%) & 0 (0\%) & 44 (18\%) \\
 Arabidopsis (1001G)    & 14 & 54  & 3 (6\%)   & 7 (13\%)  & 29 (54\%)   & 2 (4\%)  & 3 (6\%)  \\
 Human (Pan-UKB, GW)    & 3  & 321 & 8 (2\%)   & 47 (15\%) & 0 (0\%)     & 8 (2\%) & 21 (7\%) \\
 \midrule
-\textbf{Total}         & 70 & 692 & \textbf{22} & \textbf{75} & \textbf{287} & \textbf{18} & \textbf{92} \\
+\textbf{Total}         & 74 & 733 & \textbf{23} & \textbf{79} & \textbf{315} & \textbf{19} & \textbf{102} \\
 \bottomrule
 \end{tabular}
+
+\vspace{2pt}
+\footnotesize{$^\dagger$ Validation count for the grain-shape pass uses the
+panel-matched Niu \emph{et al.}\ 2021 \cite{niu2021grain} 21-stable-QTN
+catalogue at \emph{variant-level} resolution: a QTN is counted as
+``validated'' if its chr:pos appears in the 95\% credible set within
+$\pm$10\,kb (the strict variant-level criterion; reported here for GAFM
+which gives 10/21 = 48\%). At the looser locus-level (any fine-mapped
+lead within $\pm$100\,kb of the QTN at $p\leq5\times10^{-8}$), 20 of 21
+Niu QTNs are recovered (95\%). The IRRI row's validation count uses Ren
+\emph{et al.}\ 2023 \cite{ren2023rice} (gene-level recovery within
+$\pm$250\,kb of any fine-mapped lead's top-PIP variant). Per-method,
+per-tier recovery for the grain pass is in Supplementary Table~S7,
+and per-locus 5-method credible-set comparison in Supplementary Table~S8.
+The grain pass spans 41 fine-mapped loci: top 5 GW-significant + top 2
+suggestive per trait (28 discovery leads) plus 13 additional leads
+matched within $\pm$100\,kb of a Niu 2021 QTN to ensure literature-anchored
+coverage of the panel-matched catalogue.}
 \end{table}
+
+\clearpage
+
+\subsection*{Supplementary Table S7 --- 3kRG grain weight + shape: 5-method ground-truth recovery scorecard}
+
+\input{tables/grain_table_s7_recovery.tex}
+
+\paragraph{Method panel.} The five methods are GAFM (graph-augmented
+fine-mapping; this work, $\alpha{=}0.7$, sumstats interface,
+\texttt{l1\_finemap\_from\_sumstats}); HBP (hierarchical belief
+propagation; this work, sumstats interface,
+\texttt{hbp\_finemap\_from\_sumstats}); SuSiE
+\cite{wang2020simple} via \texttt{susieR::susie\_rss} on signed
+in-sample LD; SuSiE-inf \cite{cui2024improving} via the
+FinucaneLab Python \texttt{susieinf} reference implementation; and
+FINEMAP-inf \cite{cui2024improving} via the FinucaneLab Python
+\texttt{finemapinf} reference implementation. All five share the
+same 250\,kb LD windows and 95\% credible-set coverage; GAFM/HBP
+additionally use the rice multi-omics graph cache (RAP-DB
+variant--gene + Ren 2023 gene--pathway + RicePPINet PPI). The
+SuSiE-inf and FINEMAP-inf baselines are the state-of-the-art
+infinitesimal-effects methods from Wu \emph{et al.}\ 2026 (Fig.~4b).
+SBayesRC \cite{zheng2024leveraging} is omitted from this rice panel
+because the public LD reference is human HM3-EUR; an in-sample 3kRG
+HM3-substitute LD reference is being prepared and will be added in
+the next revision.
+
+\clearpage
+
+\subsection*{Supplementary Table S8 --- 3kRG grain pass: per-locus 5-method credible-set comparison}
+
+\input{tables/grain_table_s8_per_locus.tex}

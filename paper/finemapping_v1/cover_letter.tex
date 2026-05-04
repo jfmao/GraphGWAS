@@ -120,9 +120,14 @@ CSA, AFR, EAS), recovering \emph{LDLR}, \emph{APOE}, \emph{LPL}, \emph{GCKR} and
 at single-variant resolution.
 \item \textbf{Cross-species portability without algorithmic change} --- the same code
 fine-maps the 1011 Yeast Genomes panel (35 traits, 245 leads), the 1001 \emph{Arabidopsis}
-Genomes panel (14 traits, 54 leads) and the 3{,}000 Rice Genomes panel (18 IRRI traits, 72
-leads); on rice, 24 of 72 fine-mapped leads fall within 250\,kb of a Ren \emph{et al.}\ (2023)
-catalogued causal gene, including \emph{Rc} (4.5\,kb) and \emph{TGW6} (12.3\,kb).
+Genomes panel (14 traits, 54 leads) and the 3{,}000 Rice Genomes panel (18 IRRI ordinal
+traits, 72 leads + 4 continuous grain weight/shape traits, 41 fine-mapped leads). On rice,
+24 of 72 IRRI-trait leads fall within 250\,kb of a Ren \emph{et al.}\ (2023) catalogued
+causal gene; on the panel-matched grain weight/shape pass, \textbf{20 of 21 stable QTNs
+reported by Niu \emph{et al.}\ 2021 \emph{BMC Genomics} are recovered (95\%) at GWAS lead
+resolution, and 10/21 (48\%) at variant-level resolution by both GAFM and SuSiE} on the
+same 3kRG panel under a uniform 5-method fine-mapping panel (GAFM, HBP, SuSiE, SuSiE-inf,
+FINEMAP-inf).
 \end{itemize}
 
 A direct-intervention experiment establishes the central methodological claim. Adding a coarse
@@ -136,10 +141,13 @@ which the typed-graph representation exposes directly to inference.
 
 Graph-native fine-mapping has practical implications beyond benchmarks: it removes the
 annotation-curation bottleneck that has prevented systematic fine-mapping in non-model
-species --- crops, livestock, and model organisms. The 3{,}000 Rice Genomes recovery of \emph{Rc}, \emph{TGW6}, \emph{An-1},
-\emph{BG1}, \emph{GAD1/RAE2} and \emph{OsER1} from the same code base that produces
-single-variant credible sets at \emph{LDLR} and \emph{LPL} on Pan-UK Biobank is a concrete
-demonstration of this portability on the canonical crop-genomics benchmark species.
+species --- crops, livestock, and model organisms. The 3{,}000 Rice Genomes recovery of
+\emph{Rc}, \emph{TGW6}, \emph{An-1}, \emph{BG1}, \emph{GAD1/RAE2} and \emph{OsER1} on the
+IRRI ordinal-trait pass, together with the 20-of-21-stable-QTN recovery against the
+panel-matched Niu \emph{et al.}\ 2021 grain weight/shape catalogue, all from the same code
+base that produces single-variant credible sets at \emph{LDLR} and \emph{LPL} on Pan-UK
+Biobank, is a concrete demonstration of this portability on the canonical crop-genomics
+benchmark species.
 
 A companion manuscript on graph-native higher-order epistasis (LD-pruned co-occurrence
 pairwise-epistasis; LPCE) is in preparation; we will alert the journal upon its submission so

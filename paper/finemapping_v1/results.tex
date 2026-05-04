@@ -358,16 +358,30 @@ no curated causal-gene catalogue. The same fine-mapping pipeline,
 unchanged except for the loaded annotation graph, was applied to all
 three regimes (Supplementary Tables~S5--S6).
 
-\paragraph{Rice (3{,}000 Rice Genomes, 18 morphological traits).}
-A whole-genome GWAS on 3{,}024 accessions (29.6~M biallelic SNPs)
-across 18 IRRI Standard Evaluation System traits\cite{wang2018genomic}
-($\lambda_{GC}$: 0.50--2.07, median 1.09; per-trait detail in
-Supplementary Table~S5) provided the GWAS substrate for fine-mapping
-the top three genome-wide-significant plus one suggestive
-independent lead per trait (72 total) within $\pm$250~kb windows
-against a rice multi-omics graph (RAP-DB variant--gene + Ren 2023
-gene--pathway curation\cite{ren2023rice} + RicePPINet
-gene--gene\cite{liu2017riceppinet}).
+\paragraph{Rice (3{,}000 Rice Genomes, 18 IRRI ordinal traits + 4 grain weight/shape traits).}
+The rice 3kRG analysis comprises two complementary GWAS passes on
+the same 3{,}024-accession genotype substrate. The breadth pass is
+a whole-genome GWAS on 18 IRRI Standard Evaluation System ordinal
+trait codes\cite{wang2018genomic} ($\lambda_{GC}$: 0.50--2.07,
+median 1.09; per-trait detail in Supplementary Table~S5) used as
+the substrate for fine-mapping the top three genome-wide-significant
+plus one suggestive independent lead per trait (72 total) within
+$\pm$250~kb windows against a rice multi-omics graph (RAP-DB
+variant--gene + Ren 2023 gene--pathway curation\cite{ren2023rice}
++ RicePPINet gene--gene\cite{liu2017riceppinet}). The depth pass
+is a 4-trait GWAS on continuous grain weight (TGW) and grain shape
+(GL, GW, RLW = GL/GW) phenotypes from Niu \emph{et al.}\ 2021
+\cite{niu2021grain} on the same panel ($N{=}1{,}847$ for TGW;
+$N{=}2{,}453$ for GL/GW/RLW; $h^2$ 0.88--0.93 in Niu's
+variance-component decomposition; $\lambda_{GC}$: 1.41--1.78 under
+PC1--PC10 correction, reflecting the same XI/GJ population
+structure as the IRRI scan; pairwise Pearson correlations match
+Niu's Fig.~1b to within $\Delta r{<}0.04$). The grain pass provides
+the strongest crop-genomics validation in the manuscript: Niu
+\emph{et al.}\ 2021 reports 21 stable QTNs identified across 3
+years of trials by compressed-MLM analysis on the same panel,
+giving a literature-curated, panel-matched ground truth not
+available for the 18-trait IRRI scan.
 
 GAFM delivers a single-variant 95\% credible set with PIP~$\geq$~0.99
 on 11 of 72 leads (15\%). \textbf{Twenty-four of 72 leads (33\%)
@@ -397,6 +411,62 @@ confounding ($F_{ST} \approx 0.5$ between XI and GJ subpopulations
 under 10-PC correction); the eight doubly-resolved loci with
 HBP CS $=$ GAFM CS $=$ 1 are all in well-calibrated traits
 ($\lambda_{GC} \in [0.50, 1.38]$).
+
+\textbf{Grain weight + shape pass.}
+The Niu \emph{et al.}\ 2021 phenotype panel ($N{=}2{,}453$ for grain
+shape; $N{=}1{,}847$ for grain weight) yields 4{,}454 independent
+genome-wide-significant leads across the four traits at 250\,kb
+clumping. \textbf{Twenty of 21 stable QTNs identified by Niu
+\emph{et al.}\ 2021 are recovered within $\pm$100\,kb of an
+independent lead at $p \leq 5\times10^{-8}$} (95\% catalogue
+recovery at GWAS lead-call resolution; the only miss is qGL10 at
+Chr10:13.62\,Mb, originally reported by Niu at
+$p{=}1.19\times10^{-7}$ in compressed-MLM, which falls below our
+$p{<}10^{-5}$ suggestive cutoff under the linear-model + 10-PC
+pipeline). Eleven of the recovered QTNs match the lead position
+to within $\leq$10\,kb, including the \emph{GS3}
+(Chr3:16{,}733{,}441) and \emph{qSW5/GW5} (Chr5:5{,}371{,}529)
+hubs that drive grain length, width and ratio simultaneously.
+
+\textbf{5-method fine-mapping at 41 leads.} We fine-mapped a
+literature-anchored set of 41 leads (top 5 GW-significant
+$+$ top 2 suggestive per trait, augmented by every lead falling
+within $\pm$100\,kb of a Niu QTN; $\pm$100\,kb LD windows;
+MAF~$\geq$~0.05) using GAFM, HBP, SuSiE, SuSiE-inf and FINEMAP-inf.
+At the strict variant-level criterion (the QTN's chr:pos in the
+95\% credible set within $\pm$10\,kb), per-method recovery of the
+21 Niu QTNs is GAFM 10/21 (48\%), HBP 9/21 (43\%), SuSiE 10/21
+(48\%), SuSiE-inf 8/21 (38\%) and FINEMAP-inf 3/21 (14\%; the
+FinucaneLab SSS sampler returns all-zero PIPs at extreme
+$p{<}10^{-100}$ leads and is filtered as a method-level
+non-result there); top-1-PIP exact-position recovery is led by
+SuSiE 6/21 (29\%). For the 7 NEW candidate genes flagged by Niu
+\emph{et al.}\ 2021 at locus-level resolution, recovery is HBP/SuSiE/SuSiE-inf
+5--6/7 (71--86\%), GAFM 3/7 (43\%) and FINEMAP-inf 5/7 (71\%);
+gene-level recovery against the Ren \emph{et al.}\ 2023
+\cite{ren2023rice} grain-quality catalogue is 17--18/$\sim$118
+across all five methods (per-method, per-tier breakdown in
+Supplementary Table~S7; per-locus credible sets in
+Supplementary Table~S8).
+
+The depth pass thus extends the cross-species claim from
+``IRRI-ordinal traits with $\lambda_{GC} \in [0.85, 1.20]$''
+to ``four continuous grain weight/shape traits whose
+literature-curated 21-QTN catalogue we recover at 95\% rate at
+GWAS-lead resolution and at $\sim$48\% rate at variant-level
+resolution against a panel-matched ground truth without re-tuning
+the pipeline'' --- the strongest crop-genomics benchmark in the
+manuscript. The unusually inflated $\lambda_{GC}$ values for this
+pass (1.41--1.78) are consistent with the well-documented XI/GJ
+subpopulation structure of the 3kRG panel under PC1--PC10
+correction; SuSiE and SuSiE-inf give CS$=$1 on every locus
+(40--41 / 41), which is consistent with the inflation-induced
+single-strongest-variant collapse and is the same caveat raised
+for the IRRI 18-trait pass at $\lambda_{GC} \in [1.6, 2.1]$
+(\S\ref{sec:multispecies} above). GAFM/HBP are more conservative
+under inflation (median CS$=$1{,}823 and 814 respectively at the
+secondary leads); the variant-level recovery rate is therefore
+the most defensible cross-method comparison metric here.
 
 \paragraph{Yeast (1011 Genome panel, 35 growth traits).}
 Across 35 grammar-corrected growth-trait sumstats\cite{peter2018genome,

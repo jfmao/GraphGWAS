@@ -103,23 +103,38 @@ shared variants at $r=1.0000$ over 82{,}000 variants
 
 \textbf{\emph{Arabidopsis} (1001~Genomes panel, 14 priority
 traits) and rice (3{,}000 Rice Genomes panel, 18 IRRI Standard
-Evaluation System traits).} Whole-genome single-locus association
-was performed with PLINK~2.0 \cite{chang2015second}. The
-\emph{Arabidopsis} pipeline ran
+Evaluation System traits + 4 grain weight/shape traits).}
+Whole-genome single-locus association was performed with
+PLINK~2.0 \cite{chang2015second}. The \emph{Arabidopsis}
+pipeline ran
 \texttt{plink2 --vcf 1001G\_chr\{1..5\}.vcf.gz --double-id
 --maf 0.01 --geno 0.05 --hwe 1e-10 --pheno phenotypes.tsv
 --linear hide-covar --covar 10pcs.tsv --out
 ara\_\{trait\}}, restricted to biallelic SNPs after GATK
 hard-filter. The rice pipeline (3{,}024 accessions, 29.6~M
-biallelic SNPs from the 3kRG pseudo-canonical VCF) ran
-\texttt{plink2 --bfile rice\_3krg --maf 0.01 --geno 0.05 --pheno
-irri\_18traits.tsv --linear hide-covar --covar
-rice\_10pcs.tsv --out rice\_\{trait\}} for each of the 18 IRRI
-trait codes. Phenotype files were prepared by the
-\texttt{graphgwas.phenotype} module, which links accession IDs
-across heterogeneous source identifiers (IRGC accession numbers
-to PLINK sample IDs for rice). Genotypic principal components
-were computed with \texttt{plink2 --pca 10}.
+biallelic SNPs from the 3kRG pseudo-canonical VCF) ran two
+multi-phenotype \texttt{plink2 --glm linear} passes on the same
+genotype substrate: an 18-trait pass on the IRRI Standard
+Evaluation System ordinal codes
+(\texttt{tests/rice3k\_irri\_gwas\_multitrait.py}), and a
+4-trait pass on the continuous grain weight (TGW) and grain
+shape (GL, GW, RLW = GL/GW) phenotypes from Niu \emph{et al.}\
+2021 \emph{BMC Genomics} \cite{niu2021grain} prepared by
+\texttt{tests/rice3k\_grain\_shape\_phenotypes.py}
+(\texttt{docs/3K.shape.phe.xlsx}: $N=2{,}453$ for GL/GW/RLW;
+\texttt{docs/thousand\_grain\_weight.txt}: $N=1{,}847$ for TGW;
+joint $N=1{,}832$ for any pairwise correlation analysis).
+The phenotype IDs (\texttt{B}/\texttt{C}/\texttt{IRIS\_313}-prefixed
+3K accession identifiers) match the plink2 \texttt{rice\_3k.psam}
+directly, so no IRGC bridging is required for the grain rerun.
+Phenotype QC reproduces the four-trait pairwise Pearson
+correlations reported in Niu 2021 Fig.~1b to within $\Delta r <
+0.04$ (e.g.\ $r(\mathrm{TGW},\mathrm{GW}){=}0.60$ vs.\ Niu's $0.63$;
+$r(\mathrm{GL},\mathrm{RLW}){=}0.76$ vs.\ Niu's $0.76$;
+narrow-sense $h^2$ ranges 0.88--0.93 in Niu's variance-component
+decomposition). For both rice passes, all 4 (or 18) traits share
+genotype I/O in a single \texttt{plink2} call. Genotypic
+principal components were computed with \texttt{plink2 --pca 10}.
 
 \textbf{Human (Pan-UK Biobank).} No GWAS was run by us.
 Pre-computed Pan-UKB summary statistics from the consortium SAIGE
@@ -297,11 +312,30 @@ resolution.
 For each species, lead loci were called by greedy clustering of
 genome-wide-significant variants ($p \leq 5\times10^{-8}$) at
 trait-LD-appropriate windows (15~kb yeast; 100~kb \emph{Arabidopsis};
-250~kb rice; 500~kb human). Up to four leads per trait were
+250~kb rice IRRI / rice grain;
+500~kb human). Up to four leads per trait were
 fine-mapped within $\pm$15--500~kb LD windows using the
 species-specific 1KG-equivalent reference panel for LD computation
 (yeast 1011G; \emph{Arabidopsis} 1001G; rice 3kRG;
-1KG NYGC GRCh38 for human). Validation used 250~kb-window overlap
+1KG NYGC GRCh38 for human). For the rice grain weight + shape pass
+(this work, v0.1.4), a 5-method panel was applied at the top 5
+genome-wide-significant + top 2 suggestive leads per trait
+(28 loci total) within $\pm$100\,kb LD windows after filtering to
+common variants (MAF $\geq 0.05$, matching Niu \emph{et al.}\ 2021's
+fine-mapping convention): GAFM and HBP from this work; SuSiE
+\cite{wang2020simple} via \texttt{susieR::susie\_rss} on signed
+in-sample LD; SuSiE-inf and FINEMAP-inf
+\cite{cui2024improving} as the FinucaneLab Python reference
+implementations of the two state-of-the-art infinitesimal-effects
+fine-mappers from Wu \emph{et al.}\ 2026 (Fig.~4b). All five
+methods used the same per-locus z-statistics (BETA/SE), the same
+in-sample 3kRG LD matrix, and the same 95\% credible-set
+coverage; GAFM and HBP additionally use the rice multi-omics graph
+prior (RAP-DB variant--gene + Ren 2023 gene--pathway +
+RicePPINet PPI). SBayesRC \cite{zheng2024leveraging} was omitted
+because the public LD reference is human HM3-EUR; an in-sample
+3kRG HM3-substitute LD reference for SBayesRC is being prepared
+and will be added in the next revision. Validation used 250~kb-window overlap
 against literature catalogues: Bloom 2015\cite{bloom2015genetic} +
 Peter 2018\cite{peter2018genome} for yeast,
 AraGWAS\cite{togninalli2018aragwas} Bonferroni hits + canonical

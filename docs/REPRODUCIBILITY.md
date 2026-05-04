@@ -188,6 +188,57 @@ Expected output: top PIP > 0.9 at the causal variant; all 4 steps run in
 under 2 min on a laptop-scale machine. Scaling to UK Biobank requires only
 swapping the `BgenReader` path; the graph is the same.
 
+## 6.1 Rice 3kRG grain weight + shape rerun (Niu et al. 2021 panel; v0.1.4)
+
+Reproduces the 4-trait grain-shape and grain-weight benchmark added in v0.1.4.
+
+```bash
+# Inputs already in repo:
+#   docs/3K.shape.phe.xlsx           (2,453 accessions × GLWR/GL/GW)
+#   docs/thousand_grain_weight.txt   (1,847 accessions × TGW)
+#   data/rice_3k/{rice_3k.psam, rice_3k.pgen, rice_3k.pvar}
+#   data/rice_3k/tmp/pca.eigenvec    (PC1-PC10)
+#   data/rice_3k/annotations/rice_graph_cache_Chr*.json   (12 files)
+#   data/rice_3k/ground_truth/{niu2021_qtns.tsv, grain_quality_causal_genes.tsv,
+#                              gene_position_index.tsv}
+
+# 1) Build phenotype files (writes data/rice_3k/pheno/grain_*.pheno; ~5 s)
+python tests/rice3k_grain_shape_phenotypes.py
+
+# 2) Multi-phenotype plink2 --glm linear pass (PC1–PC10, ~7 min)
+python tests/rice3k_grain_shape_gwas.py
+
+# 3) Cluster leads + Niu 2021 21-QTN match (~3 min I/O-bound)
+python tests/rice3k_grain_shape_postprocess.py
+
+# 4) 5-method fine-mapping at top 5 GW + top 2 suggestive leads / trait
+#    (28 loci × {GAFM, HBP, SuSiE, SuSiE-inf, FINEMAP-inf}; ~1–2 h)
+python tests/rice3k_grain_shape_finemap.py
+
+# 5) Three-tier ground-truth recovery scoring (~10 s)
+python tests/rice3k_grain_shape_recovery.py
+
+# 6) Manhattan + Q–Q + recovery-scorecard figures
+python tests/rice3k_grain_shape_figures.py
+# Writes paper/finemapping_v1/figures/rice_grain_*.{png,pdf}
+
+# 7) Paper LaTeX tables S5b / S7 / S8
+python tests/rice3k_grain_shape_paper_tables.py
+# Writes paper/finemapping_v1/tables/grain_table_s{5_addendum,7_recovery,8_per_locus}.tex
+```
+
+Outputs land in:
+
+- `data/rice_3k/pheno/grain_*.pheno`
+- `data/rice_3k/results/grain_gwas/{grain_gwas_summary.tsv, grain_lead_loci.tsv, grain_niu2021_match.tsv}`
+- `data/rice_3k/results/grain_finemap/{<trait>_<chr>_<pos>.json, grain_finemap_summary.tsv, grain_recovery_scorecard.tsv, grain_recovery_summary.md}`
+- `paper/finemapping_v1/figures/rice_grain_{manhattan,qq,recovery_scorecard}.{png,pdf}`
+- `paper/finemapping_v1/tables/grain_table_s{5_addendum,7_recovery,8_per_locus}.tex`
+
+The phenotype files are derived from
+Niu \emph{et al.} 2021 *BMC Genomics* (DOI 10.1186/s12864-021-07901-x);
+the 21-QTN ground truth (`niu2021_qtns.tsv`) is transcribed from their Table 2.
+
 ## 7. Unit tests
 
 ```bash
