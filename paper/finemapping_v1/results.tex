@@ -428,45 +428,60 @@ to within $\leq$10\,kb, including the \emph{GS3}
 (Chr3:16{,}733{,}441) and \emph{qSW5/GW5} (Chr5:5{,}371{,}529)
 hubs that drive grain length, width and ratio simultaneously.
 
-\textbf{6-method fine-mapping at 41 leads.} We fine-mapped a
+\textbf{9-method fine-mapping at 41 leads (v0.1.5).} We fine-mapped a
 literature-anchored set of 41 leads (top 5 GW-significant
 $+$ top 2 suggestive per trait, augmented by every lead falling
 within $\pm$100\,kb of a Niu QTN; $\pm$100\,kb LD windows;
-MAF~$\geq$~0.05) using GAFM, HBP, SuSiE, SuSiE-inf, FINEMAP-inf,
-and SBayesRC. The SBayesRC LD reference is a custom 23-block
-3kRG-specific eigen-decomposed reference covering all 41 leads
-(188\,K MAF~$\geq$~0.05 variants in the targeted $\pm$250\,kb
-windows around each lead; LDM constructed by gctb 2.05beta and
-eigen-decomposed at 0.995 variance threshold per
-\citealt{zheng2024leveraging}); the other five methods use the
-same per-locus z-statistics and in-sample 3kRG LD as before.
+MAF~$\geq$~0.05). All nine methods receive
+$\lambda_{GC}$-deflated z-scores (the standard genomic-control
+correction; $z \to z/\sqrt{\lambda_{GC}}$). The panel comprises
+the original GAFM and HBP; their v0.1.5 variants augmented with
+a SBayesRC-style 4-component Wakefield mixture-prior posterior
+reweighting on the deflated z-scores (GAFM-MX, HBP-MX); the
+mean-of-PIPs ensemble of the two augmented methods (ENS); and
+the four canonical baselines SuSiE \cite{wang2020simple},
+SuSiE-inf, FINEMAP-inf \cite{cui2024improving}, and SBayesRC
+\cite{zheng2024leveraging}. The SBayesRC LD reference is a
+custom 23-block 3kRG-specific eigen-decomposed reference covering
+all 41 leads (188\,K MAF~$\geq$~0.05 variants; gctb 2.05beta +
+R \texttt{LDstep1}--\texttt{LDstep4}; ${\sim}$10\,min compute).
 
 At the strict variant-level criterion (the QTN's chr:pos in the
 95\% credible set within $\pm$10\,kb), per-method recovery of the
 21 Niu QTNs is \textbf{SBayesRC 20/21 (95\%, 16 exact-position
-matches)}, GAFM 10/21 (48\%), HBP 9/21 (43\%), SuSiE 10/21 (48\%),
-SuSiE-inf 8/21 (38\%) and FINEMAP-inf 3/21 (14\%; the FinucaneLab
-SSS sampler returns all-zero PIPs at extreme $p{<}10^{-100}$
-leads and is filtered as a method-level non-result there);
-top-1-PIP exact-position recovery is led by SuSiE 6/21 (29\%).
-For the 7 NEW candidate genes flagged by Niu \emph{et al.}\ 2021
-at locus-level resolution, recovery is SuSiE/SuSiE-inf/SBayesRC
-6/7 (86\%), HBP 5/7 (71\%), FINEMAP-inf 5/7 (71\%) and GAFM 3/7
-(43\%); gene-level recovery against the Ren \emph{et al.}\ 2023
-\cite{ren2023rice} grain-quality catalogue is 17--18/$\sim$118
-across all six methods (per-method, per-tier breakdown in
+matches)} $>$ \textbf{GAFM-MX = ENS 14/21 (67\%, 10 exact)} $>$
+\textbf{HBP-MX 13/21 (62\%, 7 exact)} $>$ SuSiE 12/21 (57\%, 5
+exact) $>$ HBP 10/21 (48\%) $>$ FINEMAP-inf 8/21 (38\%) =
+SuSiE-inf 8/21 = GAFM 8/21 (38\%). The mixture prior posterior
+reweighting closes a substantial fraction of the gap to SBayesRC:
+GAFM-MX gains 28 percentage points over GAFM (38\%$\to$67\%) and
+HBP-MX gains 14 percentage points over HBP (48\%$\to$62\%). At the
+\textbf{stricter top-1-PIP exact-position metric (the QTN is the
+single highest-PIP variant in the credible set), GAFM-MX,
+HBP-MX, and ENS each achieve 10/21 = 47.6\% --- the highest of
+any method, exceeding SuSiE's 6/21 (28.6\%) and SBayesRC's 3/21
+(14.3\%)}. For the 7 NEW candidate genes (locus-level), GAFM-MX,
+HBP-MX, ENS, SuSiE, SuSiE-inf and SBayesRC all reach
+6/7 = 85.7\%; HBP and FINEMAP-inf reach 4--5/7 (57--71\%); GAFM
+3/7 (43\%). Ren 2023 catalogue gene recovery sits at 16--18 of
+the $\sim$118 grain-shape genes across all nine methods.
+
+The reframing shows that the canonical fine-mapping baselines
+(SuSiE family) and the graph-augmented GAFM/HBP can be brought
+to within striking distance of SBayesRC on the strict variant-level
+metric by importing a single ingredient that SBayesRC bakes into
+its MCMC --- the 4-component spike-and-slab effect-size prior ---
+as a post-hoc Bayes-factor reweighting step. The remaining gap
+to SBayesRC's 95\% recovery (28 percentage points) reflects
+SBayesRC's full eigen-decomposed LD model and its joint-MCMC
+inference across all 188\,K variants in the 23-block window;
+GAFM-MX and HBP-MX retain the 200--700$\times$ speed advantage
+of the original GAFM/HBP (median 0.027 s and 0.029 s per locus,
+respectively, including the mixture-prior reweight; vs.\ 19.2 s
+SuSiE, 5.4 s SuSiE-inf, 4.7 s FINEMAP-inf, ${\sim}$10\,min
+SBayesRC genome-wide). Per-method, per-tier recovery is in
 Supplementary Table~S7; per-locus credible sets in Supplementary
-Table~S8). The SBayesRC continuous-shrinkage prior with
-eigen-decomposed in-sample LD is therefore the strongest of the
-six methods on this rice grain pass at the strict variant-level
-recovery metric, exceeding both the canonical SuSiE family and
-the graph-augmented GAFM/HBP under the inflation regime
-($\lambda_{GC}{=}1.41$--$1.78$) characteristic of the 3kRG XI/GJ
-structure --- a notable result given that SBayesRC's public
-reference is human-only and the rice-3kRG-specific LD reference
-had to be built from scratch (gctb 2.05beta + R LDstep1--4 over
-23 blocks; pipeline in
-\texttt{tests/rice3k\_grain\_shape\_sbayesrc\_run.R}, ~10 min compute).
+Table~S8.
 
 The depth pass thus extends the cross-species claim from
 ``IRRI-ordinal traits with $\lambda_{GC} \in [0.85, 1.20]$''

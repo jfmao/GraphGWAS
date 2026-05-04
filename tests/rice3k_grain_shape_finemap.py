@@ -1,23 +1,27 @@
-"""5-method fine-mapping at the GWAS lead loci of the 4 grain traits.
+"""8-method fine-mapping at the GWAS lead loci of the 4 grain traits (v0.1.5).
+
+v0.1.5 adds three improvements on top of the v0.1.4 panel:
+  - λ_GC deflation: z divided by sqrt(λ_GC) at the trait level (standard
+    genomic-control correction; addresses the XI/GJ inflation regime)
+  - Mixture prior: SBayesRC-style 4-component (π,γ) Wakefield BF posterior
+    reweighting on GAFM and HBP per-variant PIPs (sharpens at large-z
+    variants, shrinks at noise variants)
+  - Ensemble: simple mean of GAFM-MX and HBP-MX PIPs
 
 Methods:
-  1. GAFM (graph-augmented fine-mapping) — l1_finemap_from_sumstats
-  2. HBP  (hierarchical belief propagation) — hbp_finemap_from_sumstats
-  3. SuSiE (susieR::susie_rss) via R subprocess
-  4. SuSiE-inf (FinucaneLab susieinf) — sumstats with infinitesimal background
-  5. FINEMAP-inf (FinucaneLab finemapinf) — SSS sampler with infinitesimal background
+  1. GAFM        (l1_finemap_from_sumstats; original)
+  2. HBP         (hbp_finemap_from_sumstats; original)
+  3. GAFM-MX     (GAFM + mixture-prior posterior reweight)         [new in v0.1.5]
+  4. HBP-MX      (HBP + mixture-prior posterior reweight)          [new in v0.1.5]
+  5. ENS         (mean of GAFM-MX and HBP-MX PIPs per variant)     [new in v0.1.5]
+  6. SuSiE       (susieR::susie_rss via R subprocess)
+  7. SuSiE-inf   (FinucaneLab susieinf, MLE method)
+  8. FINEMAP-inf (FinucaneLab finemapinf, SSS sampler)
+  (SBayesRC runs separately via tests/rice3k_grain_shape_v15_sbayesrc.R)
 
-For each trait × lead in data/rice_3k/results/grain_gwas/grain_lead_loci.tsv,
-loads sumstats + builds in-sample LD from the 3kRG VCF (250 kb window),
-runs all 5 methods, and writes:
-  data/rice_3k/results/grain_finemap/<trait>_<chr>_<pos>.json     (per-locus full result)
-  data/rice_3k/results/grain_finemap/grain_finemap_summary.tsv     (one row per (locus, method))
-
-By default fine-maps the top 5 GW + top 2 suggestive leads per trait
-(adjustable via env vars MAX_GW_PER_TRAIT, MAX_SUG_PER_TRAIT).
-
-Uses the existing rice multi-omics graph cache (Chr*.json) for the GAFM/HBP
-graph prior. SuSiE/SuSiE-inf/FINEMAP-inf are run with no graph prior.
+All 8 methods receive λ_GC-deflated z-scores. Outputs:
+  data/rice_3k/results/grain_finemap/<trait>_<chr>_<pos>.json
+  data/rice_3k/results/grain_finemap/grain_finemap_summary.tsv
 """
 from __future__ import annotations
 
@@ -41,6 +45,7 @@ from graphgwas.finemapping_v2 import (  # noqa: E402
 
 import susieinf  # noqa: E402
 import finemapinf  # noqa: E402
+from scipy import special as scipy_special  # noqa: E402
 
 DATA = Path("/mnt/data/GraphGWAS/data/rice_3k")
 RES = DATA / "results"
@@ -56,6 +61,79 @@ MAX_GW_PER_TRAIT = int(os.environ.get("MAX_GW_PER_TRAIT", "5"))
 MAX_SUG_PER_TRAIT = int(os.environ.get("MAX_SUG_PER_TRAIT", "2"))
 L_EFFECTS = int(os.environ.get("L_EFFECTS", "5"))  # canonical fine-mapping prior
 COVERAGE = 0.95
+
+# v0.1.5 SBayesRC-style 4-component prior (the four NON-zero components):
+#   π = (0.005, 0.003, 0.001, 0.001) — mixture weights (renormalised within non-zero)
+#   γ = (0.001, 0.01, 0.1, 1.0)      — effect-size variance scales
+# These are SBayesRC's startPi[2:5] and gamma[2:5] defaults.
+MIX_PI = np.array([0.005, 0.003, 0.001, 0.001])
+MIX_GAMMA = np.array([0.001, 0.01, 0.1, 1.0])
+
+# v0.1.5 λ_GC deflation factors — loaded once per session.
+_LAMBDA_GC: dict | None = None
+
+
+def _load_lambda_gc() -> dict:
+    global _LAMBDA_GC
+    if _LAMBDA_GC is None:
+        p = GWAS_OUT / "grain_lambda_gc.tsv"
+        if not p.exists():
+            print(f"  warning: {p.name} not found; defaulting λ_GC=1.0", flush=True)
+            _LAMBDA_GC = {}
+        else:
+            df = pd.read_csv(p, sep="\t")
+            _LAMBDA_GC = dict(zip(df["trait"], df["lambda_gc"]))
+            print(f"  λ_GC deflation factors loaded: {_LAMBDA_GC}", flush=True)
+    return _LAMBDA_GC
+
+
+def apply_mixture_posterior(orig_pips, z, n_samples,
+                             pi=MIX_PI, gamma=MIX_GAMMA):
+    """Reweight existing per-variant PIPs by a SBayesRC-style 4-component
+    Wakefield mixture-BF on the z-statistics.
+
+    For each variant i:
+        BF_k(z_i) = (1 + N γ_k)^(-1/2) * exp(z_i² · N γ_k / (2(1 + N γ_k)))
+        BF_mix(z_i) = Σ_k (π_k / Σπ) · BF_k(z_i)
+        new_PIP_i ∝ orig_PIP_i · BF_mix(z_i)
+
+    Sum-of-PIP is preserved (expected number of causals unchanged), so the
+    method only redistributes mass — it sharpens at large-|z| variants and
+    shrinks at noise variants. This is the same effect-size-distribution
+    correction SBayesRC bakes into its MCMC, applied here as a post-hoc step
+    on existing GAFM/HBP outputs.
+    """
+    pips = np.asarray(orig_pips, dtype=float)
+    z = np.asarray(z, dtype=float)
+    pi_arr = np.asarray(pi, dtype=float) / np.sum(pi)
+    V = np.asarray(gamma, dtype=float) * n_samples  # (K,)
+    log_pi = np.log(pi_arr + 1e-300)
+
+    # log ABF_k(z_i) = -0.5 log(1+V_k) + 0.5 z_i² V_k/(1+V_k)
+    log_abf_k = (
+        -0.5 * np.log1p(V)[:, None]
+        + 0.5 * (z[None, :] ** 2) * (V[:, None] / (1.0 + V[:, None]))
+    )  # (K, N)
+    log_mix_abf = scipy_special.logsumexp(log_pi[:, None] + log_abf_k, axis=0)  # (N,)
+
+    log_new = np.log(np.maximum(pips, 1e-300)) + log_mix_abf
+    log_new -= log_new.max()  # numerical stability
+    new_pip = np.exp(log_new)
+    if new_pip.sum() > 0 and pips.sum() > 0:
+        new_pip = new_pip * (pips.sum() / new_pip.sum())
+    return np.clip(new_pip, 0.0, 1.0)
+
+
+def _credible_set_from_pips(pips, coverage=COVERAGE):
+    """Standard 95% CS: sort by descending PIP, accumulate until coverage."""
+    pips = np.asarray(pips, dtype=float)
+    if pips.sum() <= 1e-9:
+        return [int(np.argmax(pips))]
+    order = np.argsort(-pips)
+    cum = np.cumsum(pips[order])
+    target = coverage * cum[-1]
+    k = int(np.searchsorted(cum, target)) + 1
+    return sorted(order[:k].tolist())
 
 
 def _parse_gt(g):
@@ -130,6 +208,14 @@ def _load_trait_sumstats(trait: str):
         gw[c] = pd.to_numeric(gw[c], errors="coerce")
     gw = gw.dropna(subset=["P", "BETA", "SE"])
     gw["z"] = gw["BETA"] / gw["SE"]
+    # v0.1.5: λ_GC deflation (genomic-control correction for XI/GJ inflation)
+    lam_map = _load_lambda_gc()
+    if trait in lam_map:
+        factor = float(np.sqrt(lam_map[trait]))
+        gw["z"] = gw["z"] / factor
+        gw["SE"] = gw["SE"] * factor
+        print(f"  [{trait}] λ_GC={lam_map[trait]:.3f} → z deflated by {factor:.3f}",
+              flush=True)
     # sort + index by chromosome for fast slicing
     gw = gw.sort_values(["CHROM", "POS"]).reset_index(drop=True)
     _TRAIT_SUMSTATS_CACHE[trait] = gw
@@ -396,6 +482,7 @@ def run_locus(trait, lead_chrom, lead_pos, lead_p, sig_level, chr_cache):
         print(f"    {method:12s} CS={cs} topPIP={tp_s} t={t}s{err}", flush=True)
 
     # GAFM
+    gafm_pips = None
     t0 = time.time()
     try:
         gafm = l1_finemap_from_sumstats(
@@ -404,15 +491,16 @@ def run_locus(trait, lead_chrom, lead_pos, lead_p, sig_level, chr_cache):
             graph_cache=window_cache,
         )
         dt = time.time() - t0
-        pips = np.array([c.pip for c in gafm])
+        gafm_pips = np.array([c.pip for c in gafm])
         cs = [[i for i, c in enumerate(gafm) if c.in_credible_set]]
-        method_results["GAFM"] = _summarize_method("GAFM", variants, pips, cs, dt)
+        method_results["GAFM"] = _summarize_method("GAFM", variants, gafm_pips, cs, dt)
     except Exception as e:
         method_results["GAFM"] = {"method": "GAFM", "error": True, "error_msg": str(e),
                                    "time_s": round(time.time() - t0, 3)}
     _log("GAFM", method_results["GAFM"])
 
     # HBP
+    hbp_pips = None
     t0 = time.time()
     try:
         hbp = hbp_finemap_from_sumstats(
@@ -420,13 +508,72 @@ def run_locus(trait, lead_chrom, lead_pos, lead_p, sig_level, chr_cache):
             r2_smooth=0.3, credible_set_coverage=COVERAGE, chr_name=lead_chrom,
         )
         dt = time.time() - t0
-        pips = np.array([c.pip for c in hbp])
+        hbp_pips = np.array([c.pip for c in hbp])
         cs = [[i for i, c in enumerate(hbp) if c.in_credible_set]]
-        method_results["HBP"] = _summarize_method("HBP", variants, pips, cs, dt)
+        method_results["HBP"] = _summarize_method("HBP", variants, hbp_pips, cs, dt)
     except Exception as e:
         method_results["HBP"] = {"method": "HBP", "error": True, "error_msg": str(e),
                                   "time_s": round(time.time() - t0, 3)}
     _log("HBP", method_results["HBP"])
+
+    # GAFM-MX (v0.1.5): mixture-prior posterior on GAFM PIPs
+    t0 = time.time()
+    if gafm_pips is not None:
+        try:
+            mx_pips = apply_mixture_posterior(gafm_pips, z, n_samples)
+            cs = [_credible_set_from_pips(mx_pips, COVERAGE)]
+            method_results["GAFM-MX"] = _summarize_method(
+                "GAFM-MX", variants, mx_pips, cs, time.time() - t0
+            )
+        except Exception as e:
+            method_results["GAFM-MX"] = {"method": "GAFM-MX", "error": True,
+                                          "error_msg": str(e),
+                                          "time_s": round(time.time() - t0, 3)}
+    else:
+        method_results["GAFM-MX"] = {"method": "GAFM-MX", "error": True,
+                                      "error_msg": "GAFM upstream failed",
+                                      "time_s": 0.0}
+    _log("GAFM-MX", method_results["GAFM-MX"])
+
+    # HBP-MX (v0.1.5): mixture-prior posterior on HBP PIPs
+    t0 = time.time()
+    if hbp_pips is not None:
+        try:
+            mx_pips = apply_mixture_posterior(hbp_pips, z, n_samples)
+            cs = [_credible_set_from_pips(mx_pips, COVERAGE)]
+            method_results["HBP-MX"] = _summarize_method(
+                "HBP-MX", variants, mx_pips, cs, time.time() - t0
+            )
+        except Exception as e:
+            method_results["HBP-MX"] = {"method": "HBP-MX", "error": True,
+                                         "error_msg": str(e),
+                                         "time_s": round(time.time() - t0, 3)}
+    else:
+        method_results["HBP-MX"] = {"method": "HBP-MX", "error": True,
+                                     "error_msg": "HBP upstream failed",
+                                     "time_s": 0.0}
+    _log("HBP-MX", method_results["HBP-MX"])
+
+    # ENS (v0.1.5): mean of GAFM-MX and HBP-MX PIPs per variant
+    t0 = time.time()
+    if gafm_pips is not None and hbp_pips is not None:
+        try:
+            gafm_mx = apply_mixture_posterior(gafm_pips, z, n_samples)
+            hbp_mx = apply_mixture_posterior(hbp_pips, z, n_samples)
+            ens_pips = 0.5 * (gafm_mx + hbp_mx)
+            cs = [_credible_set_from_pips(ens_pips, COVERAGE)]
+            method_results["ENS"] = _summarize_method(
+                "ENS", variants, ens_pips, cs, time.time() - t0
+            )
+        except Exception as e:
+            method_results["ENS"] = {"method": "ENS", "error": True,
+                                       "error_msg": str(e),
+                                       "time_s": round(time.time() - t0, 3)}
+    else:
+        method_results["ENS"] = {"method": "ENS", "error": True,
+                                  "error_msg": "GAFM/HBP upstream failed",
+                                  "time_s": 0.0}
+    _log("ENS", method_results["ENS"])
 
     # SuSiE-RSS
     susie = _run_susie_rss(z, R, n_samples, L=L_EFFECTS, coverage=COVERAGE)

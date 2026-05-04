@@ -44,8 +44,13 @@ def main():
 
     # Per-trait: load SBayesRC PIPs and join with chr/pos
     sb = {}
+    # v0.1.5: prefer the deflated SBayesRC outputs in results_v15/ if they exist
+    # (built by tests/rice3k_grain_shape_v15_sbayesrc.R), else fall back to
+    # results/ from v0.1.4.
     for trait in TRAITS:
-        fp = SBAYES / "results" / f"sbayesrc_{trait}.txt"
+        fp_v15 = SBAYES / "results_v15" / f"sbayesrc_{trait}.txt"
+        fp_v14 = SBAYES / "results" / f"sbayesrc_{trait}.txt"
+        fp = fp_v15 if fp_v15.exists() else fp_v14
         if not fp.exists():
             print(f"  warning: {fp.name} not found")
             continue

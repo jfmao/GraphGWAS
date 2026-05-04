@@ -918,7 +918,7 @@ canon for human).}
                  & \textbf{Validated} \\
 \midrule
 Rice (3kRG, IRRI)      & 18 & 72  & 11 (15\%) & 16 (22\%) & 14 (19\%)  & 8 (11\%) & 24 (33\%) \\
-Rice (3kRG, grain)$^\dagger$ &  4 & 41  & 1 (2\%)   & 4 (10\%)  & 28 (68\%)  & 1 (2\%)  & 20/21 (95\%) \\
+Rice (3kRG, grain)$^\dagger$ &  4 & 41  & --        & --        & --         & --       & 20/21 (95\%) \\
 Yeast (1011)           & 35 & 245 & 0 (0\%)   & 5 (2\%)   & 244 (100\%) & 0 (0\%) & 44 (18\%) \\
 Arabidopsis (1001G)    & 14 & 54  & 3 (6\%)   & 7 (13\%)  & 29 (54\%)   & 2 (4\%)  & 3 (6\%)  \\
 Human (Pan-UKB, GW)    & 3  & 321 & 8 (2\%)   & 47 (15\%) & 0 (0\%)     & 8 (2\%) & 21 (7\%) \\
@@ -930,15 +930,24 @@ Human (Pan-UKB, GW)    & 3  & 321 & 8 (2\%)   & 47 (15\%) & 0 (0\%)     & 8 (2\%
 \vspace{2pt}
 \footnotesize{$^\dagger$ Validation count for the grain-shape pass uses the
 panel-matched Niu \emph{et al.}\ 2021 \cite{niu2021grain} 21-stable-QTN
-catalogue at \emph{variant-level} resolution: a QTN is counted as
-``validated'' if its chr:pos appears in the 95\% credible set within
-$\pm$10\,kb. The reported 20/21 (95\%) is from SBayesRC, the
-strongest of the six methods on this rice grain pass; the canonical
-SuSiE family (SuSiE, SuSiE-inf) reaches 8--10/21 (38--48\%); the
-graph-augmented GAFM/HBP reach 9--10/21 (43--48\%); FINEMAP-inf
-3/21 (14\%; SSS sampler fails at extreme $p<10^{-100}$). At the
-looser locus-level (any fine-mapped lead within $\pm$100\,kb of the
-QTN at $p\leq5\times10^{-8}$), all 6 methods recover 20 of 21 (95\%). The IRRI row's validation count uses Ren
+catalogue. The 20/21 (95\%) figure is panel-level (any GWAS lead at
+$p\leq5\times10^{-8}$ within $\pm$100\,kb of the QTN). At the strict
+variant-level (chr:pos in the 95\% CS within $\pm$10\,kb), the v0.1.5
+9-method panel gives:
+\textbf{SBayesRC 20/21 (95\%, 16 exact-position matches);
+GAFM-MX = ENS 14/21 (67\%, 10 exact);
+HBP-MX 13/21 (62\%, 7 exact);
+SuSiE 12/21 (57\%);
+HBP 10/21 (48\%);
+GAFM, SuSiE-inf, FINEMAP-inf 8/21 (38\%) each}.
+At the strictest top-1-PIP exact-position metric, GAFM-MX, HBP-MX,
+and ENS each achieve \textbf{10/21 (47.6\%)} --- the highest of any
+method, exceeding SuSiE (28.6\%) and SBayesRC (14.3\%). Per-method,
+per-tier breakdown: Supplementary Table~S7. The mixture-prior step
+adds a single SBayesRC-style 4-component Wakefield BF reweighting
+on the deflated z-scores ($\pi=(0.005, 0.003, 0.001, 0.001)$ within
+non-zero components, $\gamma=(0.001, 0.01, 0.1, 1.0)$); details in
+Methods. The IRRI row's validation count uses Ren
 \emph{et al.}\ 2023 \cite{ren2023rice} (gene-level recovery within
 $\pm$250\,kb of any fine-mapped lead's top-PIP variant). Per-method,
 per-tier recovery for the grain pass is in Supplementary Table~S7,

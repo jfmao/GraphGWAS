@@ -349,7 +349,38 @@ threshold 0.995. SBayesRC is then run per trait at default
 prior (\texttt{startPi=(0.99, 0.005, 0.003, 0.001, 0.001)},
 \texttt{gamma=(0, 0.001, 0.01, 0.1, 1)}). Per-variant posterior
 PIPs are extracted at the 41 fine-map windows and merged into
-the per-locus 6-method scorecard. Validation used 250~kb-window overlap
+the per-locus 6-method scorecard.
+
+\textbf{v0.1.5 GAFM/HBP enhancements.} The v0.1.4 5-method panel above
+revealed that GAFM and HBP, while 200--700$\times$ faster than SuSiE on
+this rice grain pass, gave large credible sets (median CS $\approx$ 1{,}500)
+on secondary loci under the strong inflation regime
+($\lambda_{GC}{=}1.41$--$1.78$ from XI/GJ structure under PC1--PC10).
+SBayesRC's continuous-shrinkage mixture prior dominated those secondary
+loci, suggesting that the same effect-size-distribution correction would
+help GAFM/HBP. v0.1.5 adds three corrections, all applied by default:
+\emph{(i)} \textbf{$\lambda_{GC}$ deflation} of z-scores at the trait
+level ($z \to z / \sqrt{\lambda_{GC}}$, with the matching SE inflation in
+the SBayesRC \texttt{.ma} files); this is the standard genomic-control
+correction and is now the default for all six original methods plus
+the three new ones below.
+\emph{(ii)} \textbf{Mixture-prior posterior reweighting (MX)}: the
+per-variant PIPs from GAFM and HBP are multiplied by a SBayesRC-style
+4-component Wakefield mixture-BF on the deflated z-scores
+($\pi=(0.005, 0.003, 0.001, 0.001)$ renormalised within the non-zero
+components; $\gamma=(0.001, 0.01, 0.1, 1.0)$; $V_k = N\gamma_k$;
+ABF$_k(z) = (1+V_k)^{-1/2} \exp(z^2 V_k / (2(1+V_k)))$). The reweighted
+distribution preserves $\sum_i \mathrm{PIP}_i$ (expected number of causals
+unchanged) but redistributes mass toward large-$|z|$ variants. The two
+new methods are written GAFM-MX and HBP-MX.
+\emph{(iii)} \textbf{Ensemble (ENS)}: the mean of GAFM-MX and HBP-MX
+PIPs per variant, with credible sets re-derived from the averaged PIPs
+at 95\% coverage. The combined v0.1.5 panel is therefore nine methods:
+GAFM, HBP, GAFM-MX, HBP-MX, ENS, SuSiE, SuSiE-inf, FINEMAP-inf,
+SBayesRC; the curated five-method best-of-class subset
+(GAFM-MX, HBP-MX, ENS, SuSiE, SBayesRC) is shown in
+Supplementary Table~S8 and the full nine-method comparison is in
+\texttt{data/rice\_3k/results/grain\_finemap/grain\_finemap\_summary.tsv}. Validation used 250~kb-window overlap
 against literature catalogues: Bloom 2015\cite{bloom2015genetic} +
 Peter 2018\cite{peter2018genome} for yeast,
 AraGWAS\cite{togninalli2018aragwas} Bonferroni hits + canonical
