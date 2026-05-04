@@ -239,6 +239,54 @@ The phenotype files are derived from
 Niu \emph{et al.} 2021 *BMC Genomics* (DOI 10.1186/s12864-021-07901-x);
 the 21-QTN ground truth (`niu2021_qtns.tsv`) is transcribed from their Table 2.
 
+## 6.2 Rice SBayesRC LD reference (deferred to v0.1.5)
+
+The 5-method fine-mapping panel above does not include SBayesRC because the
+public SBayesRC LD reference is human HM3-EUR — wrong species. Adding SBayesRC
+for rice requires a 3kRG-specific eigen-decomposed LD reference.
+
+**Block layout preview** (already generated):
+
+```bash
+python tests/rice3k_grain_shape_sbayesrc.py --build-ld
+# Writes data/rice_3k/sbayesrc_rice/ldm.info.preview.tsv
+#   752 blocks at 500 kb across 12 chromosomes
+#   29.6 M variants total, mean 39,409 markers/block
+#   Estimated ~125 CPU-hours at 10 min/block (Path B, gctb-free Python LD)
+```
+
+**Path A (canonical, requires gctb 2.05beta installed at ~/bin/gctb):**
+
+```bash
+# 1. Install gctb
+curl -L 'https://cnsgenomics.com/software/gctb/download/gctb_2.05beta_Linux.zip' -o /tmp/gctb.zip
+cd /tmp && unzip gctb.zip && cp gctb_2.05beta_Linux/gctb ~/bin/ && chmod +x ~/bin/gctb
+
+# 2. Run SBayesRC's 4-step LD pipeline via the R wrappers
+R -e '
+library(SBayesRC)
+LDstep1(mafile="data/rice_3k/sumstats/grain_TGW.ma",
+        genoPrefix="data/rice_3k/rice_3k",
+        outDir="data/rice_3k/sbayesrc_rice",
+        blockRef="data/rice_3k/sbayesrc_rice/rice_3kRG_500kb_blocks.txt")
+# then loop LDstep2(outDir, blockIndex) and LDstep3(outDir, blockIndex) per block
+# finally LDstep4(outDir) to merge
+sbayesrc(mafile="data/rice_3k/sumstats/grain_TGW.ma",
+        LDdir="data/rice_3k/sbayesrc_rice",
+        outPrefix="results/grain_finemap/sbayesrc_TGW")
+'
+```
+
+**Path B (gctb-free, Python LD-eigen-bin reproduction):** scaffolded in
+`tests/rice3k_grain_shape_sbayesrc.py`. The .eigen.bin format is verified
+against `SBayesRC::LDstep3` source (R 4.5.2, SBayesRC v0.2.6). Production
+wiring (per-block bcftools-stream LD computation) is queued for v0.1.5.
+
+For the present v0.1.4 release we report the 5-method panel as comprehensive
+of the canonical fine-mapping methods (GAFM/HBP/SuSiE) plus the two
+state-of-the-art infinitesimal-effects methods (SuSiE-inf/FINEMAP-inf from
+the FinucaneLab `cui2024improving` reference implementations).
+
 ## 7. Unit tests
 
 ```bash
