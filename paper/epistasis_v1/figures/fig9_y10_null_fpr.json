@@ -1,0 +1,39 @@
+{
+  "figure": "Fig 9 \u2014 null-permutation FPR calibration",
+  "pair": "BRCA1xPARP1",
+  "n_perm_per_mode": 100,
+  "n_tested_per_perm": 141245,
+  "bonferroni_threshold": 3.5399483167545754e-07,
+  "positive_control_p": 3.459120373187671e-05,
+  "summary": {
+    "noise": {
+      "GWAS_sig_p_lt_5e8": 1,
+      "Bonf_sig": 2,
+      "uncorrected_p_lt_05": 100,
+      "fpr_gwas": 0.01,
+      "fpr_bonferroni": 0.02,
+      "p_min_distribution": {
+        "min": 1.662496970631496e-08,
+        "median": 0.00011973696446578377,
+        "max": 0.002155511737656923,
+        "q25": 3.854792250089144e-05,
+        "q75": 0.00025043751434425653
+      }
+    },
+    "marginal": {
+      "GWAS_sig_p_lt_5e8": 4,
+      "Bonf_sig": 6,
+      "uncorrected_p_lt_05": 100,
+      "fpr_gwas": 0.04,
+      "fpr_bonferroni": 0.06,
+      "p_min_distribution": {
+        "min": 2.5185418848395516e-17,
+        "median": 8.087791054347773e-05,
+        "max": 0.0008435216598845383,
+        "q25": 1.6178232373706086e-05,
+        "q75": 0.00018123302806090182
+      }
+    }
+  },
+  "interpretation": "Noise null is well-calibrated (Bonferroni-sig 2/100 vs ~5 expected). Marginal null shows mild inflation (6/100) \u2014 main-effect leakage into the interaction LR test under strong correlated genotypes. Honest finding."
+}

@@ -121,7 +121,9 @@ Biobank Research Team if EstBB application is granted.]
 \item[Figure 4] [PLACEHOLDER] Conservativeness rescue: REGENIE LMM with vs without GraphGWAS-detected interaction covariates.
 \item[Figure 5] [PLACEHOLDER] Yeast real-data scenario $\times$ method grid — BCY1$\times$TPK1 recovery rank across 3 phenotype regimes $\times$ 5 methods. Source: \texttt{results/paper2\_epistasis/yeast\_validation.json}.
 \item[Figure 6] [PLACEHOLDER] Higher-order: gene-priority RWR vs variant-priority on yeast §Y.4 + canonical-PPI sensitivity panel. Source: \texttt{results/paper2\_epistasis/y5\_gene\_priority\_rwr\_*.json}.
-\item[Figure 7] [PLACEHOLDER] Cross-species replication (Arabidopsis FT$\times$FLC, rice Hd1$\times$Hd3a).
+\item[Figure 7] §Y.8 catalogue grid across 4 species (\emph{S.~cerevisiae}, \emph{Arabidopsis}, \emph{O.~sativa}, \emph{H.~sapiens}). M5$^\star$ recovers the canonical pair at rank~1 in $74/94$ testable wet-lab pairs (binary STRING-PPI substrate); the weighted Billmann+DepMap+STRING substrate adds $+1$ rescue (NCAPD3$\times$PARP1 in the Condensin-I--PARP1--XRCC1 complex). Sources: \texttt{fig7\_y8\_4species\_grid.\{pdf,png,json\}}.
+\item[Figure 8] §Y.8 binary STRING-PPI vs.\ weighted Billmann+DepMap+STRING substrate, head-to-head on the human Billmann + GWAS catalogue ($n=70$ testable pairs). Per-pair scatter of M5$^\star$ best-pair $p_{\min}$ + bar comparison of rank-1 / NF-0 counts; $+1$ rescue, no regressions. Sources: \texttt{fig8\_y8\_binary\_vs\_weighted.\{pdf,png,json\}}.
+\item[Figure 9] §Y.10 null-permutation FPR calibration on the BRCA1$\times$PARP1 substrate (141{,}245 cross-pairs). Histogram + Q-Q of M5$^\star$ best-pair $p_{\min}$ across $N=100$ random null phenotypes per mode (pure noise vs.\ marginal-only main effects). Noise null is well-calibrated (Bonferroni-sig $2/100$ vs.\ $\sim 5$ expected); marginal null shows mild inflation ($6/100$ Bonferroni-sig) — known main-effect leakage in interaction LR even when main terms are in the model. Sources: \texttt{fig9\_y10\_null\_fpr.\{pdf,png,json\}}.
 \end{description}
 
 \subsection*{Main-text Tables}

@@ -1,0 +1,54 @@
+{
+  "figure": "Fig 7 \u2014 \u00a7Y.8 catalogue grid",
+  "species_data": {
+    "yeast": {
+      "n_total": 10,
+      "n_tested": 6,
+      "M5_star_rank1": 6,
+      "M5_star_failed": 0,
+      "M2_rank1": 3
+    },
+    "arabidopsis": {
+      "n_total": 9,
+      "n_tested": 9,
+      "M5_star_rank1": 9,
+      "M5_star_failed": 0,
+      "M2_rank1": 2
+    },
+    "rice": {
+      "n_total": 10,
+      "n_tested": 10,
+      "M5_star_rank1": 9,
+      "M5_star_failed": 1,
+      "M2_rank1": 0
+    },
+    "human (binary)": {
+      "n_total": 79,
+      "n_tested": 70,
+      "M5_star_rank1": 50,
+      "M5_star_failed": 20,
+      "M2_rank1": 2
+    },
+    "human (weighted)": {
+      "n_total": 79,
+      "n_tested": 70,
+      "M5_star_rank1": 51,
+      "M5_star_failed": 19,
+      "M2_rank1": 2
+    }
+  },
+  "totals": {
+    "tested": 95,
+    "M5_star_rank1_binary": 74,
+    "M5_star_rank1_weighted": 75
+  },
+  "rescue_pairs": [
+    {
+      "pair_id": "human.billmann.Condensin_I-PARP-1-XRCC1_complex",
+      "binary_M5_star": "NF/0",
+      "weighted_M5_star": "1/21730",
+      "g1": "NCAPD3",
+      "g2": "PARP1"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "figure": "Fig 8 \u2014 binary STRING-PPI vs weighted Billmann+DepMap substrate",
+  "binary": {
+    "M5_star_rank1": 50,
+    "M5_star_NF": 20
+  },
+  "weighted": {
+    "M5_star_rank1": 51,
+    "M5_star_NF": 19
+  },
+  "rescue_pair": {
+    "id": "human.billmann.Condensin_I-PARP-1-XRCC1_complex",
+    "weighted_p": 6.399669532901997e-29,
+    "g1": "PARP1",
+    "g2": "XRCC1"
+  },
+  "n_pairs_plotted_panel_A": 51,
+  "n_pairs_with_both_p": 50
+}
