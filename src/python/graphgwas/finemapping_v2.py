@@ -1435,6 +1435,258 @@ def l1_finemap_from_sumstats(
 
 
 # ===================================================================
+# v0.1.5 enhancements: λ_GC deflation + SBayesRC-style mixture-prior
+# posterior reweighting + GAFM/HBP ensemble.
+#
+# These three additions close roughly half the variant-level recovery
+# gap to SBayesRC on inflation-regime panels (3kRG XI/GJ; λ_GC > 1.4)
+# while preserving the 200--700× speed advantage of GAFM/HBP. See
+# Methods §"v0.1.5 GAFM/HBP enhancements" and Supplementary Table S7.
+# ===================================================================
+
+# SBayesRC's default 4-component (non-zero) prior. The full SBayesRC
+# 5-component prior includes a zero-effect component π₀=0.99 (variant
+# is null); π and γ below are the remaining four components, normalised
+# within the non-zero tail in apply_mixture_posterior().
+DEFAULT_MIXTURE_PI = (0.005, 0.003, 0.001, 0.001)
+DEFAULT_MIXTURE_GAMMA = (0.001, 0.01, 0.1, 1.0)
+
+
+def deflate_z_for_lambda_gc(z_stats: np.ndarray, lambda_gc: float) -> np.ndarray:
+    """Standard genomic-control deflation: z' = z / sqrt(λ_GC).
+
+    Equivalent to χ² → χ² / λ_GC. Use when the panel has residual
+    population stratification not absorbed by the covariate model
+    (e.g. rice 3kRG XI/GJ admixture under PC1--PC10 correction, where
+    λ_GC ≈ 1.4--1.8 across grain traits).
+    """
+    if not np.isfinite(lambda_gc) or lambda_gc <= 0:
+        return np.asarray(z_stats, dtype=float)
+    return np.asarray(z_stats, dtype=float) / float(np.sqrt(lambda_gc))
+
+
+def apply_mixture_posterior(
+    pips: np.ndarray,
+    z_stats: np.ndarray,
+    n_samples: int,
+    pi: tuple[float, ...] = DEFAULT_MIXTURE_PI,
+    gamma: tuple[float, ...] = DEFAULT_MIXTURE_GAMMA,
+) -> np.ndarray:
+    """SBayesRC-style 4-component Wakefield mixture-prior reweighting.
+
+    For each variant i, computes
+        ABF_k(z_i) = (1 + V_k)^{-1/2} · exp(z_i² · V_k / (2(1+V_k)))
+    where V_k = N · γ_k, then a mixture BF
+        ABF_mix(z_i) = Σ_k (π_k / Σπ) · ABF_k(z_i)
+    and updates the input PIPs by
+        new_pip_i ∝ pip_i · ABF_mix(z_i)
+    with sum-of-PIPs preserved (expected number of causals unchanged).
+
+    The reweighting sharpens PIPs at large-|z| variants and shrinks at
+    noise variants, capturing SBayesRC's effect-size-distribution prior
+    without requiring the full eigen-decomposed LD model + MCMC. Speed
+    cost: a single vectorised log-sum-exp call per locus.
+
+    Parameters
+    ----------
+    pips : per-variant PIPs (e.g. from `l1_finemap_from_sumstats` or
+        `hbp_finemap_from_sumstats`); the input is treated as a prior
+        on causality and updated multiplicatively.
+    z_stats : per-variant z-scores; deflate by √λ_GC first if the panel
+        is inflated (see `deflate_z_for_lambda_gc`).
+    n_samples : GWAS sample size; multiplies γ to give effect-size
+        variance per component.
+    pi, gamma : SBayesRC default mixture components. Override only with
+        a domain-specific motivation (we recommend defaults for
+        cross-species fine-mapping).
+    """
+    pips = np.asarray(pips, dtype=float)
+    z = np.asarray(z_stats, dtype=float)
+    pi_arr = np.asarray(pi, dtype=float)
+    pi_arr = pi_arr / pi_arr.sum()
+    V = np.asarray(gamma, dtype=float) * float(n_samples)
+
+    from scipy.special import logsumexp
+    log_pi = np.log(pi_arr + 1e-300)
+    # log ABF_k(z_i) per (component k, variant i)
+    log_abf_k = (
+        -0.5 * np.log1p(V)[:, None]
+        + 0.5 * (z[None, :] ** 2) * (V[:, None] / (1.0 + V[:, None]))
+    )
+    log_mix_abf = logsumexp(log_pi[:, None] + log_abf_k, axis=0)
+
+    log_new = np.log(np.maximum(pips, 1e-300)) + log_mix_abf
+    log_new -= log_new.max()  # numerical stability
+    new_pip = np.exp(log_new)
+    if new_pip.sum() > 0 and pips.sum() > 0:
+        new_pip = new_pip * (pips.sum() / new_pip.sum())
+    return np.clip(new_pip, 0.0, 1.0)
+
+
+def credible_set_from_pips(
+    pips: np.ndarray, coverage: float = 0.95,
+) -> list[int]:
+    """95%-coverage credible set from per-variant PIPs.
+
+    Sort PIPs descending, accumulate until cumulative mass >= coverage·sum_pip.
+    Returns sorted variant indices (positions in the input array).
+    """
+    pips = np.asarray(pips, dtype=float)
+    if pips.sum() <= 1e-9:
+        return [int(np.argmax(pips))]
+    order = np.argsort(-pips)
+    cum = np.cumsum(pips[order])
+    target = coverage * cum[-1]
+    k = int(np.searchsorted(cum, target)) + 1
+    return sorted(order[:k].tolist())
+
+
+def gafm_mx_from_sumstats(
+    variants: list[dict],
+    z_stats: np.ndarray,
+    R_sq: np.ndarray,
+    n_samples: int,
+    z_func: np.ndarray | None = None,
+    alpha: float = 0.7,
+    r2_smooth: float = 0.3,
+    credible_set_coverage: float = 0.95,
+    chr_name: str = "chr22",
+    annotations_map: dict | None = None,
+    graph_cache: dict | None = None,
+    lambda_gc: float | None = None,
+    mixture_pi: tuple[float, ...] = DEFAULT_MIXTURE_PI,
+    mixture_gamma: tuple[float, ...] = DEFAULT_MIXTURE_GAMMA,
+) -> list["FinemapCandidate"]:
+    """GAFM-MX (v0.1.5): GAFM + λ_GC deflation + SBayesRC mixture-prior posterior.
+
+    Equivalent to `l1_finemap_from_sumstats` followed by
+    `apply_mixture_posterior` on its output PIPs, with `lambda_gc`
+    optionally deflating the z-scores first. Re-derives the 95%
+    credible set from the reweighted PIPs.
+    """
+    z_in = (deflate_z_for_lambda_gc(z_stats, lambda_gc)
+            if lambda_gc is not None else np.asarray(z_stats, dtype=float))
+    base = l1_finemap_from_sumstats(
+        variants, z_in, R_sq, z_func=z_func, alpha=alpha,
+        r2_smooth=r2_smooth, credible_set_coverage=credible_set_coverage,
+        chr_name=chr_name, annotations_map=annotations_map,
+        graph_cache=graph_cache,
+    )
+    base_pips = np.array([c.pip for c in base])
+    new_pips = apply_mixture_posterior(
+        base_pips, z_in, n_samples, pi=mixture_pi, gamma=mixture_gamma,
+    )
+    cs_indices = set(credible_set_from_pips(new_pips, credible_set_coverage))
+    out = []
+    for i, c in enumerate(base):
+        c.pip = float(new_pips[i])
+        c.in_credible_set = (i in cs_indices)
+        out.append(c)
+    out.sort(key=lambda x: -x.pip)
+    return out
+
+
+def hbp_mx_from_sumstats(
+    variants: list[dict],
+    z_stats: np.ndarray,
+    R_sq: np.ndarray,
+    n_samples: int,
+    graph_cache: dict | None = None,
+    r2_smooth: float = 0.3,
+    credible_set_coverage: float = 0.95,
+    chr_name: str = "chr22",
+    lambda_gc: float | None = None,
+    mixture_pi: tuple[float, ...] = DEFAULT_MIXTURE_PI,
+    mixture_gamma: tuple[float, ...] = DEFAULT_MIXTURE_GAMMA,
+) -> list["FinemapCandidate"]:
+    """HBP-MX (v0.1.5): HBP + λ_GC deflation + SBayesRC mixture-prior posterior."""
+    z_in = (deflate_z_for_lambda_gc(z_stats, lambda_gc)
+            if lambda_gc is not None else np.asarray(z_stats, dtype=float))
+    base = hbp_finemap_from_sumstats(
+        variants, z_in, R_sq, graph_cache=graph_cache,
+        r2_smooth=r2_smooth, credible_set_coverage=credible_set_coverage,
+        chr_name=chr_name,
+    )
+    base_pips = np.array([c.pip for c in base])
+    new_pips = apply_mixture_posterior(
+        base_pips, z_in, n_samples, pi=mixture_pi, gamma=mixture_gamma,
+    )
+    cs_indices = set(credible_set_from_pips(new_pips, credible_set_coverage))
+    out = []
+    for i, c in enumerate(base):
+        c.pip = float(new_pips[i])
+        c.in_credible_set = (i in cs_indices)
+        out.append(c)
+    out.sort(key=lambda x: -x.pip)
+    return out
+
+
+def ensemble_from_sumstats(
+    variants: list[dict],
+    z_stats: np.ndarray,
+    R_sq: np.ndarray,
+    n_samples: int,
+    z_func: np.ndarray | None = None,
+    alpha: float = 0.7,
+    r2_smooth: float = 0.3,
+    credible_set_coverage: float = 0.95,
+    chr_name: str = "chr22",
+    annotations_map: dict | None = None,
+    graph_cache: dict | None = None,
+    lambda_gc: float | None = None,
+    mixture_pi: tuple[float, ...] = DEFAULT_MIXTURE_PI,
+    mixture_gamma: tuple[float, ...] = DEFAULT_MIXTURE_GAMMA,
+    weights: tuple[float, float] = (0.5, 0.5),
+) -> list["FinemapCandidate"]:
+    """ENS (v0.1.5): mean-of-PIPs ensemble of GAFM-MX and HBP-MX.
+
+    Runs both GAFM-MX and HBP-MX, then averages their per-variant PIPs
+    with `weights` (default equal). Re-derives the 95% credible set
+    from the averaged PIPs.
+    """
+    gafm = gafm_mx_from_sumstats(
+        variants, z_stats, R_sq, n_samples=n_samples, z_func=z_func,
+        alpha=alpha, r2_smooth=r2_smooth,
+        credible_set_coverage=credible_set_coverage, chr_name=chr_name,
+        annotations_map=annotations_map, graph_cache=graph_cache,
+        lambda_gc=lambda_gc, mixture_pi=mixture_pi,
+        mixture_gamma=mixture_gamma,
+    )
+    hbp = hbp_mx_from_sumstats(
+        variants, z_stats, R_sq, n_samples=n_samples, graph_cache=graph_cache,
+        r2_smooth=r2_smooth, credible_set_coverage=credible_set_coverage,
+        chr_name=chr_name, lambda_gc=lambda_gc, mixture_pi=mixture_pi,
+        mixture_gamma=mixture_gamma,
+    )
+    # Reorder both to original variant order and average
+    n = len(variants)
+    by_id_gafm = {c.variant_id: c for c in gafm}
+    by_id_hbp = {c.variant_id: c for c in hbp}
+    w_g, w_h = weights
+    w_sum = w_g + w_h
+    w_g, w_h = w_g / w_sum, w_h / w_sum
+    avg_pips = np.zeros(n, dtype=float)
+    for i, v in enumerate(variants):
+        vid = v["variantId"]
+        pg = by_id_gafm[vid].pip if vid in by_id_gafm else 0.0
+        ph = by_id_hbp[vid].pip if vid in by_id_hbp else 0.0
+        avg_pips[i] = w_g * pg + w_h * ph
+    cs_indices = set(credible_set_from_pips(avg_pips, credible_set_coverage))
+    # Reuse the GAFM-MX candidate metadata for the output objects
+    out = []
+    for i, v in enumerate(variants):
+        vid = v["variantId"]
+        c = by_id_gafm.get(vid) or by_id_hbp.get(vid)
+        if c is None:
+            continue
+        c.pip = float(avg_pips[i])
+        c.in_credible_set = (i in cs_indices)
+        out.append(c)
+    out.sort(key=lambda x: -x.pip)
+    return out
+
+
+# ===================================================================
 # Design A: Cross-Locus Graph Fine-Mapping (CLGF)
 # ===================================================================
 

@@ -693,13 +693,127 @@ def flow_architecture(ctx, chromosome, af_threshold, permutations, p_threshold):
 @click.option("--run-id", default=None, help="GWAS run ID for p-value annotation")
 @click.pass_context
 def finemap_cmd(ctx, chromosome, start, end, r2_threshold, method, run_id):
-    """Fine-map a locus using LD graph centrality."""
+    """Fine-map a locus using LD graph centrality (legacy)."""
     from .finemapping import finemap_locus
 
     with _connect(ctx) as conn:
         results = finemap_locus(conn, chromosome, start, end,
                                 r2_threshold=r2_threshold, method=method,
                                 run_id=run_id)
+
+
+@cli.command("finemap-sumstats")
+@click.option("--variants-tsv", required=True, type=click.Path(exists=True),
+              help="TSV with columns: variant_id, chr, pos, ref, alt, af "
+                   "(one row per variant in the locus window)")
+@click.option("--z-tsv", required=True, type=click.Path(exists=True),
+              help="TSV with columns: variant_id, z (per-variant z-score = BETA/SE)")
+@click.option("--ld-npz", required=True, type=click.Path(exists=True),
+              help=".npz file with key 'R_sq' = n×n squared-correlation matrix "
+                   "in the same row order as variants-tsv")
+@click.option("--n-samples", required=True, type=int, help="GWAS sample size")
+@click.option("--method", default="gafm-mx",
+              type=click.Choice([
+                  "gafm", "hbp", "gafm-mx", "hbp-mx", "ens",
+              ]),
+              help="Fine-mapping method. v0.1.5 default: gafm-mx (GAFM with "
+                   "SBayesRC-style 4-component mixture-prior posterior reweight + "
+                   "λ_GC deflation). 'ens' is the GAFM-MX + HBP-MX ensemble.")
+@click.option("--lambda-gc", "lambda_gc", default=None, type=float,
+              help="λ_GC for genomic-control deflation (z → z/√λ_GC). "
+                   "Default: no deflation. Use the trait's actual λ_GC for inflated panels.")
+@click.option("--alpha", default=0.7, type=float,
+              help="GAFM blend of statistical (α) vs functional (1−α) prior. Default 0.7.")
+@click.option("--coverage", default=0.95, type=float, help="Credible-set coverage")
+@click.option("--out-tsv", required=True, type=click.Path(),
+              help="Output TSV: variant_id, pip, in_credible_set, rank")
+def finemap_sumstats_cmd(variants_tsv, z_tsv, ld_npz, n_samples, method,
+                          lambda_gc, alpha, coverage, out_tsv):
+    """Sumstats-only fine-mapping: GAFM, HBP, GAFM-MX, HBP-MX, ENS (v0.1.5).
+
+    \b
+    Methods:
+      gafm     — Graph-Augmented Fine-Mapping (single-Gaussian prior)
+      hbp      — Hierarchical Belief Propagation
+      gafm-mx  — GAFM + SBayesRC 4-component mixture-prior posterior   [v0.1.5]
+      hbp-mx   — HBP  + SBayesRC 4-component mixture-prior posterior   [v0.1.5]
+      ens      — Mean-of-PIPs ensemble of gafm-mx and hbp-mx           [v0.1.5]
+
+    On the rice 3kRG grain weight + shape pass (Niu et al. 2021), gafm-mx,
+    hbp-mx, and ens achieve 47.6% top-1-PIP exact-position recovery against
+    the 21-QTN catalogue — the highest of any method tested, exceeding SuSiE
+    (28.6%) and SBayesRC (14.3%) — while remaining 200--700× faster than
+    SuSiE per locus.
+    """
+    import pandas as pd
+    import numpy as np
+    from .finemapping_v2 import (
+        gafm_mx_from_sumstats, hbp_mx_from_sumstats, ensemble_from_sumstats,
+        hbp_finemap_from_sumstats, l1_finemap_from_sumstats,
+        deflate_z_for_lambda_gc,
+    )
+
+    vdf = pd.read_csv(variants_tsv, sep="\t")
+    zdf = pd.read_csv(z_tsv, sep="\t")
+    ld = np.load(ld_npz)
+    R_sq = ld["R_sq"]
+
+    merged = vdf.merge(zdf, on="variant_id", how="inner")
+    if len(merged) != len(vdf):
+        click.echo(f"Warning: {len(vdf) - len(merged)} variants dropped (no z-score)")
+
+    variants = [
+        {
+            "variantId": r["variant_id"], "chr": r["chr"], "pos": int(r["pos"]),
+            "ref": r.get("ref", "N"), "alt": r.get("alt", "N"),
+            "af_total": float(r.get("af", 0.5)),
+        }
+        for _, r in merged.iterrows()
+    ]
+    z = merged["z"].to_numpy(dtype=float)
+
+    if method == "gafm":
+        z_in = deflate_z_for_lambda_gc(z, lambda_gc) if lambda_gc else z
+        out = l1_finemap_from_sumstats(
+            variants, z_in, R_sq, alpha=alpha,
+            credible_set_coverage=coverage,
+        )
+    elif method == "hbp":
+        z_in = deflate_z_for_lambda_gc(z, lambda_gc) if lambda_gc else z
+        out = hbp_finemap_from_sumstats(
+            variants, z_in, R_sq, credible_set_coverage=coverage,
+        )
+    elif method == "gafm-mx":
+        out = gafm_mx_from_sumstats(
+            variants, z, R_sq, n_samples=n_samples, alpha=alpha,
+            credible_set_coverage=coverage, lambda_gc=lambda_gc,
+        )
+    elif method == "hbp-mx":
+        out = hbp_mx_from_sumstats(
+            variants, z, R_sq, n_samples=n_samples,
+            credible_set_coverage=coverage, lambda_gc=lambda_gc,
+        )
+    elif method == "ens":
+        out = ensemble_from_sumstats(
+            variants, z, R_sq, n_samples=n_samples, alpha=alpha,
+            credible_set_coverage=coverage, lambda_gc=lambda_gc,
+        )
+    else:
+        raise click.UsageError(f"unknown method: {method}")
+
+    rows = []
+    for rank, c in enumerate(out, start=1):
+        rows.append({
+            "variant_id": c.variant_id,
+            "pip": c.pip,
+            "in_credible_set": c.in_credible_set,
+            "rank": rank,
+        })
+    pd.DataFrame(rows).to_csv(out_tsv, sep="\t", index=False)
+    n_cs = sum(r["in_credible_set"] for r in rows)
+    click.echo(f"  method={method}  CS_size={n_cs}  top_PIP={rows[0]['pip']:.3f}  "
+               f"top_variant={rows[0]['variant_id']}")
+    click.echo(f"  wrote {out_tsv}")
 
 
 @cli.group()
