@@ -61,14 +61,14 @@ change.
 
 For summary-statistics-only workloads the \texttt{graphgwas.panukb}
 module streams per-locus slices of Pan-UK Biobank sumstats via
-\texttt{tabix} over HTTPS against the public S3 bucket
+\texttt{tabix}\cite{li2011tabix} over HTTPS against the public S3 bucket
 \texttt{pan-ukb-us-east-1}; no authentication or bulk download is
 required ($\sim$2.3~GB per-phenotype files accessed as
 $\sim$50~kB--1~MB tabix slices per locus, $\sim$3~s each). Sumstats
 (GRCh37) are lifted to GRCh38 via \texttt{pyliftover} to align with
 our GENCODE~v47~/~GTEx~v8 annotation graph. The LD reference
 defaults to an ancestry-matched slice of the local 1000 Genomes
-BGEN; Pan-UKB in-sample LD BlockMatrices (Hail format, 47.6~TB
+BGEN; Pan-UKB in-sample LD BlockMatrices (Hail\cite{hailteam2024} format, 47.6~TB
 across six ancestries) are supported via
 \texttt{panukb.fetch\_ld\_slice()} when a Hail context with
 \texttt{hadoop-aws} S3 access is configured.
@@ -97,7 +97,7 @@ GRM~$\cdot (\hat h^2 / (1 - \hat h^2))$, and per-variant statistics
 are re-calibrated by $\sqrt{\lambda_{\text{GC}}}$. Across 35 yeast
 traits this controls $\lambda_{\text{GC}}$ from a mean of 1.62
 (range 0.85--5.04) before correction to 0.98 (range 0.90--1.02)
-after, and per-variant $z$-statistics agree with PLINK2 logistic on
+after, and per-variant $z$-statistics agree with PLINK2\cite{chang2015second} logistic on
 shared variants at $r=1.0000$ over 82{,}000 variants
 (Supplementary Table~S4).
 
@@ -337,7 +337,7 @@ The public SBayesRC LD reference is built from human HapMap3
 European samples and is therefore incompatible with the rice
 3kRG cohort (different species, different LD structure). We
 constructed a 3kRG-specific LD reference from scratch using
-gctb 2.05beta and the R
+gctb\cite{zeng2018gctb}~2.05beta and the R
 SBayesRC \texttt{LDstep1}--\texttt{LDstep4} pipeline. We define
 23 non-overlapping blocks covering all 41 fine-mapped leads
 (merging $\pm$250\,kb intervals around each lead; mean block
