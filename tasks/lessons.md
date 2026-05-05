@@ -664,3 +664,82 @@ horizontal to roughly 1×1, and the total figure size shrinks while
 each panel doubles in apparent area. For Q–Q plots specifically, a
 square aspect ratio is also methodologically correct because both axes
 are on the same scale.
+
+### LESSON 047: Q–Q sub-sampling must be uniform on the visualisation axis, not on rank
+**Pattern:** A reader said the four Q–Q plots in Sup Fig S7 looked
+"weird, not common" — instead of the canonical "diagonal in the bulk,
+deflect upward at the tail" shape, the rendered curves rose at a
+near-uniform steep angle from the origin, with the bulk looking
+under-populated.
+**Cause:** Naive uniform-rank sub-sampling. The script had:
+`idx = unique(linspace(0, n-1, 5000) ∪ arange(min(5000, n)))`. With
+n ≈ 27 M, the most-significant 5000 ranks span expected −log₁₀(p) ≈
+3.7 to 7.4 (the upper tail). The `linspace` over [0, n-1] covers the
+bulk's −log₁₀(p) ∈ [0, 3] range with only ~1500 points, separated by
+~5400-th-rank gaps. Visual effect: dense cloud on the right half of
+the panel + sparse trail on the left half = a ramp-like shape that
+does not look like a canonical Q–Q.
+**Rule:** Sub-sample on the visualisation axis, not on the rank axis.
+For Q–Q plots specifically:
+```
+top_k    = 2000  # all top-K most-significant
+log_idx  = unique(round(logspace(log10(top_k), log10(n-1), 5000)))
+idx      = unique(arange(top_k) ∪ log_idx)
+```
+This places points uniformly along expected −log₁₀(p) (the natural
+axis for visual interpretation), giving dense bulk coverage AND
+faithful tail coverage. The same principle applies to any plot where
+the rank axis is logarithmically related to the natural reading axis:
+sub-sample on the reading axis, not on rank. For Manhattan plots, the
+analogous rule is "sub-sample uniformly on chromosome position, not
+on rank-by-p-value".
+
+### LESSON 048: Overlay genomic-control reference lines on every Q–Q so inflation vs signal is readable at a glance
+**Pattern:** Even after fixing the sub-sampling (LESSON 047), the
+Q–Q plots showed only the y = x null reference line. A reader
+familiar with classical GWAS knows the bulk should sit along a slope
+of √λ_GC under chi-square inflation alone, but a fine-mapping /
+crop-genomics audience may not have that intuition cached. Without
+both reference lines, "the bulk is between the lines = inflation;
+the tail deflects above both = signal" is not visible.
+**Cause:** Default Python plotting libraries draw the y = x reference
+but not the √λ_GC slope. Authors often forget to add the inflation
+reference because they internalise λ_GC as a number (1.41, 1.78, etc)
+rather than as a visual slope.
+**Rule:** Every Q–Q plot in a stratified-cohort or inflated-panel
+GWAS paper must have **two** reference lines:
+```
+ax.plot([0, x_max], [0, x_max], "k--", lw=0.8, label="y = x (null)")
+ax.plot([0, x_max], [0, x_max * sqrt(λ_GC)], "gray", ls=":",
+        label=f"slope = √λ_GC = {sqrt(λ_GC):.2f}")
+```
+Combined with a clear legend, the reader can decompose the curve
+into "inflation contribution" (between the two lines) and "signal
+contribution" (above both lines) without further explanation.
+
+### LESSON 049: Long figure captions go on a separate page; figures use `[p]` placement
+**Pattern:** A fully-annotated Sup Fig S7 caption (4 panel-level
+sub-sections × ~10 lines each) overflowed the available page space
+when the caption tried to live in the same `\begin{figure}[htbp]` as
+the image. Pushing the figure to `[h]` placement squeezed the caption
+to unreadable density; pushing the caption to `[t]` orphaned it from
+the figure.
+**Cause:** A `\caption{}` block lives inside the float — LaTeX
+flows it directly under the included graphic. There is no
+"continued on next page" mechanism for caption text in the standard
+`figure` environment.
+**Rule:** When a figure caption would exceed half a page:
+(a) Set the figure to full-page float: `\begin{figure}[p]` (not
+    `[htbp]`). This guarantees the figure gets its own page.
+(b) Inside `\caption{}`, write only a 3–5-sentence short summary.
+    End with "Extended caption with full annotation on the following
+    page." or similar pointer.
+(c) After `\end{figure}` and `\clearpage`, write the full annotation
+    as ordinary text, opened by a bold paragraph header
+    `\noindent\textbf{Supplementary Figure SN (extended caption).}`
+    Use further `\noindent\textbf{...}` paragraph headers for each
+    panel or each interpretive sub-section. The full annotation is
+    then on a clean page, not crammed under the figure.
+This is the same idea Nature Genetics's "Extended Data" mechanism
+uses for figures whose interpretation needs more space than a
+display-item caption can hold.
