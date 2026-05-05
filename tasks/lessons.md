@@ -515,3 +515,152 @@ grep "item\[Figure S" main.tex | sed 's/.*Figure S\([0-9]\+\).*/\1/' \
         || echo "main.tex lists Figure S$n but supplementary.tex has no subsection"
     done
 ```
+
+### LESSON 041: Every supplementary figure or table must be cited from the main text at least once
+**Pattern:** A reader spotted that Sup Fig S7 (rice grain Manhattan / Q–Q /
+recovery scorecard) was rendered in the supplementary, listed in
+main.tex's Sup-Figures front-matter, and even cross-referenced inside
+the supplementary text — but the **main text never cited it**. A reader
+who reads main results never learns that a supporting figure exists.
+Same pattern can quietly affect any sup-table: add a sup item, list it
+up front, never link from the main results paragraph that it supports.
+**Cause:** Sup figures and tables are usually drafted alongside the main
+text but the cross-reference (`Supplementary Figure~SN`) is added by
+hand in the body. If the body sentence that "this would naturally cite
+S7" is split off into a different drafting session, the cite never goes
+in. The misuse is invisible: LaTeX builds without warnings, the figure
+renders correctly, the front-matter listing looks complete.
+**Rule:** A pre-submission audit must confirm that every
+`\subsection*{Supplementary (Figure|Table) S\d+}` in supplementary.tex
+is cited by at least one `Supplementary (Figure|Table)~S\d+` reference
+in `abstract.tex`, `introduction.tex`, `results.tex`, `discussion.tex`,
+or `methods.tex`. Cheap check:
+```
+for n in $(grep -oE "Supplementary (Figure|Table) S[0-9]+" supplementary.tex \
+            | grep -oE "S[0-9]+" | sort -u); do
+  uses=$(grep -hcE "Supplementary (Figure|Table)~?\s*$n\b" \
+            abstract.tex introduction.tex results.tex discussion.tex methods.tex \
+            2>/dev/null | paste -sd+ | bc)
+  [[ "$uses" == "0" ]] && echo "$n is uncited from main text"
+done
+```
+Same audit symmetrically for sup-tables.
+
+### LESSON 042: Headline numbers in the body must point to the supporting evidence
+**Pattern:** The rice 3kRG section asserted several headline numbers
+("24/72 IRRI–Ren-2023 hits", "11/72 GAFM CS=1", "20/21 Niu QTNs") with
+*one* sup-table reference for the entire ~600-line subsection. A reader
+sees a wall of claims with no per-claim trail; this is exactly the
+configuration that erodes confidence in a reviewing session.
+**Cause:** The first draft of a section often inlines numbers because
+they are fresh in the author's head. The supporting figures and tables
+are added later, but the in-line claims aren't retrofitted with
+`(Supplementary Table~S{N})` parentheticals after each number.
+**Rule:** Every numerical claim in the body that is large enough to
+warrant a reader's attention ("24/72", "20/21", "57\%", "47.6\%") must
+end (or be parenthesised) with a pointer to the supporting figure,
+table, or supplementary note. The minimum is one sup-pointer per
+paragraph; preferably one per number. Pre-submission grep:
+```
+grep -nE "[0-9]+/[0-9]+\s*\([0-9]+%\)|[0-9]+\.[0-9]+%" results.tex \
+  | grep -v "Supplementary\|Figure~\|Table~"
+```
+returns numerical claims with no nearby cross-reference; review each.
+
+### LESSON 043: The paper's own new methods must appear in at least one main-text figure or table
+**Pattern:** The v0.1.5 mixture-prior contributions (GAFM-MX, HBP-MX,
+ENS) were the headline methodological advance of the paper but appeared
+in **no main-text figure or table** — only in the supplementary. A
+reader skimming the main figures would not have known the paper's own
+new methods existed. The contribution was effectively buried by its own
+authors.
+**Cause:** Mixture-prior validation was added later in the manuscript
+revision cycle, slotted into the supplementary because that is where
+benchmark tables conventionally go, and never promoted to a main figure
+when its primacy in the paper's contribution became clear. Easy to miss
+during normal review because the main-figure list still looked
+plausible (one figure per major section).
+**Rule:** Before submission, audit every claimed methodological
+contribution against the main-text display items. If the abstract or
+introduction promises method X (here: GAFM-MX, HBP-MX, ENS), the body
+should refer at least once to a main-text figure or table that *shows*
+method X numerically — not merely a sentence "see Supplementary
+Table S{N} for the cross-species evaluation". A new headline figure is
+acceptable; promoting an existing supplementary table to the main text
+is acceptable. Burying the paper's own contribution in the
+supplementary is not. Pre-submission grep:
+```
+abstract_methods=$(grep -oE "GAFM-MX|HBP-MX|ENS|<your-new-method>" abstract.tex)
+main_text_appearance=$(grep -oE "GAFM-MX|HBP-MX|ENS" \
+   results.tex methods.tex discussion.tex | grep -v "Supplementary")
+echo "abstract names: $abstract_methods"
+echo "main-text references that point at a main figure or table: $main_text_appearance"
+```
+The two should agree.
+
+### LESSON 044: Inserting a new main figure mid-paper renumbers the remainder; sweep the front-matter Figure list
+**Pattern:** Adding a new Figure 6 (mixture-prior headline) between the
+existing Pan-UKB Figure 5 and Multi-omics Coverage Figure 6 caused
+LaTeX to renumber the multi-omics figure to Figure 7 in body captions
+and `\ref` resolutions. The hand-typed `\item[Figure 6]` /
+`\item[Figure 7]` entries in main.tex's front-matter Figure list
+remained at the *old* numbers, so the listing said
+"Figure 6 = Multi-omics coverage; Figure 7 = Mixture-prior" while the
+PDF rendered them in the opposite order.
+**Cause:** Two parallel numbering systems — LaTeX auto-numbering of
+`\caption{}` calls inside `\begin{figure}` (correct) versus hand-typed
+ordinal labels in the front-matter description list (stale). Same root
+cause as LESSON 039 (sup-table S5b drift), now applied to the main
+Figure list. `\ref` cross-references inside the body resolve correctly
+because they go through the LaTeX label, but the front-matter list is
+not part of the label graph.
+**Rule:** When inserting a new main figure mid-paper, the same commit
+must reorder the `\item[Figure N]` entries in main.tex's
+"Main-text Figures" description list to match the new numerical order.
+Cheap verification: `pdftotext main.pdf | grep -E "^Figure [0-9]+"` and
+diff against `pdftotext main.pdf | grep -E "^Fig\. [0-9]+"`. The two
+sequences must agree.
+
+### LESSON 045: Wide tables — pick portrait + abbreviated headers OR sidewaystable + tiny font
+**Pattern:** Two tables truncated on the right edge in the rendered PDF:
+Sup Table S9 (9-method × 41-loci credible-set comparison; 13 columns)
+was already a sidewaystable but rendered the rightmost SBayesRC column
+truncated; Sup Table S10 (cross-species CS=1 sharpening; 7 columns)
+was a portrait table with long per-cell strings ("60/245 (24.5%)") and
+ran past the right margin.
+**Cause:** LaTeX silently overruns the text width when a table's
+content exceeds the available column budget. There is no warning by
+default; the rendered PDF clips the cell content visually but compiles
+without error.
+**Rule:** Two corner-case tactics for wide tables:
+(a) **Sidewaystable** + `\tiny` + `\setlength{\tabcolsep}{2pt}` for
+13-column tables. `\scriptsize` with 2.5pt padding is usually too wide
+for ≥ 12 columns at the typical sn-jnl page size. Verify by
+`pdftotext -layout` and grepping for the rightmost column header to
+confirm it is not truncated.
+(b) **Portrait + abbreviated headers** + `\footnotesize` +
+explicit `\hspace{}`-padded column specs (`l@{\hspace{6pt}}r@{\hspace{4pt}}r…`)
+for 7-column tables with long cells. Two-line super-headers
+(species name on row 1, "n=N" on row 2) save horizontal space without
+losing information.
+Pre-submission verification: `pdftotext -layout main.pdf` for every
+sup-table page and confirm the rendered last column header matches the
+.tex source last column header character-for-character.
+
+### LESSON 046: 1×N strip layouts waste page space; use √N × √N grids for repeated panels
+**Pattern:** The rice grain Q–Q figure was originally laid out as four
+panels in a 1×4 row at figsize 14×3.6 in. Each Q–Q occupied
+~3.5 × 3.6 in of paper, with most of the paper width wasted between
+panels. The reader complained that the Q–Q plots were "very short and
+small".
+**Cause:** Default-grade scientific Python plotting defaults to one row
+per category; when the page allows, this produces a wide, short strip
+that fights the natural aspect ratio of a Q–Q plot (square-ish).
+**Rule:** When N panels share the same axis type and are intended to be
+read against a common scale (Q–Q, Manhattan strips, calibration curves,
+ranked-rank plots), arrange them as a √N × √N grid (2×2 for 4 panels;
+3×3 for 9 panels). The aspect ratio per panel improves from 1×4
+horizontal to roughly 1×1, and the total figure size shrinks while
+each panel doubles in apparent area. For Q–Q plots specifically, a
+square aspect ratio is also methodologically correct because both axes
+are on the same scale.
