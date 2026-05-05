@@ -107,6 +107,17 @@ def manhattan_grid():
 
 
 def qq_panel():
+    """Standard GWAS Q-Q plot with log-rank subsampling.
+
+    Naive uniform-rank subsampling misrepresents the curve: keeping the top
+    K = 5000 ranks plus a linspace over [0, n-1] gives dense coverage in the
+    upper tail (expected ~ 3.7-7.4) and very sparse coverage in the bulk
+    (expected ~ 0-3), so the rendered curve looks like a steep ramp from
+    origin instead of the canonical "diagonal in the bulk, deflect upward
+    at the tail" shape. We use log-spaced ranks instead so points are
+    distributed evenly along expected -log10(p), which is the natural axis
+    for visual interpretation.
+    """
     fig, axes = plt.subplots(2, 2, figsize=(8.5, 8.0))
     axes_flat = axes.flatten()
     for i, trait in enumerate(TRAITS):
@@ -117,21 +128,37 @@ def qq_panel():
         n = len(P)
         expected = -np.log10((np.arange(1, n + 1)) / (n + 1))
         observed = -np.log10(P)
-        # Subsample for plotting
-        idx = np.r_[
-            np.linspace(0, n - 1, 5000).astype(int),
-            np.arange(min(5000, n)),  # keep top points
-        ]
-        idx = np.unique(idx)
+
+        # Log-rank subsampling: dense at extremes, log-spaced for bulk.
+        # All top-K most-significant points + log-spaced indices for the rest.
+        top_k = min(2000, n)
+        log_n = max(top_k, 5000)
+        log_idx = np.unique(np.round(
+            np.logspace(np.log10(top_k), np.log10(n - 1), log_n)
+        ).astype(int))
+        idx = np.unique(np.r_[np.arange(top_k), log_idx])
+        idx = idx[idx < n]
+
         ax = axes_flat[i]
         ax.scatter(expected[idx], observed[idx], s=6, c=TRAIT_COLORS[trait],
-                   alpha=0.7, rasterized=True)
-        m = max(expected.max(), observed.max())
-        ax.plot([0, m], [0, m], "k--", lw=0.7)
+                   alpha=0.7, rasterized=True, edgecolor="none")
+        # Diagonal y = x reference (the null expectation).
+        # Cap axis limits so the diagonal stays visible regardless of inflation.
+        x_max = float(expected.max()) * 1.05
+        y_max = max(x_max, float(observed.max()) * 1.05)
+        ax.plot([0, x_max], [0, x_max], "k--", lw=0.8, alpha=0.6,
+                label="y = x (null)")
+        # λ_GC reference line (slope = √λ_GC under chi-square inflation).
         lam = _lambda_gc(df["P"].values)
+        ax.plot([0, x_max], [0, x_max * np.sqrt(lam)], color="#888888",
+                lw=0.8, alpha=0.7, ls=":",
+                label=f"slope = √λ_GC = {np.sqrt(lam):.2f}")
+        ax.set_xlim(0, x_max)
+        ax.set_ylim(0, y_max)
         ax.set_xlabel(r"Expected $-\log_{10}(P)$")
         ax.set_ylabel(r"Observed $-\log_{10}(P)$")
         ax.set_title(f"{trait}  ($\\lambda_{{GC}}$={lam:.2f})")
+        ax.legend(fontsize=7, loc="upper left")
     fig.suptitle("3kRG grain — Q–Q plots", y=0.995)
     fig.tight_layout()
     for ext in ("png", "pdf"):
