@@ -877,10 +877,44 @@ significance threshold is $p \leq 5 \times 10^{-8}$ (red);
 suggestive $p \leq 10^{-5}$ (orange). All four traits show the
 canonical \emph{GS3}/\emph{qSW5}/\emph{GW5} grain-architecture
 peaks on Chr3 and Chr5 plus several trait-specific QTNs.
-(\textbf{Bottom-left}) Quantile--quantile plots show inflation
-$\lambda_{GC} \in [1.41, 1.78]$, consistent with the well-documented
-3kRG XI/GJ subpopulation structure under PC1--PC10 correction.
-$\lambda_{GC}$ deflation is applied per trait before fine-mapping.
+(\textbf{Bottom-left}) Per-trait quantile--quantile (Q--Q) plots of
+the genome-wide $-\log_{10}\!P$ distribution. Each point compares the
+$i$-th smallest observed p-value against the expected uniform null
+ranking: $x_i = -\log_{10}((i-0.5)/n)$, $y_i = -\log_{10}(P_{(i)})$,
+where $n \approx 27 \times 10^6$ is the number of variants per trait
+after MAF~$\geq$~0.05 filtering. Three reading aids are overlaid on
+each panel: \emph{(i)} the dashed black diagonal $y = x$ is the
+expected position of every point under a perfectly calibrated null
+(no association anywhere in the genome) — points that fall on this
+line carry no signal; \emph{(ii)} the dotted grey line at slope
+$\sqrt{\lambda_{GC}}$ ($\lambda_{GC} \in [1.41, 1.78]$, displayed
+per-panel) is where the \emph{bulk} of points should fall under
+chi-square inflation alone, with no genuine association — this is
+the classic genomic-control reference and gives the reader a sense
+of how much of the upward shift is inflation versus signal;
+\emph{(iii)} the cloud of trait-coloured points is sub-sampled by
+log-rank to give faithful coverage at every $-\log_{10}(\text{expected})$
+value (dense at the tail, dense at the bulk; see Methods).
+\textbf{How to read each panel.} The bulk of points (lower-left)
+sits between the two reference lines, indicating chi-square
+inflation $\lambda_{GC} > 1$ as expected for a strongly stratified
+3kRG population panel under PC1--PC10 correction. The upper-right
+tail deflects sharply above both reference lines, which is the
+genuine association signal: variants that carry true effects have
+much smaller p-values than even an inflated null would predict, and
+their points climb to $-\log_{10}\!P$ values of $\sim$150--250 for
+the strongest QTNs (Chr3:16{,}733{,}441 / \emph{GS3} and
+Chr5:5{,}371{,}529 / \emph{qSW5/GW5}). Hundreds of points falling
+above the $\sqrt{\lambda_{GC}}$ slope at expected $-\log_{10}(P) > 4$
+indicate hundreds of independent QTNs, consistent with the polygenic
+genetic architecture of grain weight and shape (Niu \emph{et al.}\
+2021 \cite{niu2021grain} estimate narrow-sense heritability
+$h^2 = 0.88$--$0.93$ for these traits). The fine-mapping pipeline
+applies $\lambda_{GC}$ deflation ($z \to z / \sqrt{\lambda_{GC}}$)
+to the per-trait z-scores before any credible-set computation, so
+the inflated bulk does not propagate into the credible-set sizes
+reported elsewhere in the paper. Plots are rendered with rasterised
+markers; the underlying p-value distributions are exact.
 (\textbf{Bottom-right}) Three-tier recovery scorecard against the
 Niu \emph{et al.}\ 2021 \cite{niu2021grain} 21-stable-QTN catalogue
 (Tier~1, blue), the Niu 2021 7 NEW candidate genes (Tier~2, green),
