@@ -173,12 +173,18 @@ def figure_3():
 # ===================================================================
 
 def figure_4():
-    print("Figure 4 — PIP calibration + null FPR")
+    print("Figure 4 — PIP calibration + null FPR (base + mixture-prior panels)")
     null = json.loads((ROOT / "null_calibration" / "null_calibration.json").read_text())
     pip = json.loads((ROOT / "pip_calibration" / "pip_calibration.json").read_text())
+    # v0.1.5 panels (e, f, g) — mixture-prior calibration / null FPR / sensitivity
+    v15_cal = json.loads((ROOT / "v15_calibration_null" / "calibration.json").read_text())
+    v15_null = json.loads((ROOT / "v15_calibration_null" / "null.json").read_text())
+    v15_sens = json.loads((ROOT / "v15_hyperparam_sensitivity"
+                           / "sensitivity.json").read_text())
 
-    fig, axes = plt.subplots(2, 2, figsize=(10, 7.5))
-    ax_a, ax_b, ax_c, ax_d = axes.flatten()
+    fig, axes = plt.subplots(2, 4, figsize=(17, 8.0))
+    ax_a, ax_b, ax_c, ax_d = axes[0]
+    ax_e, ax_f, ax_g, ax_h = axes[1]
 
     # Panel A: TDR vs PIP bins
     pip_summary = pip.get("summary", {})
@@ -266,6 +272,158 @@ def figure_4():
               "Honest uncertainty: CS ≈ 90% of locus under null",
               transform=ax_d.transAxes, ha="center", fontsize=8,
               bbox=dict(boxstyle="round", fc="white", ec="black", lw=0.5))
+
+    # ----- v0.1.5 mixture-prior panels (e, f, g, h) -----
+    v15_palette = {
+        "GAFM":        C["l1"],
+        "HBP":         C["hbp"],
+        "GAFM-MX":     "#ad1457",
+        "HBP-MX":      "#7b1fa2",
+        "ENS":         "#ef6c00",
+        "SuSiE":       C["susie"],
+        "SuSiE-inf":   C["susie_inf"],
+        "FINEMAP-inf": C["finemap_inf"],
+    }
+
+    # Panel e: PIP calibration including mixture-prior methods
+    bin_mid = v15_cal["bin_mid"]
+    plot_methods_e = ["GAFM", "HBP", "GAFM-MX", "HBP-MX", "ENS",
+                       "SuSiE", "SuSiE-inf", "FINEMAP-inf"]
+    for m in plot_methods_e:
+        info = v15_cal["methods"].get(m)
+        if not info:
+            continue
+        # mask near-empty bins to avoid noisy spikes
+        tdrs, mids = [], []
+        for i, (mid, total, tdr) in enumerate(zip(bin_mid, info["total"],
+                                                   info["tdr"])):
+            if total >= 5 and tdr is not None and not np.isnan(tdr):
+                tdrs.append(tdr)
+                mids.append(mid)
+        if tdrs:
+            is_mx = m in ("GAFM-MX", "HBP-MX", "ENS")
+            ax_e.plot(mids, tdrs, marker="o", label=m,
+                      color=v15_palette[m],
+                      lw=1.8 if is_mx else 1.0,
+                      ls="-" if is_mx else "--",
+                      alpha=1.0 if is_mx else 0.7)
+    ax_e.plot([0, 1], [0, 1], "k:", lw=0.7, alpha=0.6)
+    ax_e.set_xlabel("Reported PIP")
+    ax_e.set_ylabel("Empirical TDR")
+    ax_e.set_title("e  Mixture-prior PIP calibration\n(50 reps × 3 h², chr22)",
+                   fontsize=10)
+    ax_e.legend(fontsize=7, loc="upper left", ncol=2)
+    ax_e.set_xlim(0, 1); ax_e.set_ylim(0, 1.05)
+    ax_e.text(0.96, 0.50,
+              "anti-conservative\ntail (mixture-MX)",
+              fontsize=7, ha="right", color="#ad1457",
+              bbox=dict(boxstyle="round", fc="#fff0f3", ec="#ad1457", lw=0.5))
+
+    # Panel f: Null FPR bars at PIP ≥ 0.5 and PIP ≥ 0.9
+    plot_methods_f = ["GAFM", "HBP", "GAFM-MX", "HBP-MX", "ENS",
+                       "SuSiE", "SuSiE-inf", "FINEMAP-inf"]
+    fpr_05 = [v15_null["methods"].get(m, {}).get("fpr", {}).get("0.5", 0)
+              for m in plot_methods_f]
+    fpr_09 = [v15_null["methods"].get(m, {}).get("fpr", {}).get("0.9", 0)
+              for m in plot_methods_f]
+    x = np.arange(len(plot_methods_f))
+    width = 0.36
+    bars_05 = ax_f.bar(x - width / 2, fpr_05, width,
+                        color=[v15_palette[m] for m in plot_methods_f],
+                        alpha=0.85, label="PIP ≥ 0.5")
+    bars_09 = ax_f.bar(x + width / 2, fpr_09, width,
+                        color=[v15_palette[m] for m in plot_methods_f],
+                        alpha=0.45, edgecolor="black", linewidth=0.5,
+                        label="PIP ≥ 0.9")
+    ax_f.set_xticks(x)
+    ax_f.set_xticklabels(plot_methods_f, rotation=35, ha="right", fontsize=8)
+    ax_f.set_ylabel("Null FPR (n=100 H₀ loci)")
+    ax_f.set_title("f  Null FPR (mixture-prior PIPs operational, not posterior)",
+                   fontsize=10)
+    ax_f.set_ylim(0, max(0.12, max(fpr_05) * 1.2))
+    ax_f.axhline(0.05, color="gray", linestyle=":", lw=0.7)
+    ax_f.text(7.4, 0.052, "0.05", fontsize=7, color="gray", va="bottom")
+    ax_f.legend(fontsize=8, loc="upper right")
+
+    # Panel g: Hyperparameter sensitivity — rank-1 rate across 5 perturbations × 2 h²
+    pert_order = ["default", "pi_uniform", "pi_concentrated",
+                  "gamma_left", "gamma_right"]
+    h2_levels = v15_sens["config"]["h2_levels"]
+    pert_labels = {"default": "default",
+                    "pi_uniform": r"$\pi$ uniform",
+                    "pi_concentrated": r"$\pi$ concentrated",
+                    "gamma_left": r"$\gamma$ ÷10",
+                    "gamma_right": r"$\gamma$ ×10"}
+    ix = np.arange(len(pert_order))
+    bw = 0.36
+    for i, h2 in enumerate(h2_levels):
+        rank1 = []
+        n_total = []
+        for p in pert_order:
+            key = f"{h2}_{p}"
+            entry = v15_sens["summary"].get(key, {})
+            rank1.append(entry.get("rank_1", 0))
+            n_total.append(entry.get("n", 30))
+        offset = (i - 0.5) * bw
+        rates = [r / max(n, 1) for r, n in zip(rank1, n_total)]
+        ax_g.bar(ix + offset, rates, bw,
+                  label=f"h² = {h2}",
+                  color="#ad1457" if h2 == 0.05 else "#6a1b9a",
+                  alpha=0.85)
+    ax_g.set_xticks(ix)
+    ax_g.set_xticklabels([pert_labels[p] for p in pert_order],
+                          rotation=20, ha="right", fontsize=8)
+    ax_g.set_ylabel("GAFM-MX rank-1 rate")
+    ax_g.set_title("g  Hyperparameter sensitivity (π / γ × 5 perturbations)",
+                   fontsize=10)
+    ax_g.set_ylim(0, 1.0)
+    ax_g.legend(fontsize=8, loc="lower right")
+    ax_g.text(0.5, 0.95,
+              "Δ < 0.005 across all perturbations:\nrank robust to mixture defaults",
+              transform=ax_g.transAxes, ha="center", fontsize=8,
+              bbox=dict(boxstyle="round", fc="#f3e5f5", ec="#6a1b9a", lw=0.5))
+
+    # Panel h: PIP sharpening — mean PIP at causal under base vs mixture-prior
+    # Use the chr22 head-to-head numbers across h² ∈ {0.02, 0.05, 0.10}
+    chr22_h2 = [0.02, 0.05, 0.10]
+    pip_paths = {h: ROOT / "v15_chr22" / f"v15_chr22_h{int(round(h*100)):02d}.json"
+                 for h in chr22_h2}
+    base_pip = {"GAFM": [], "HBP": []}
+    mx_pip = {"GAFM-MX": [], "HBP-MX": [], "ENS": []}
+    susie_pip = []
+    for h, p in pip_paths.items():
+        if not p.exists():
+            for k in list(base_pip) + list(mx_pip):
+                base_pip.get(k, mx_pip.get(k)).append(np.nan)
+            susie_pip.append(np.nan)
+            continue
+        d = json.loads(p.read_text())
+        s = d["summary"]
+        for k in base_pip:
+            base_pip[k].append(s.get(k, {}).get("mean_pip", np.nan))
+        for k in mx_pip:
+            mx_pip[k].append(s.get(k, {}).get("mean_pip", np.nan))
+        susie_pip.append(s.get("SuSiE", {}).get("mean_pip", np.nan))
+    xs = np.arange(len(chr22_h2))
+    bw_h = 0.13
+    series = [
+        ("GAFM",    base_pip["GAFM"],     v15_palette["GAFM"],    -2.5),
+        ("HBP",     base_pip["HBP"],      v15_palette["HBP"],     -1.5),
+        ("GAFM-MX", mx_pip["GAFM-MX"],    v15_palette["GAFM-MX"], -0.5),
+        ("HBP-MX",  mx_pip["HBP-MX"],     v15_palette["HBP-MX"],   0.5),
+        ("ENS",     mx_pip["ENS"],        v15_palette["ENS"],      1.5),
+        ("SuSiE",   susie_pip,            v15_palette["SuSiE"],    2.5),
+    ]
+    for label, vals, color, off in series:
+        ax_h.bar(xs + off * bw_h, vals, bw_h, color=color, alpha=0.9,
+                  label=label)
+    ax_h.set_xticks(xs)
+    ax_h.set_xticklabels([f"h² = {h:.2f}" for h in chr22_h2], fontsize=8)
+    ax_h.set_ylabel("Mean PIP at causal variant")
+    ax_h.set_title("h  Confidence sharpening at the same rank parity\n(chr22, 30 reps × 3 h²)",
+                   fontsize=10)
+    ax_h.set_ylim(0, 1.0)
+    ax_h.legend(fontsize=7, ncol=2, loc="upper left")
 
     save(fig, "fig4_calibration_null_fpr")
 
