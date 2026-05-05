@@ -218,3 +218,227 @@ way to falsify or confirm.
 **Rule:** Before marking a paper-ready release, run the core benchmark on AT LEAST
 3 species + 1 clean simulation (chr22 single-causal F1 here). If the gain holds
 in 4 of 4 settings, ship; otherwise hold and diagnose.
+
+### LESSON 024: Per-h² (or per-config) benchmark outputs need per-config filenames
+**Pattern:** The chr22 head-to-head benchmark wrote `v15_chr22.json` regardless of
+H2 env var. Running h²=0.05, h²=0.10, h²=0.02 in sequence overwrote each prior
+result; only the last survived. The supplementary table covering all three
+heritability regimes had to be reconstructed from /tmp log files.
+**Cause:** Single hard-coded output filename in a script that's parameterised by
+env vars. Easy to miss because the script "just works" the first time you run it.
+**Rule:** Any benchmark script parameterised by env vars or CLI args must encode
+the parameter into the output filename: `v15_chr22_h{int(round(H2*100)):02d}.json`,
+not `v15_chr22.json`. Do this when you first add the parameter, not after losing
+results to overwrite.
+
+### LESSON 025: Make long batch jobs resumable via per-locus JSON saves
+**Pattern:** The IRRI 72-lead fine-mapping job died at lead 19/72 (OOM under swap
+exhaustion — the script holds chromosome graph caches and per-trait sumstats in
+memory cumulatively). The script wrote no intermediate state, so a restart
+re-did all 19 completed leads from scratch.
+**Cause:** Default batch design — accumulate results in memory, write a single
+summary TSV at the end. Works on a 5-minute job; fails on a 30-min job that
+might OOM.
+**Rule:** Any per-locus / per-rep batch script should write a per-locus JSON to
+disk after each locus completes (`{trait}_{chrom}_{pos}.json`), and check for
+that file at the start of each loop iteration to skip already-done work. The
+final summary then loads all per-locus JSONs. Same pattern used in the rice
+grain script and rice IRRI script after this lesson; should be the default.
+
+### LESSON 026: Back up old results before regenerating; never overwrite a paper-cited number in place
+**Pattern:** The mixture-prior bug fix (LESSON 022) required regenerating yeast,
+Arabidopsis, IRRI, and rice grain fine-mapping outputs. Running the new scripts
+would have overwritten the buggy results that previous paper drafts cited.
+**Cause:** Most fine-mapping scripts write to a fixed output directory; running
+them with corrected library code obliterates the prior numbers.
+**Rule:** Before regenerating, `mv` the previous output directory to a
+`*_pre_<bugfix-tag>` (or `*_pre_<commit-sha>`) sibling. Keeps the audit trail
+intact in case the new numbers turn out to be wrong, and enables quick
+before/after diffs if a reviewer asks. Never destroy paper-cited numbers in
+place.
+
+### LESSON 027: No internal version tags or codenames in the paper text
+**Pattern:** The manuscript carried "v0.1.4" / "v0.1.5" tags and codename
+identifiers ("L1", "L4", "M1", "Phase 1.B") inherited from internal refactors.
+A reader proofread the rendered PDF and flagged 14 occurrences of v0.1.x and
+multiple "L4" references that read like private dev notes.
+**Cause:** Internal release labels are useful for pinning a benchmark JSON to a
+software state, but they have no place in a paper that will outlive any single
+release. Codenames like "L1" / "L4" are project-internal shorthand (Layer 1, 4
+of an architecture stack) that readers reliably misread (L1 → "L1-regularised
+lasso").
+**Rule:** Paper-facing names must describe the method, not its position in the
+implementation. Established renames in this project: L1 → GAFM, L4 → GLEM,
+M1 → LPCE. Keep the historical Python prefixes (`l1_*`, `l4_*`, `m1_*`) for
+backwards compatibility but document the mapping in `Code Availability`. No
+"v0.x.y" anywhere in the paper. Pre-submission grep:
+`grep -nE "\bL[0-9]\b|\bM[0-9]\b|v0\.[0-9]\.[0-9]|Phase\s+[0-9]" *.tex`.
+
+### LESSON 028: Abstract must be self-contained, focused, and free of attribution detail
+**Pattern:** A reader proofread the rendered abstract and flagged three
+problems: (i) author-year phrase "Niu et al. 2021" appearing in the abstract;
+(ii) a sentence describing SBayesRC's recovery rate (a competitor's number that
+does not advance the paper's own contribution); (iii) emphasis on "augmented
+with a SBayesRC-style 4-component mixture-prior posterior reweight" rather
+than what the new methods *do*.
+**Cause:** Abstracts written incrementally inherit detail that belongs in
+Methods/Results/Sup.
+**Rule:** Three audit items for any abstract before submission:
+(1) No author-year phrases — use numerical citations (`\cite{}`) or drop
+attribution and let Methods carry it. Pre-submission grep
+`grep -E "et al\.\s*[12][0-9]{3}" abstract.tex` should return nothing.
+(2) Every sentence's subject is a thing the paper contributes, not a thing
+a competitor contributes. If the abstract describes a competitor's number,
+ask whether it is needed for the paper's central claim; if not, drop it.
+(3) Describe what new methods *implement* (e.g. "mixture-prior posterior
+reweighting"), not what they "are derived from" (e.g. "SBayesRC-style").
+The latter reads like a private design note.
+
+### LESSON 029: No revision-history meta-commentary in published prose
+**Pattern:** Discussion contained "We retain the Table 1 intervention result
+but reinterpret it in this light" — a phrase that betrays the manuscript's
+revision history. Same class as "earlier draft", "previously stated", "we have
+now revised", "in this light".
+**Cause:** Phrases that work in a response-to-reviewers letter leak into the
+manuscript when the response is folded into the prose.
+**Rule:** A scientific paper should read as a single forward-looking statement,
+not as a diff against an earlier draft. The substance of the
+"reinterpret it in this light" sentence — that the typed factor graph is the
+substrate for incorporating non-uniform priors, and that informative-vs-permuted
+placebo on real biobank leads is open — should be stated directly.
+Pre-submission grep:
+`grep -nE "we retain|reinterpret|earlier draft|previously stated|in this light|we have now revised" *.tex`.
+
+### LESSON 030: A paper that depends on internal repo paths is not self-contained
+**Pattern:** Methods text said "the full nine-method comparison is in
+\texttt{data/rice\_3k/results/grain\_finemap/grain\_finemap\_summary.tsv}". A
+reader (correctly) flagged this — readers cannot follow paths inside a private
+working directory.
+**Cause:** Comfortable shortcut while drafting Methods: defer the full table to
+"the repo" rather than fitting all data in a Sup Table.
+**Rule:** Every quantitative claim that references a comparison readers would
+want to inspect must point to a Sup Table (or Sup File) carried *with* the
+paper. A 41-row × 9-method credible-set comparison fits as a `sidewaystable`
+(landscape orientation, scriptsize fontsize, 2.5pt tabcolsep). Pre-submission
+grep:
+`grep -nE "data/|results/|tests/|src/|/mnt/" abstract.tex introduction.tex results.tex discussion.tex`
+should be empty (Methods/Sup may reference paths for code and external data).
+
+### LESSON 031: First-use citations for every named tool
+**Pattern:** PLINK2 was cited (`chang2015second`) and tabix was cited
+(`li2011tabix`), but BGEN had no citation despite being mentioned 5+ times in
+Methods. Caught only on pre-submission grep.
+**Cause:** When a tool name appears in many places in Methods, it's natural to
+remember adding a `\cite{}` somewhere — but "somewhere" might be the third
+mention, not the first.
+**Rule:** Every named external resource (database, tool, data format,
+package) must have a `\cite{}` on its FIRST appearance in Methods. Maintain
+a checklist of common tools and grep each one's first mention before
+submission: PLINK2, BGEN, tabix, BCFtools, Hail, gctb, susieR, susieinf,
+finemapinf, SBayesRC, FINEMAP, SuSiE, GENCODE, GTEx, STRING, ENCODE,
+RegulomeDB, etc.
+
+### LESSON 032: Define every acronym on first use, even the ones that "everyone knows"
+**Pattern:** Discussion used "S-LDSC" with no expansion. The acronym is
+common in human-statistical-genetics circles but our paper targets a broader
+fine-mapping audience (crop genomicists, AI-method developers) who may not
+have seen it.
+**Cause:** Author calibration drifted toward the human-GWAS subfield's
+shorthand vocabulary.
+**Rule:** Pre-submission, grep every all-caps token of length ≥ 2 in the
+manuscript and confirm it is spelled out at first use. Common offenders in
+this project: S-LDSC, GTEx, eQTL, cCRE, MAF, LD, PIP, CS, GWAS, F_ST, FPR,
+TDR, BF. The bar for "everyone knows it" should be a non-domain-expert
+reviewer, not the author's daily reading list.
+
+### LESSON 033: Caption-figure consistency must be enforced by regenerating both together
+**Pattern:** Sup Fig S4 caption described seven sub-panels (a–g) but the
+rendered `fig4_calibration_null_fpr.pdf` still showed only the original four
+(a–d). The text-edit pass had updated the caption with mixture-prior panels
+e–g without regenerating the figure to match.
+**Cause:** Asymmetric tooling — caption is a `.tex` string the author types,
+figure is a `.pdf` produced by a Python script. Updating one without the
+other is a one-line edit; updating both takes a paper-figure regeneration.
+**Rule:** When changing a figure caption to add panels (or change axis
+labels, units, method names), the same commit must update the Python
+figure-generator and regenerate the artifact. Pre-submission verification:
+`pdftotext main.pdf` the rendered paper and grep for the panel labels
+(`(\textbf{e})`, `(\textbf{f})`) to confirm both the caption and the figure
+render them. If only the caption renders the label, the figure has not been
+regenerated.
+
+### LESSON 034: Method names appear in code, paper, CLI, docs — keep a memory mapping current
+**Pattern:** When renaming L4 → GLEM in the paper, the CLI tree figure
+(`tests/generate_cli_tree.py`) still emitted "GAFM / HBP / CLGF / L4
+fine-mapping on a locus" because the rename only swept `.tex` files. The
+regenerated Sup Fig S3 PDF leaked the old name back into the rendered
+manuscript.
+**Cause:** A rename touches at minimum five surfaces: source code (Python
+classes, function names, CLI choice strings), CLI documentation
+(`docs/manual/commands/*.md`), README, paper `.tex` files, and any
+auto-generated figure that hard-codes the name as a string.
+**Rule:** When renaming a paper-facing method, sweep all six surfaces in the
+same commit. Maintain a memory note (`project_graphgwas_method_names.md`)
+that lists the current paper-facing names, the historical Python prefixes,
+and the mapping; update it together with any rename. Pre-submission
+verification: rebuild the paper and `pdftotext main.pdf` to confirm the old
+name does not appear anywhere in the rendered output (including inside
+auto-generated figures).
+
+### LESSON 035: Build artefacts (PDFs, generated tables) belong in .gitignore; only source is committed
+**Pattern:** Multiple paper-figure PDFs and the rendered `main.pdf` were
+intermittently tracked by git, leading to confusing "modified" lines in
+`git status` after every figure regeneration. Some were already gitignored
+(`*.pdf`); some weren't.
+**Cause:** Mixed history of how figures entered the repo — some by `git add`,
+some only ever in the working tree.
+**Rule:** Treat the whole `paper/finemapping_v1/figures/` directory and
+`paper/finemapping_v1/main.pdf`, `cover_letter.pdf` as build artefacts:
+gitignore them globally, commit only the source `.tex`, `.bib`, and the
+Python/R generators in `tests/`. The reproducibility command in
+`docs/REPRODUCIBILITY.md` rebuilds them. Authoritative paper PDF for sharing
+goes to a separate release artefact (Zenodo / GitHub release), not into
+git history.
+
+### LESSON 036: Clean up dead inline code paths after porting to library wrappers
+**Pattern:** After porting `apply_mixture_posterior` from
+`tests/rice3k_grain_shape_finemap.py` (inline) into the
+`graphgwas.finemapping_v2` library and switching the script to call the
+library wrappers, the inline definition + an aliased import
+(`apply_mixture_posterior as _lib_apply_mixture_posterior`) lingered as dead
+code. Future maintainers would have hit it and assumed it was authoritative.
+**Cause:** Port + cleanup are two separate edits; tempting to leave the
+inline code "as a smoke-test reference" but nothing actually calls it.
+**Rule:** When a script switches from inline math to a library call, delete
+the dead inline definition in the same commit. Defensive aliasing (`X as _lib_X`)
+is a smell when nothing calls `_lib_X`. Verify with a quick grep that no other
+file imports the dead symbol.
+
+### LESSON 037: Composite figures that need parallel info should be paired in the figure, not in two separate figures
+**Pattern:** Original Figure 2 showed only HBP message-passing on the
+factor graph. GAFM was described in prose without a corresponding diagram, even
+though both methods are core contributions of the paper.
+**Cause:** The figure was added when HBP was the only graph-native method;
+when GAFM was added later, no one redesigned Figure 2.
+**Rule:** When the paper introduces method A as the core contribution, then
+later adds method B as a "complement", revisit the early figures —
+specifically, can the architecture/data-flow figure be made into a paired
+two-panel figure showing A and B side-by-side? In this paper the redesign
+was: Fig 2(a) HBP factor graph; Fig 2(b) GAFM data flow (z → LD-deconvolve →
+α-blend with graph functional score → softmax → PIPs). Two panels in one
+figure beats one figure for A and a hand-wave for B.
+
+### LESSON 038: Auto-mode does not authorise external publish actions
+**Pattern:** While auto mode was active, I committed source changes locally
+and pushed only when explicitly told to. PyPI publish, GitHub release, Zenodo
+refresh remained pending throughout because "publish" is an external action
+that requires explicit per-action authorisation.
+**Cause:** Auto mode is a permission to execute autonomously on local,
+reversible work — it is not blanket authorisation for actions visible to the
+outside world.
+**Rule:** Even in auto mode, external publish actions (PyPI upload, package
+registry pushes, Zenodo / Figshare uploads, social posts, anything that
+creates a public artefact tied to the user's identity) require an explicit
+prompt from the user for that specific action. `git push` to an existing
+remote is borderline — push only after explicit confirmation in the same
+session.
