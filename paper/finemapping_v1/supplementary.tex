@@ -860,6 +860,42 @@ Note~S2 (``\nameref{snote:platform}'').}
 
 \clearpage
 
+\subsection*{Supplementary Figure S7 --- 3kRG grain weight + shape pass:
+4-trait Manhattan, Q--Q, and nine-method recovery scorecard}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{rice_grain_manhattan.pdf}\\[1ex]
+\includegraphics[width=0.50\textwidth]{rice_grain_qq.pdf}\hfill
+\includegraphics[width=0.48\textwidth]{rice_grain_recovery_scorecard.pdf}
+\caption{\textbf{3kRG grain weight + shape pass --- four-trait
+Manhattan, Q--Q, and nine-method recovery scorecard.}
+(\textbf{Top}) Genome-wide $-\log_{10}\!P$ Manhattan tracks for
+TGW, GL, GW and RLW (PC1--PC10-corrected linear-model GWAS,
+$N \in \{1{,}847, 2{,}453\}$, MAF~$\geq$~0.05). The genome-wide
+significance threshold is $p \leq 5 \times 10^{-8}$ (red);
+suggestive $p \leq 10^{-5}$ (orange). All four traits show the
+canonical \emph{GS3}/\emph{qSW5}/\emph{GW5} grain-architecture
+peaks on Chr3 and Chr5 plus several trait-specific QTNs.
+(\textbf{Bottom-left}) Quantile--quantile plots show inflation
+$\lambda_{GC} \in [1.41, 1.78]$, consistent with the well-documented
+3kRG XI/GJ subpopulation structure under PC1--PC10 correction.
+$\lambda_{GC}$ deflation is applied per trait before fine-mapping.
+(\textbf{Bottom-right}) Three-tier recovery scorecard against the
+Niu \emph{et al.}\ 2021 \cite{niu2021grain} 21-stable-QTN catalogue
+(Tier~1, blue), the Niu 2021 7 NEW candidate genes (Tier~2, green),
+and the Ren \emph{et al.}\ 2023 \cite{ren2023rice} grain-quality
+catalogue (Tier~3, red). The strict variant-level numbers are
+reported in Supplementary Table~S8; this panel is the at-a-glance
+visual summary. SBayesRC dominates the strict in-CS metric (Tier~1
+20/21 = 95\%); GAFM-MX, HBP-MX and ENS dominate the strictest
+top-1-PIP exact-position metric (10/21 = 47.6\%, the highest of any
+method tested). Figure source: \texttt{tests/rice3k\_grain\_shape\_figures.py}.}
+\label{fig:sup_grain}
+\end{figure}
+
+\clearpage
+
 \subsection*{Supplementary Table S5 --- IRRI 18-trait whole-genome scan summary}
 
 \begin{table}[htbp]
@@ -925,7 +961,7 @@ SPKF: spikelet fertility.
 
 \clearpage
 
-\subsection*{Supplementary Table S5b --- 3kRG grain weight + shape whole-genome scan summary (Niu et al. 2021 phenotype reference panel)}
+\subsection*{Supplementary Table S6 --- 3kRG grain weight + shape whole-genome scan summary (Niu \emph{et al.}\ 2021 phenotype reference panel)}
 
 \input{tables/grain_table_s5_addendum.tex}
 
@@ -952,7 +988,7 @@ fine-mapping literature for QTN-supported trait classes.
 
 \clearpage
 
-\subsection*{Supplementary Table S6 --- Cross-species fine-mapping summary}
+\subsection*{Supplementary Table S7 --- Cross-species fine-mapping summary}
 
 \begin{table}[htbp]
 \centering
@@ -1001,7 +1037,7 @@ GAFM, SuSiE-inf, FINEMAP-inf 8/21 (38\%) each}.
 At the strictest top-1-PIP exact-position metric, GAFM-MX, HBP-MX,
 and ENS each achieve \textbf{10/21 (47.6\%)} --- the highest of any
 method, exceeding SuSiE (6/21, 28.6\%) and SBayesRC (3/21, 14.3\%). Per-method,
-per-tier breakdown: Supplementary Table~S7. The mixture-prior step
+per-tier breakdown: Supplementary Table~S8. The mixture-prior step
 adds a single SBayesRC-style 4-component Wakefield BF reweighting
 on the LD-deconvolved, $\lambda_{\text{GC}}$-deflated z-scores
 ($\pi=(0.005, 0.003, 0.001, 0.001)$ within
@@ -1009,12 +1045,12 @@ non-zero components, $\gamma=(0.001, 0.01, 0.1, 1.0)$); the
 deconvolution step is essential to preserve GAFM/HBP's LD-aware
 ranking under the mixture, otherwise LD-correlated noise variants
 with marginally larger marginal $|z|$ outcompete the causal during
-multiplicative reweighting (Methods, Supplementary Table~S7\,c). The IRRI row's validation count uses Ren
+multiplicative reweighting (Methods, Supplementary Table~S8\,c). The IRRI row's validation count uses Ren
 \emph{et al.}\ 2023 \cite{ren2023rice} (gene-level recovery within
 $\pm$250\,kb of any fine-mapped lead's top-PIP variant). Per-method,
-per-tier recovery for the grain pass is in Supplementary Table~S7,
+per-tier recovery for the grain pass is in Supplementary Table~S8,
 and the full nine-method per-locus credible-set comparison in
-Supplementary Table~S8.
+Supplementary Table~S9.
 The grain pass spans 41 fine-mapped loci: top 5 GW-significant + top 2
 suggestive per trait (28 discovery leads) plus 13 additional leads
 matched within $\pm$100\,kb of a Niu 2021 QTN to ensure literature-anchored
@@ -1023,7 +1059,7 @@ coverage of the panel-matched catalogue.}
 
 \clearpage
 
-\subsection*{Supplementary Table S7 --- 3kRG grain weight + shape: 5-method ground-truth recovery scorecard}
+\subsection*{Supplementary Table S8 --- 3kRG grain weight + shape: nine-method ground-truth recovery scorecard}
 
 \input{tables/grain_table_s7_recovery.tex}
 
@@ -1054,13 +1090,13 @@ grain pass.
 
 \clearpage
 
-\subsection*{Supplementary Table S8 --- 3kRG grain pass: per-locus 5-method credible-set comparison}
+\subsection*{Supplementary Table S9 --- 3kRG grain pass: full nine-method per-locus credible-set comparison}
 
 \input{tables/grain_table_s8_per_locus.tex}
 
 \clearpage
 
-\subsection*{Supplementary Table S9 --- Cross-species CS=1 sharpening of GAFM-MX, HBP-MX and ENS on real GWAS leads}
+\subsection*{Supplementary Table S10 --- Cross-species CS=1 sharpening of GAFM-MX, HBP-MX and ENS on real GWAS leads}
 
 \begin{table}[htbp]
 \centering\small
@@ -1075,7 +1111,7 @@ credible set is a single variant; ``median top PIP'' is the median PIP
 of the top-PIP variant across leads. The mixture-prior step (MX/ENS)
 delivers $20$--$60\times$ sharpening of the credible set vs base GAFM/HBP
 on real leads, exceeding the chr22 single-causal-F1 simulation ratio
-(Supplementary Table~S8) because real GWAS lead loci have stronger marginal
+(Supplementary Table~S11) because real GWAS lead loci have stronger marginal
 signals than the simulated single-causal panel and the mixture BF is most
 discriminative at large $|z|$. Reproduce with
 \texttt{python tests/yeast\_finemap\_all.py},
@@ -1101,7 +1137,7 @@ ENS              &  60/245 (24.5\%) & 0.387 &  35/54 (64.8\%)  & 0.996 &  30/72 
 
 \clearpage
 
-\subsection*{Supplementary Table S10 --- Chr22 head-to-head across signal strength (eight-method panel)}
+\subsection*{Supplementary Table S11 --- Chr22 head-to-head across signal strength (eight-method panel)}
 
 \begin{table}[htbp]
 \centering\small
