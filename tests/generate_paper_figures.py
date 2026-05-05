@@ -1065,6 +1065,157 @@ def figure_9():
     save(fig, "fig9_cross_ancestry")
 
 
+def figure_main_7():
+    """Main Figure 7: mixture-prior headline panels.
+    (a) Rice 3kRG 21-QTN recovery (9-method top-1-PIP exact-position).
+    (b) Cross-species CS=1 sharpening on real GWAS leads.
+    (c) Chr22 confidence sharpening at the same rank parity.
+    """
+    print("Figure 7 — mixture-prior headline (rice grain + cross-species + chr22)")
+    import pandas as pd
+
+    # ----- panel (a) data: rice 3kRG recovery scorecard -----
+    sc_path = (Path("/mnt/data/GraphGWAS/data/rice_3k/results/grain_finemap")
+                / "grain_recovery_scorecard.tsv")
+    sc = pd.read_csv(sc_path, sep="\t")
+    method_order_a = ["GAFM", "HBP", "GAFM-MX", "HBP-MX", "ENS",
+                       "SuSiE", "SuSiE-inf", "FINEMAP-inf", "SBayesRC"]
+    sc = sc.set_index("method").reindex(method_order_a).reset_index()
+
+    # ----- panel (b) data: cross-species CS=1 -----
+    species_data = {
+        "Yeast (1011)": {
+            "n": 245,
+            "GAFM":     0,  "HBP":      0,
+            "GAFM-MX": 60,  "HBP-MX":  63,  "ENS":     60,
+        },
+        "Arabidopsis (1001G)": {
+            "n": 54,
+            "GAFM":     2,  "HBP":      2,
+            "GAFM-MX": 35,  "HBP-MX":  35,  "ENS":     35,
+        },
+        "IRRI rice (3kRG)": {
+            "n": 72,
+            "GAFM":    11,  "HBP":      8,
+            "GAFM-MX": 30,  "HBP-MX":  30,  "ENS":     30,
+        },
+    }
+
+    # ----- panel (c) data: chr22 mean PIP at causal -----
+    chr22_h2 = [0.02, 0.05, 0.10]
+    chr22_paths = {h: ROOT / "v15_chr22" / f"v15_chr22_h{int(round(h*100)):02d}.json"
+                   for h in chr22_h2}
+    chr22_methods = ["GAFM", "HBP", "GAFM-MX", "HBP-MX", "ENS", "SuSiE"]
+    chr22_pip = {m: [] for m in chr22_methods}
+    for h, p in chr22_paths.items():
+        d = json.loads(p.read_text())
+        s = d["summary"]
+        for m in chr22_methods:
+            chr22_pip[m].append(s.get(m, {}).get("mean_pip", np.nan))
+
+    # ----- figure layout: 1 row × 3 panels -----
+    fig, (ax_a, ax_b, ax_c) = plt.subplots(1, 3, figsize=(16.5, 5.0))
+
+    palette = {
+        "GAFM":        C["l1"],
+        "HBP":         C["hbp"],
+        "GAFM-MX":     "#ad1457",
+        "HBP-MX":      "#7b1fa2",
+        "ENS":         "#ef6c00",
+        "SuSiE":       C["susie"],
+        "SuSiE-inf":   C["susie_inf"],
+        "FINEMAP-inf": C["finemap_inf"],
+        "SBayesRC":    "#5d4037",
+    }
+
+    # Panel a — Niu 21-QTN top-1-PIP exact recovery + in-CS recovery
+    x = np.arange(len(method_order_a))
+    bw = 0.36
+    in_cs_pct = sc["tier1_recovery_pct"].values
+    top1_pct = 100 * sc["tier1_top1_count"].values / sc["tier1_qtns_total"].values
+    bars1 = ax_a.bar(x - bw/2, in_cs_pct, bw,
+                      color=[palette[m] for m in method_order_a],
+                      alpha=0.55, edgecolor="black", linewidth=0.5,
+                      label="in 95% CS (±10 kb)")
+    bars2 = ax_a.bar(x + bw/2, top1_pct, bw,
+                      color=[palette[m] for m in method_order_a],
+                      alpha=1.0, edgecolor="black", linewidth=0.5,
+                      label="top-1-PIP (exact)")
+    # Highlight the top-1-PIP winners (47.6%) with a star
+    for i, m in enumerate(method_order_a):
+        if m in ("GAFM-MX", "HBP-MX", "ENS"):
+            ax_a.text(x[i] + bw/2, top1_pct[i] + 2, "★",
+                       ha="center", fontsize=11, color="#d62728",
+                       fontweight="bold")
+    ax_a.set_xticks(x)
+    ax_a.set_xticklabels(method_order_a, rotation=35, ha="right", fontsize=8)
+    ax_a.set_ylabel("Niu 21-QTN recovery (%)")
+    ax_a.set_title("a  Rice 3kRG grain panel: 21-QTN recovery (n = 9 methods)",
+                    fontsize=10)
+    ax_a.set_ylim(0, 105)
+    ax_a.axhline(95, color="gray", linestyle=":", lw=0.7, alpha=0.6)
+    ax_a.legend(fontsize=7, loc="upper left", ncol=1)
+    ax_a.text(0.99, 0.95,
+               "★ = highest top-1-PIP exact rate\n"
+               "(GAFM-MX = HBP-MX = ENS = 47.6%)",
+               transform=ax_a.transAxes, ha="right", va="top", fontsize=7,
+               bbox=dict(boxstyle="round", fc="#fff0f3", ec="#ad1457", lw=0.5))
+
+    # Panel b — Cross-species CS=1 sharpening
+    species_order = list(species_data.keys())
+    methods_b = ["GAFM", "HBP", "GAFM-MX", "HBP-MX", "ENS"]
+    sx = np.arange(len(species_order))
+    bw_b = 0.16
+    for j, m in enumerate(methods_b):
+        offset = (j - (len(methods_b) - 1) / 2) * bw_b
+        rates = [100 * species_data[s][m] / species_data[s]["n"]
+                 for s in species_order]
+        ax_b.bar(sx + offset, rates, bw_b, color=palette[m], label=m,
+                  alpha=0.95, edgecolor="black", linewidth=0.4)
+    ax_b.set_xticks(sx)
+    ax_b.set_xticklabels([f"{s}\n(n={species_data[s]['n']})" for s in species_order],
+                          fontsize=9)
+    ax_b.set_ylabel("CS = 1 rate on real GWAS leads (%)")
+    ax_b.set_title("b  Cross-species CS = 1 sharpening (n = 371 real lead loci)",
+                    fontsize=10)
+    ax_b.set_ylim(0, 75)
+    ax_b.legend(fontsize=8, loc="upper left", ncol=2)
+    ax_b.annotate("0% → 24.5%", xy=(0.0, 25), xytext=(-0.20, 38),
+                   fontsize=8, color="#ad1457",
+                   arrowprops=dict(arrowstyle="->", lw=0.7, color="#ad1457"))
+    ax_b.annotate("3.7% → 64.8%", xy=(1.0, 64), xytext=(0.80, 68),
+                   fontsize=8, color="#ad1457",
+                   arrowprops=dict(arrowstyle="->", lw=0.7, color="#ad1457"))
+    ax_b.annotate("15.3% → 41.7%", xy=(2.0, 42), xytext=(1.65, 55),
+                   fontsize=8, color="#ad1457",
+                   arrowprops=dict(arrowstyle="->", lw=0.7, color="#ad1457"))
+
+    # Panel c — chr22 mean PIP at causal across h²
+    cx = np.arange(len(chr22_h2))
+    bw_c = 0.13
+    for j, m in enumerate(chr22_methods):
+        offset = (j - (len(chr22_methods) - 1) / 2) * bw_c
+        ax_c.bar(cx + offset, chr22_pip[m], bw_c, color=palette[m],
+                  label=m, alpha=0.95, edgecolor="black", linewidth=0.4)
+    ax_c.set_xticks(cx)
+    ax_c.set_xticklabels([f"h² = {h:.2f}" for h in chr22_h2], fontsize=9)
+    ax_c.set_ylabel("Mean PIP at causal variant")
+    ax_c.set_title("c  Chr22 confidence sharpening at same rank parity\n(30 reps × 3 h²)",
+                    fontsize=10)
+    ax_c.set_ylim(0, 1.0)
+    ax_c.legend(fontsize=7, ncol=2, loc="upper left")
+    # Annotate the 2-3× sharpening
+    base_avg = np.mean(chr22_pip["GAFM"])
+    mx_avg = np.mean(chr22_pip["GAFM-MX"])
+    ax_c.text(0.99, 0.95,
+               f"GAFM → GAFM-MX:\n  +{(mx_avg / base_avg - 1) * 100:.0f}% mean PIP\n"
+               "  at the same rank-1 count",
+               transform=ax_c.transAxes, ha="right", va="top", fontsize=7,
+               bbox=dict(boxstyle="round", fc="#fff0f3", ec="#ad1457", lw=0.5))
+
+    save(fig, "fig7_mixture_prior_headline")
+
+
 if __name__ == "__main__":
     figure_1()
     figure_2()
@@ -1072,7 +1223,8 @@ if __name__ == "__main__":
     figure_4()
     figure_5()
     figure_6()
-    figure_7()
+    figure_7()           # Sup Fig S6 (decision tree, historical name)
     figure_8()
     figure_9()
+    figure_main_7()      # Main Figure 7 (mixture-prior headline)
     print("\nAll figures written to:", OUT)
