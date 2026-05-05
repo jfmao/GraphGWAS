@@ -117,6 +117,9 @@ walkthrough in [`vignettes/fine-mapping-quickstart.md`](vignettes/fine-mapping-q
 
 - [`docs/INSTALL.md`](docs/INSTALL.md) — detailed installation guide
   (Neo4j, Python env, Hail for Pan-UKB LD, optional GNN deps)
+- [`docs/INPUT_OUTPUT_GUIDE.md`](docs/INPUT_OUTPUT_GUIDE.md) — practical
+  how-to for end users: prepare inputs, run fine-mapping, check outputs,
+  interpret PIPs and credible sets, and diagnose problems
 - [`docs/manual/index.md`](docs/manual/index.md) — full CLI reference
   (52 commands across 15 groups)
 - [`vignettes/fine-mapping-quickstart.md`](vignettes/fine-mapping-quickstart.md) — 15-min Pan-UKB sumstats → credible set

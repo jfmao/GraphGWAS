@@ -111,6 +111,9 @@ reproduction commands.
 
 ## See also
 
+- [`docs/INPUT_OUTPUT_GUIDE.md`](../../INPUT_OUTPUT_GUIDE.md) — preparing
+  inputs, choosing the method, interpreting PIPs and credible sets, post-
+  fine-mapping diagnostics, FAQ
 - [`graphgwas finemap`](finemap.md) — Neo4j / BGEN / Pan-UKB fine-mapping
   with the GAFM, HBP, CLGF, and GLEM method classes
 - [`vignettes/fine-mapping-quickstart.md`](../../../vignettes/fine-mapping-quickstart.md)

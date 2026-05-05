@@ -126,6 +126,9 @@ variants `i`. See Theorem 3.
 
 ## See also
 
+- [`docs/INPUT_OUTPUT_GUIDE.md`](../../INPUT_OUTPUT_GUIDE.md) — preparing
+  inputs, choosing the method, interpreting PIPs and credible sets, post-
+  fine-mapping diagnostics, FAQ
 - Vignette [`vignettes/fine-mapping-quickstart.md`](../../../vignettes/fine-mapping-quickstart.md)
 - Command [`graphgwas plot manhattan`](plot-manhattan.md) to visualise PIPs
 - Command [`graphgwas results export`](results-export.md) for further downstream export

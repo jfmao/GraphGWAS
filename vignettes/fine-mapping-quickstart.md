@@ -200,6 +200,9 @@ loaded. To add relational priors, load the pre-built Neo4j dump
 
 ## Further reading
 
+- [`docs/INPUT_OUTPUT_GUIDE.md`](../docs/INPUT_OUTPUT_GUIDE.md) — practical
+  how-to: prepare inputs, choose the method, interpret PIPs and credible
+  sets, run post-fine-mapping diagnostics, FAQ
 - Paper: *Relational biological structure improves fine-mapping of
   causal GWAS variants under weak signal* (submitted, 2026)
 - Manual: [`docs/manual/index.md`](../docs/manual/index.md)
