@@ -863,7 +863,7 @@ Note~S2 (``\nameref{snote:platform}'').}
 \subsection*{Supplementary Figure S7 --- 3kRG grain weight + shape pass:
 4-trait Manhattan, Q--Q, and nine-method recovery scorecard}
 
-\begin{figure}[htbp]
+\begin{figure}[p]
 \centering
 \includegraphics[width=0.95\textwidth]{rice_grain_manhattan.pdf}\\[1ex]
 \includegraphics[width=0.50\textwidth]{rice_grain_qq.pdf}\hfill
@@ -871,62 +871,102 @@ Note~S2 (``\nameref{snote:platform}'').}
 \caption{\textbf{3kRG grain weight + shape pass --- four-trait
 Manhattan, Q--Q, and nine-method recovery scorecard.}
 (\textbf{Top}) Genome-wide $-\log_{10}\!P$ Manhattan tracks for
-TGW, GL, GW and RLW (PC1--PC10-corrected linear-model GWAS,
-$N \in \{1{,}847, 2{,}453\}$, MAF~$\geq$~0.05). The genome-wide
-significance threshold is $p \leq 5 \times 10^{-8}$ (red);
-suggestive $p \leq 10^{-5}$ (orange). All four traits show the
-canonical \emph{GS3}/\emph{qSW5}/\emph{GW5} grain-architecture
-peaks on Chr3 and Chr5 plus several trait-specific QTNs.
-(\textbf{Bottom-left}) Per-trait quantile--quantile (Q--Q) plots of
-the genome-wide $-\log_{10}\!P$ distribution. Each point compares the
-$i$-th smallest observed p-value against the expected uniform null
-ranking: $x_i = -\log_{10}((i-0.5)/n)$, $y_i = -\log_{10}(P_{(i)})$,
-where $n \approx 27 \times 10^6$ is the number of variants per trait
-after MAF~$\geq$~0.05 filtering. Three reading aids are overlaid on
-each panel: \emph{(i)} the dashed black diagonal $y = x$ is the
-expected position of every point under a perfectly calibrated null
-(no association anywhere in the genome) — points that fall on this
-line carry no signal; \emph{(ii)} the dotted grey line at slope
-$\sqrt{\lambda_{GC}}$ ($\lambda_{GC} \in [1.41, 1.78]$, displayed
-per-panel) is where the \emph{bulk} of points should fall under
-chi-square inflation alone, with no genuine association — this is
-the classic genomic-control reference and gives the reader a sense
-of how much of the upward shift is inflation versus signal;
-\emph{(iii)} the cloud of trait-coloured points is sub-sampled by
-log-rank to give faithful coverage at every $-\log_{10}(\text{expected})$
-value (dense at the tail, dense at the bulk; see Methods).
-\textbf{How to read each panel.} The bulk of points (lower-left)
-sits between the two reference lines, indicating chi-square
-inflation $\lambda_{GC} > 1$ as expected for a strongly stratified
-3kRG population panel under PC1--PC10 correction. The upper-right
-tail deflects sharply above both reference lines, which is the
-genuine association signal: variants that carry true effects have
-much smaller p-values than even an inflated null would predict, and
-their points climb to $-\log_{10}\!P$ values of $\sim$150--250 for
-the strongest QTNs (Chr3:16{,}733{,}441 / \emph{GS3} and
-Chr5:5{,}371{,}529 / \emph{qSW5/GW5}). Hundreds of points falling
-above the $\sqrt{\lambda_{GC}}$ slope at expected $-\log_{10}(P) > 4$
-indicate hundreds of independent QTNs, consistent with the polygenic
-genetic architecture of grain weight and shape (Niu \emph{et al.}\
-2021 \cite{niu2021grain} estimate narrow-sense heritability
-$h^2 = 0.88$--$0.93$ for these traits). The fine-mapping pipeline
-applies $\lambda_{GC}$ deflation ($z \to z / \sqrt{\lambda_{GC}}$)
-to the per-trait z-scores before any credible-set computation, so
-the inflated bulk does not propagate into the credible-set sizes
-reported elsewhere in the paper. Plots are rendered with rasterised
-markers; the underlying p-value distributions are exact.
-(\textbf{Bottom-right}) Three-tier recovery scorecard against the
-Niu \emph{et al.}\ 2021 \cite{niu2021grain} 21-stable-QTN catalogue
+TGW, GL, GW and RLW. (\textbf{Bottom-left}) Per-trait quantile--quantile
+plots ($\lambda_{GC} \in [1.41, 1.78]$) with the
+$y = x$ null and slope-$\sqrt{\lambda_{GC}}$ inflation references
+overlaid. (\textbf{Bottom-right}) Three-tier recovery scorecard against
+the Niu \emph{et al.}\ 2021 \cite{niu2021grain} 21-QTN catalogue
 (Tier~1, blue), the Niu 2021 7 NEW candidate genes (Tier~2, green),
 and the Ren \emph{et al.}\ 2023 \cite{ren2023rice} grain-quality
-catalogue (Tier~3, red). The strict variant-level numbers are
-reported in Supplementary Table~S8; this panel is the at-a-glance
-visual summary. SBayesRC dominates the strict in-CS metric (Tier~1
-20/21 = 95\%); GAFM-MX, HBP-MX and ENS dominate the strictest
-top-1-PIP exact-position metric (10/21 = 47.6\%, the highest of any
-method tested). Figure source: \texttt{tests/rice3k\_grain\_shape\_figures.py}.}
+catalogue (Tier~3, red, normalised to the per-method maximum).
+Extended caption with full annotation on the following page.}
 \label{fig:sup_grain}
 \end{figure}
+
+\clearpage
+
+\noindent\textbf{Supplementary Figure S7 (extended caption).}\hspace{1ex}%
+The four-trait Manhattan tracks (Top panel) summarise the
+PC1--PC10-corrected linear-model GWAS on the 3kRG panel
+($N{=}1{,}847$ for TGW; $N{=}2{,}453$ for GL, GW, RLW; MAF~$\geq$~0.05).
+The genome-wide significance threshold is $p \leq 5 \times 10^{-8}$
+(red horizontal line); the suggestive threshold is
+$p \leq 10^{-5}$ (orange). All four traits show the canonical
+\emph{GS3}/\emph{qSW5}/\emph{GW5} grain-architecture peaks on Chr3 and
+Chr5 plus several trait-specific QTNs (full breakdown in
+Supplementary Table~S6).
+
+\noindent\textbf{Reading the Q--Q plots (Bottom-left).}\hspace{1ex}%
+Each point compares the $i$-th smallest observed p-value against the
+expected uniform-null quantile ranking:
+$x_i = -\log_{10}((i-0.5)/n)$,
+$y_i = -\log_{10}(P_{(i)})$,
+where $n \approx 27 \times 10^6$ is the number of variants per trait
+after MAF~$\geq$~0.05 filtering. Three reading aids are overlaid on
+every panel:
+\emph{(i)} the dashed black diagonal $y = x$ is the expected position
+of every point under a perfectly calibrated null (no association
+anywhere in the genome); points on this line carry no signal.
+\emph{(ii)} the dotted grey line at slope
+$\sqrt{\lambda_{GC}}$ ($\lambda_{GC} \in [1.41, 1.78]$, displayed
+per-panel) is where the \emph{bulk} of points should fall under
+chi-square inflation alone, with no genuine association — the
+classic genomic-control reference; the gap between $y=x$ and the
+$\sqrt{\lambda_{GC}}$ line tells the reader how much of the upward
+shift is attributable to inflation rather than signal.
+\emph{(iii)} the trait-coloured cloud is sub-sampled by log-rank so
+that the bulk and the upper tail both receive dense coverage at
+every $-\log_{10}(\text{expected})$ value (the naive uniform-rank
+sub-sample over-samples the tail and under-samples the bulk; see
+Methods, ``\nameref{methods:multispecies}'').
+
+\noindent\textbf{What the four Q--Q panels show.}\hspace{1ex}%
+The bulk of points (lower-left) sits between the two reference lines,
+indicating chi-square inflation $\lambda_{GC} > 1$ as expected for the
+strongly stratified 3kRG population panel under PC1--PC10 correction
+(XI/GJ subpopulation $F_{ST} \approx 0.5$). The upper-right tail
+deflects sharply above both reference lines: variants that carry
+true effects have much smaller p-values than even an inflated null
+would predict, and their points climb to $-\log_{10}\!P$ values of
+$\sim$150--250 for the strongest QTNs
+(Chr3:16{,}733{,}441 / \emph{GS3} and
+Chr5:5{,}371{,}529 / \emph{qSW5/GW5}, both visible at the upper-right
+of every panel). Hundreds of points falling above the
+$\sqrt{\lambda_{GC}}$ slope at expected $-\log_{10}(P) > 4$ indicate
+hundreds of independent QTNs, consistent with the polygenic genetic
+architecture of grain weight and shape (Niu \emph{et al.}\ 2021
+\cite{niu2021grain} estimate narrow-sense heritability $h^2 = 0.88$
+to $0.93$ for these traits). The fine-mapping pipeline applies
+$\lambda_{GC}$ deflation ($z \to z / \sqrt{\lambda_{GC}}$) to the
+per-trait z-scores before any credible-set computation, so the
+inflated bulk visible in the Q--Q does not propagate into the
+credible-set sizes reported in Supplementary Tables~S8 and S9.
+Q--Q plots are rendered with rasterised markers; the underlying
+p-value distributions are exact.
+
+\noindent\textbf{Recovery scorecard (Bottom-right).}\hspace{1ex}%
+Three-tier ground-truth recovery for each of the nine methods on the
+combined 41-lead grain pass.
+\emph{Tier~1} (blue, percentage scale): the Niu \emph{et al.}\ 2021
+21-stable-QTN catalogue, scored as the QTN's chr:pos appearing in the
+95\% credible set within $\pm$10\,kb of the QTN coordinate.
+\emph{Tier~2} (green, percentage scale): the seven candidate genes
+flagged as NEW by Niu 2021, scored at locus level (the candidate-gene
+coordinate is covered by some method's credible set).
+\emph{Tier~3} (red, normalised to the per-method maximum across the
+nine methods): gene-level recovery against the Ren \emph{et al.}\ 2023
+\cite{ren2023rice} grain-quality catalogue (104 grain-size +
+grain-shape genes), with each method's count expressed as a percentage
+of the maximum count observed for any method on this panel
+(SBayesRC: 18 of $\sim$118 genes recovered = 100\%).
+The strict variant-level numbers behind this panel are in
+Supplementary Table~S8.
+SBayesRC dominates the strict in-CS metric on Tier~1 (20/21 = 95\%,
+on the strength of its full eigen-decomposed LD model); GAFM-MX,
+HBP-MX and ENS dominate the strictest top-1-PIP exact-position
+metric (10/21 = 47.6\%, the highest of any method tested,
+exceeding SuSiE's 28.6\% and SBayesRC's 14.3\%).
+Figure source: \texttt{tests/rice3k\_grain\_shape\_figures.py}.
 
 \clearpage
 
