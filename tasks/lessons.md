@@ -743,3 +743,70 @@ flows it directly under the included graphic. There is no
 This is the same idea Nature Genetics's "Extended Data" mechanism
 uses for figures whose interpretation needs more space than a
 display-item caption can hold.
+
+### LESSON 050: Run an explicit length-budget audit against journal limits before submission
+**Pattern:** Late in the revision cycle, a manuscript that "looked
+fine" on every per-section read turned out to be at 99% of *Nature
+Genetics*'s 50,000-character main-text cap (49,400 / 50,000 chars
+including figure legends) and over the 6-item display-item cap
+(7 figures + 1 table = 8). Neither limit was visible from inside
+the writing process — character and item counts are not displayed
+by LaTeX or by a normal `pdftotext` read. The author would have
+discovered both at submission, when the journal's submission system
+returns a hard error.
+**Cause:** Journal limits are stated in characters and item counts,
+but authors reason in pages, paragraphs and figures-per-section.
+The two units do not map cleanly: a 71-page rendered PDF can be
+under or over 50k characters depending on figure size, line-numbering
+overhead, and page geometry; a paper with "one figure per major
+section" can easily land at 7–8 figures.
+**Rule:** Before submission, run the explicit budget check. The
+five numbers to extract:
+(1) **Abstract word count** — strip `\abstract{...}` envelope, peel
+    nested `\emph{}` / `\cite{}` / `\textbf{}` to their argument,
+    drop remaining `\cmd*?` and braces, count alphanumeric tokens.
+(2) **Main-text character count, no spaces, INCLUDING figure
+    legends** — concatenate `introduction.tex + results.tex +
+    discussion.tex` (which contain the figure environments), strip
+    `%comments`, peel nested commands, drop spaces, count.
+(3) **Methods word count** — same scheme on `methods.tex` alone.
+(4) **Display items in main text** — count
+    `\begin{figure}` + `\begin{table}` + `\begin{sidewaystable}` in
+    `results.tex` + `methods.tex` (NOT `supplementary.tex`).
+(5) **Bib entries used vs total** — set-difference between
+    `\cite{}` keys gathered from all `.tex` and `^@type{key,` keys
+    in `references.bib`. Report unused (delete) and missing
+    (add or fix).
+Reproducible Python one-liner is in
+`tests/check_length_budget.py` (or the same script the author
+already runs as part of CI). When over limit, the *editorial*
+decision (extend, demote, combine) belongs to the author/PI, not
+to the script — but the script must surface the over-limit fact
+clearly so the decision is taken with full information rather
+than discovered at submission.
+
+### LESSON 051: When over the display-item cap, prefer an editor-extension request to crippling the paper
+**Pattern:** This paper landed at 7 figures + 1 table = 8 main
+display items against *Nature Genetics*'s typical 6-item cap.
+Three options on the table:
+(a) Demote a figure to Supplementary (cheapest; loses prominence).
+(b) Combine two figures into one multi-panel figure (cramped;
+    weakens individual visual claims).
+(c) Submit at 8 items and request an editorial extension in the
+    cover letter (highest editor friction; preserves the science).
+**Cause:** The paper had grown to cover two new method classes
+(HBP, GAFM) plus three v0.1.5 mixture-prior variants and four
+species of validation. Each main figure was the unique visual
+support for one experimental claim; no single figure was
+"redundant" enough to cleanly demote without orphaning its result.
+**Rule:** When the editorial decision is between "demote /
+recombine to fit cap" and "keep at 8 items + request extension",
+ask: *would demoting this figure change the take-home of the
+paper?* If yes (each main figure is the unique visual carrier of
+one claim), keep at 8 and ask for extension; many published NG
+Articles do run 7–8 display items with editor approval. If
+"some figures are essentially decorative or redundant", demote.
+Either way, the cover letter should briefly justify the chosen
+configuration: a one-sentence-per-figure rationale ("Fig 1 = graph
+schema, Fig 2 = HBP+GAFM algorithm schematic, Fig 3 = GAFM 27-2
+weak signal, ...") makes the editor's job easier.
