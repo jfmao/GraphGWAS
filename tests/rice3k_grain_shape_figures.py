@@ -107,7 +107,8 @@ def manhattan_grid():
 
 
 def qq_panel():
-    fig, axes = plt.subplots(1, 4, figsize=(14, 3.6))
+    fig, axes = plt.subplots(2, 2, figsize=(8.5, 8.0))
+    axes_flat = axes.flatten()
     for i, trait in enumerate(TRAITS):
         df = _read_glm(trait)
         if df is None or df.empty:
@@ -122,15 +123,16 @@ def qq_panel():
             np.arange(min(5000, n)),  # keep top points
         ]
         idx = np.unique(idx)
-        ax = axes[i]
-        ax.scatter(expected[idx], observed[idx], s=4, c=TRAIT_COLORS[trait], alpha=0.7, rasterized=True)
+        ax = axes_flat[i]
+        ax.scatter(expected[idx], observed[idx], s=6, c=TRAIT_COLORS[trait],
+                   alpha=0.7, rasterized=True)
         m = max(expected.max(), observed.max())
         ax.plot([0, m], [0, m], "k--", lw=0.7)
         lam = _lambda_gc(df["P"].values)
         ax.set_xlabel(r"Expected $-\log_{10}(P)$")
         ax.set_ylabel(r"Observed $-\log_{10}(P)$")
         ax.set_title(f"{trait}  ($\\lambda_{{GC}}$={lam:.2f})")
-    fig.suptitle("3kRG grain — Q–Q plots", y=1.02)
+    fig.suptitle("3kRG grain — Q–Q plots", y=0.995)
     fig.tight_layout()
     for ext in ("png", "pdf"):
         out = FIG / f"rice_grain_qq.{ext}"

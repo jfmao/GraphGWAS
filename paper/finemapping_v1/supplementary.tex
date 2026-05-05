@@ -1099,7 +1099,8 @@ grain pass.
 \subsection*{Supplementary Table S10 --- Cross-species CS=1 sharpening of GAFM-MX, HBP-MX and ENS on real GWAS leads}
 
 \begin{table}[htbp]
-\centering\small
+\centering\footnotesize
+\setlength{\tabcolsep}{4pt}
 \caption{\textbf{Cross-species CS$=$1 sharpening of GAFM-MX, HBP-MX and ENS on real GWAS leads.}
 For each species, we run all five methods (GAFM, HBP, GAFM-MX, HBP-MX, ENS)
 on the species' actual lead-locus catalogue (yeast: 245 leads from 35
@@ -1118,16 +1119,19 @@ discriminative at large $|z|$. Reproduce with
 \texttt{CACHE\_VERSION=v2 python tests/arabidopsis\_finemap.py}, and
 \texttt{python tests/rice3k\_irri\_finemap.py}.}
 \label{tab:sup_v15_cross_species}
-\begin{tabular}{l c c c c c c}
+\begin{tabular}{l@{\hspace{6pt}}r@{\hspace{4pt}}r@{\hspace{6pt}}r@{\hspace{4pt}}r@{\hspace{6pt}}r@{\hspace{4pt}}r}
 \toprule
-                 & \multicolumn{2}{c}{\textbf{Yeast (1011)}: $n=245$ leads}
-                 & \multicolumn{2}{c}{\textbf{Arabidopsis (1001G)}: $n=54$ leads}
-                 & \multicolumn{2}{c}{\textbf{IRRI rice (3kRG)}: $n=72$ leads} \\
+                 & \multicolumn{2}{c}{\textbf{Yeast (1011)}}
+                 & \multicolumn{2}{c}{\textbf{Arabidopsis (1001G)}}
+                 & \multicolumn{2}{c}{\textbf{IRRI rice (3kRG)}} \\
+                 & \multicolumn{2}{c}{$n=245$ leads}
+                 & \multicolumn{2}{c}{$n=54$ leads}
+                 & \multicolumn{2}{c}{$n=72$ leads} \\
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
-\textbf{Method}  & CS$=$1 & median top PIP & CS$=$1 & median top PIP & CS$=$1 & median top PIP \\
+\textbf{Method}  & CS$=$1 & med top PIP & CS$=$1 & med top PIP & CS$=$1 & med top PIP \\
 \midrule
-GAFM             &   0/245 (0\%)   & 0.009 &   2/54 (3.7\%)   & 0.041 &  11/72 (15.3\%) & 0.005 \\
-HBP              &   0/245 (0\%)   & 0.014 &   2/54 (3.7\%)   & 0.106 &   8/72 (11.1\%) & 0.018 \\
+GAFM             &   0/245 (0\%)    & 0.009 &   2/54 (3.7\%)   & 0.041 &  11/72 (15.3\%) & 0.005 \\
+HBP              &   0/245 (0\%)    & 0.014 &   2/54 (3.7\%)   & 0.106 &   8/72 (11.1\%) & 0.018 \\
 GAFM-MX          &  60/245 (24.5\%) & 0.356 &  35/54 (64.8\%)  & 0.996 &  30/72 (41.7\%) & 0.837 \\
 HBP-MX           &  63/245 (25.7\%) & 0.412 &  35/54 (64.8\%)  & 0.997 &  30/72 (41.7\%) & 0.855 \\
 ENS              &  60/245 (24.5\%) & 0.387 &  35/54 (64.8\%)  & 0.996 &  30/72 (41.7\%) & 0.846 \\
