@@ -610,83 +610,164 @@ def figure_1():
 # ===================================================================
 
 def figure_2():
-    print("Figure 2 — HBP factor-graph schematic")
-    import matplotlib.patches as mpatches
+    print("Figure 2 — HBP and GAFM schematics (paired)")
 
-    fig, ax = plt.subplots(figsize=(11, 7))
-    ax.set_xlim(0, 12)
-    ax.set_ylim(0, 6.5)
-    ax.axis("off")
+    fig, (ax_hbp, ax_gafm) = plt.subplots(1, 2, figsize=(15, 7))
 
-    # Three layers
-    ax.text(1, 5.0, "Pathways", fontsize=11, fontweight="bold", ha="center")
-    ax.text(1, 3.2, "Genes\n(+ PPI)", fontsize=11, fontweight="bold", ha="center")
-    ax.text(1, 1.2, "Variants", fontsize=11, fontweight="bold", ha="center")
+    # ===== Panel a: HBP message passing =====
+    ax_hbp.set_xlim(0, 12)
+    ax_hbp.set_ylim(0, 7.0)
+    ax_hbp.axis("off")
+    ax_hbp.text(0.05, 0.97, "a", fontsize=18, fontweight="bold",
+                transform=ax_hbp.transAxes, va="top")
 
-    # Pathway nodes
+    ax_hbp.text(1, 5.0, "Pathways", fontsize=11, fontweight="bold", ha="center")
+    ax_hbp.text(1, 3.2, "Genes\n(+ PPI)", fontsize=11, fontweight="bold",
+                ha="center")
+    ax_hbp.text(1, 1.2, "Variants", fontsize=11, fontweight="bold", ha="center")
+
     pw = [(4.5, 5.0), (7.5, 5.0), (10.5, 5.0)]
     for x, y in pw:
-        ax.add_patch(plt.Circle((x, y), 0.30, facecolor="#d4b9e8",
-                                edgecolor="black"))
+        ax_hbp.add_patch(plt.Circle((x, y), 0.30, facecolor="#d4b9e8",
+                                    edgecolor="black"))
 
-    # Gene nodes
-    genes = [(3.5, 3.2), (5.0, 3.2), (6.5, 3.2), (8.0, 3.2), (9.5, 3.2), (11.0, 3.2)]
+    genes = [(3.5, 3.2), (5.0, 3.2), (6.5, 3.2),
+             (8.0, 3.2), (9.5, 3.2), (11.0, 3.2)]
     for x, y in genes:
-        ax.add_patch(plt.Circle((x, y), 0.25, facecolor="#aed9a0",
-                                edgecolor="black"))
+        ax_hbp.add_patch(plt.Circle((x, y), 0.25, facecolor="#aed9a0",
+                                    edgecolor="black"))
 
-    # PPI edges (within gene layer)
     ppi = [(genes[0], genes[1]), (genes[1], genes[2]),
            (genes[3], genes[4]), (genes[4], genes[5])]
     for (x0, y0), (x1, y1) in ppi:
-        ax.plot([x0, x1], [y0 + 0.25, y1 + 0.25], "-",
-                color="#388e3c", lw=0.8, alpha=0.6)
-    ax.text(7, 3.7, "PPI (W_gg)", fontsize=8, ha="center", style="italic",
-            color="#388e3c")
+        ax_hbp.plot([x0, x1], [y0 + 0.25, y1 + 0.25], "-",
+                    color="#388e3c", lw=0.8, alpha=0.6)
+    ax_hbp.text(7, 3.75, "PPI (W_gg)", fontsize=8, ha="center", style="italic",
+                color="#388e3c")
 
-    # Variant nodes (many)
     np.random.seed(0)
     n_var = 18
     vx = np.linspace(3.2, 11.2, n_var)
     vy = np.ones(n_var) * 1.2 + np.random.uniform(-0.05, 0.05, n_var)
     for x, y in zip(vx, vy):
-        ax.add_patch(plt.Circle((x, y), 0.18, facecolor="#b3d9ff",
-                                edgecolor="black", linewidth=0.5))
+        ax_hbp.add_patch(plt.Circle((x, y), 0.18, facecolor="#b3d9ff",
+                                    edgecolor="black", linewidth=0.5))
 
-    # Edges: variant -> gene (sparse)
     rng = np.random.default_rng(1)
     assign = rng.integers(0, len(genes), size=n_var)
     for i, gidx in enumerate(assign):
-        ax.plot([vx[i], genes[gidx][0]], [vy[i] + 0.18, genes[gidx][1] - 0.25],
-                "-", color="gray", lw=0.5, alpha=0.5)
+        ax_hbp.plot([vx[i], genes[gidx][0]],
+                    [vy[i] + 0.18, genes[gidx][1] - 0.25],
+                    "-", color="gray", lw=0.5, alpha=0.5)
 
-    # Edges: gene -> pathway
     g2p = [(0, 0), (1, 0), (2, 0), (2, 1), (3, 1), (4, 1), (4, 2), (5, 2)]
     for g, p in g2p:
-        ax.plot([genes[g][0], pw[p][0]], [genes[g][1] + 0.25, pw[p][1] - 0.30],
-                "-", color="#6a1b9a", lw=0.8, alpha=0.6)
+        ax_hbp.plot([genes[g][0], pw[p][0]],
+                    [genes[g][1] + 0.25, pw[p][1] - 0.30],
+                    "-", color="#6a1b9a", lw=0.8, alpha=0.6)
 
-    # Upward / downward arrows on the right
-    ax.annotate("", xy=(11.6, 3.0), xytext=(11.6, 1.5),
-                arrowprops=dict(arrowstyle="->", lw=1.6, color="#d62728"))
-    ax.text(11.7, 2.3, "Upward\nevidence\nB_vg, B_gp", fontsize=9,
-            color="#d62728")
+    ax_hbp.annotate("", xy=(11.6, 3.0), xytext=(11.6, 1.5),
+                    arrowprops=dict(arrowstyle="->", lw=1.6, color="#d62728"))
+    ax_hbp.text(11.7, 2.3, "Upward\nevidence\nB_vg, B_gp", fontsize=9,
+                color="#d62728")
 
-    ax.annotate("", xy=(11.8, 1.4), xytext=(11.8, 3.0),
-                arrowprops=dict(arrowstyle="->", lw=1.6, color="#1f77b4"))
-    ax.text(11.9, 2.3, "Downward\nprior", fontsize=9, color="#1f77b4",
-            ha="left")
+    ax_hbp.annotate("", xy=(11.95, 1.4), xytext=(11.95, 3.0),
+                    arrowprops=dict(arrowstyle="->", lw=1.6, color="#1f77b4"))
+    ax_hbp.text(12.05, 2.3, "Downward\nprior", fontsize=9, color="#1f77b4",
+                ha="left")
 
-    # Formula
-    ax.text(6, 0.3,
-            r"$b^{(t+1)} = \alpha \cdot \mathrm{softmax}(z) + (1-\alpha) \cdot \pi(b^{(t)})$"
-            "\nContraction rate $L = \\lambda + (1-\\lambda)(1-\\alpha)\\rho(M) < 1$",
-            ha="center", fontsize=11,
-            bbox=dict(boxstyle="round", fc="#fff9c4", ec="black"))
+    ax_hbp.text(6, 0.30,
+                r"$b^{(t+1)} = \alpha \cdot \mathrm{softmax}(z) + (1-\alpha) \cdot \pi(b^{(t)})$"
+                "\nContraction rate $L = \\lambda + (1-\\lambda)(1-\\alpha)\\rho(M) < 1$",
+                ha="center", fontsize=10.5,
+                bbox=dict(boxstyle="round", fc="#fff9c4", ec="black"))
 
-    ax.set_title("HBP: message passing on the variant → gene → pathway factor graph",
-                 fontsize=12, fontweight="bold")
-    save(fig, "fig2_hbp_schematic")
+    ax_hbp.set_title("HBP: message passing on the variant → gene → pathway factor graph",
+                     fontsize=11, fontweight="bold")
+
+    # ===== Panel b: GAFM data flow =====
+    ax_gafm.set_xlim(0, 12)
+    ax_gafm.set_ylim(0, 7.0)
+    ax_gafm.axis("off")
+    ax_gafm.text(0.05, 0.97, "b", fontsize=18, fontweight="bold",
+                 transform=ax_gafm.transAxes, va="top")
+
+    def _box(ax, x, y, w, h, text, fc, fontsize=10):
+        from matplotlib.patches import FancyBboxPatch
+        ax.add_patch(FancyBboxPatch(
+            (x - w / 2, y - h / 2), w, h,
+            boxstyle="round,pad=0.05,rounding_size=0.15",
+            facecolor=fc, edgecolor="black", linewidth=0.8,
+        ))
+        ax.text(x, y, text, ha="center", va="center", fontsize=fontsize)
+
+    # Inputs
+    _box(ax_gafm, 1.8, 6.0, 2.6, 0.8,
+         r"per-variant z-scores $z_i$", "#b3d9ff")
+    _box(ax_gafm, 1.8, 4.7, 2.6, 0.8,
+         r"LD matrix $\,R^2$", "#b3d9ff")
+    _box(ax_gafm, 10.2, 6.0, 3.0, 0.8,
+         "graph functional score\n" r"$z^{\mathrm{func}}_i$ (eQTL, PPI, regulatory)",
+         "#aed9a0", fontsize=9)
+
+    # LD-deconvolution box
+    _box(ax_gafm, 4.5, 5.35, 3.2, 1.0,
+         "LD-deconvolved\n"
+         r"unique-stat $u_i = z_i - \frac{1}{|N_i|}\sum_{j \in N_i} R_{ij}^2 z_j$",
+         "#fff9c4", fontsize=9)
+
+    # Adaptive α (empirical Bayes)
+    _box(ax_gafm, 7.7, 5.35, 2.6, 0.8,
+         r"empirical-Bayes $\alpha$"
+         "\n(adaptive)", "#fff9c4", fontsize=9)
+
+    # Combination
+    _box(ax_gafm, 6.0, 3.6, 5.4, 1.0,
+         r"$s_i \;=\; \alpha \, u_i \;+\; (1-\alpha)\, z^{\mathrm{func}}_i$",
+         "#fff9c4", fontsize=11)
+
+    # Softmax + PIP
+    _box(ax_gafm, 3.5, 1.9, 2.8, 0.9,
+         r"$\mathrm{PIP}_i = \mathrm{softmax}_i(s)$",
+         "#ffd180", fontsize=10)
+
+    # Mixture-prior arm
+    _box(ax_gafm, 8.5, 1.9, 3.0, 0.9,
+         "mixture-prior reweight\n→ GAFM-MX, HBP-MX, ENS",
+         "#f8bbd0", fontsize=9)
+
+    # Arrows: input → deconvolution
+    for x0, y0 in [(1.8, 5.6), (1.8, 5.05)]:
+        ax_gafm.annotate("", xy=(2.95, 5.35), xytext=(x0, y0),
+                         arrowprops=dict(arrowstyle="->", lw=1.0,
+                                         color="black"))
+    # deconv → combination
+    ax_gafm.annotate("", xy=(4.5, 4.15), xytext=(4.5, 4.85),
+                     arrowprops=dict(arrowstyle="->", lw=1.0, color="black"))
+    # adaptive α → combination
+    ax_gafm.annotate("", xy=(7.4, 4.15), xytext=(7.4, 4.95),
+                     arrowprops=dict(arrowstyle="->", lw=1.0, color="black"))
+    # functional score → combination
+    ax_gafm.annotate("", xy=(8.5, 4.15), xytext=(10.2, 5.6),
+                     arrowprops=dict(arrowstyle="->", lw=1.0, color="black"))
+    # combination → softmax
+    ax_gafm.annotate("", xy=(3.5, 2.4), xytext=(5.4, 3.1),
+                     arrowprops=dict(arrowstyle="->", lw=1.0, color="black"))
+    # softmax → mixture-prior arm
+    ax_gafm.annotate("", xy=(7.0, 1.9), xytext=(4.9, 1.9),
+                     arrowprops=dict(arrowstyle="->", lw=1.2, color="#ad1457"))
+
+    ax_gafm.text(6.0, 0.65,
+                 "Causal-variant ranking guarantee under mild LD-decay\n"
+                 "assumptions: $u_c > u_i \\;\\forall i \\neq c$ "
+                 "(Theorem~3, Sup. Note S1)",
+                 ha="center", fontsize=9,
+                 bbox=dict(boxstyle="round", fc="#fff9c4", ec="black"))
+
+    ax_gafm.set_title("GAFM: LD-deconvolved evidence + adaptive-α graph prior",
+                      fontsize=11, fontweight="bold")
+
+    save(fig, "fig2_hbp_gafm_schematic")
 
 
 # ===================================================================

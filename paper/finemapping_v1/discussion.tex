@@ -91,7 +91,8 @@ are met in human biobank analyses, and none of them is reliably
 met in GWAS on crops, livestock, and other non-model species. The 3{,}024-
 accession 3K~Rice~Genomes panel\cite{wang2018genomic}, the
 canonical crop-genomics resource for fine-mapping validation,
-has $N$ an order of magnitude too small for stable S-LDSC
+has $N$ an order of magnitude too small for stable
+stratified LD-score regression (S-LDSC)\cite{finucane2015partitioning}
 enrichment estimation, no species-specific Baseline-equivalent
 annotation catalogue, and 12--15 cross-subspecies LD strata
 (GJ versus XI $F_{ST} \approx 0.5$) that violate the single-
@@ -161,12 +162,12 @@ heterogeneity per se. The original 0\,\%\,$\to$\,88\,\% flip on
 enrichment of real disease-associated leads in cCRE-class regions
 (a known phenomenon) rather than on the graph prior providing
 variant-specific biological information beyond what any
-non-uniform prior would produce. We retain the Table~1
-intervention result but reinterpret it in this light: the typed
-factor graph is the necessary substrate for incorporating
-non-uniform priors into HBP/GAFM; the empirical superiority of
-informative-cCRE over a permuted-marginal placebo on real
-biobank leads remains to be demonstrated. (ii)~The 250\,kb-window cross-species
+non-uniform prior would produce. The typed factor graph is therefore
+the necessary substrate for incorporating non-uniform priors into
+HBP/GAFM; whether informative-cCRE priors empirically beat a
+permuted-marginal placebo on real biobank leads is an open
+question, to be addressed by repeating the placebo control
+directly on the Pan-UK Biobank lead set. (ii)~The 250\,kb-window cross-species
 validation rate is reported without a species-matched
 random-position null; without that null, the per-species rates
 quoted in §``\nameref{sec:multispecies}'' should be read as

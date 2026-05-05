@@ -111,7 +111,7 @@ statistics) and a common output (\texttt{AssociationResult} and
 released codebase but are \emph{not} benchmarked at the depth of
 HBP and GAFM in the present paper; their rows reflect their intended
 target scenario, not a validated head-to-head performance claim.
-L4 (graph-neural-network fine-mapping) is similarly implemented
+GLEM (graph-latent-embedding fine-mapping) is similarly implemented
 but not benchmarked here. Graphical summary in main-text
 Figure~\ref{fig:selection}.}
 \label{tab:sup_portfolio}
@@ -132,7 +132,7 @@ Figure~\ref{fig:selection}.}
 preview only, under development.}
 LPCE is implemented and theoretically supported but is not
 benchmarked at the depth of HBP and GAFM in this paper (CLGF and
-L4 are likewise implemented but unbenchmarked here); the panels
+GLEM are likewise implemented but unbenchmarked here); the panels
 below report a
 search-space-reduction guarantee and a 5-replicate proof of
 concept, with full benchmarking against BOOST, MDR and other
@@ -331,7 +331,7 @@ unit tests) is structured around seven functional groups:
 \item \textbf{Fine-mapping (this paper)}:
       \texttt{finemapping\_v2}
       (GAFM,
-      L4 MDS-embedding, HBP hierarchical belief propagation,
+      GLEM graph-latent-embedding fine-mapping, HBP hierarchical belief propagation,
       CLGF cross-locus EM); sumstats-only entry paths
       \texttt{l1\_finemap\_from\_sumstats},
       \texttt{hbp\_finemap\_from\_sumstats}.
@@ -384,7 +384,7 @@ Method class & Module & Status in this paper & Benchmark record \\
 \midrule
 \textbf{Fine-mapping (HBP, GAFM, GAFM-MX, HBP-MX, ENS)} & \texttt{finemapping\_v2} & \textbf{Rigorously benchmarked} (Figs~2--5,~7; Sup Tables~S7--S10; Sup Fig~S4 e--g) & 90 F1 simulations, 79 weak-signal replicates, 100 null replicates, 200 PIP-calibration replicates, Pan-UKB 4 ancestries; chr22 90~reps $\times$~3~$h^2$, calibration 50~reps $\times$~3~$h^2$, null FPR 100~H0 reps, hyperparam-sensitivity 30~reps $\times$~5~perturbations $\times$~2~$h^2$; cross-species (yeast 245 + Arabidopsis 54 + IRRI rice 72 + rice grain 41 + Pan-UKB 321~leads) \\
 \midrule
-Fine-mapping (CLGF cross-locus EM; L4 GNN) & \texttt{finemapping\_v2} & Implemented + theoretically supported (Theorem~5 for CLGF), \textbf{not benchmarked here} & Architectural preview; full benchmarks deferred to follow-up work \\
+Fine-mapping (CLGF cross-locus EM; GLEM graph-latent-embedding) & \texttt{finemapping\_v2} & Implemented + theoretically supported (Theorem~5 for CLGF), \textbf{not benchmarked here} & Architectural preview; full benchmarks deferred to follow-up work \\
 \midrule
 Epistasis (LPCE; further methods forthcoming) & \texttt{epistasis\_v2} & LPCE preview only, under development (Supp.~Fig.~S1) & 5 replicates; full benchmark in companion manuscript (in preparation) \\
 \midrule
@@ -581,7 +581,7 @@ section, the LPCE row of the benchmark-status table
 (Supplementary Table~S4), the LPCE branch of the decision tree
 (Supplementary Figure~\ref{fig:selection}), and Supplementary
 Figure~S1 as a forward-looking sketch, not as a validated method
-recommendation; CLGF (cross-locus EM) and L4 (graph-neural-network
+recommendation; CLGF (cross-locus EM) and GLEM (graph-latent-embedding
 fine-mapping) are likewise architectural previews in the present
 paper.
 
@@ -838,7 +838,7 @@ presented as an architectural preview
 only --- it is implemented and theoretically supported
 (Theorem~1, Supplementary Note~S1) but \textbf{not benchmarked at
 the depth of HBP and GAFM in this paper}; CLGF (cross-locus EM)
-and L4 (graph-neural-network fine-mapping) are likewise
+and GLEM (graph-latent-embedding fine-mapping) are likewise
 implemented in the codebase but are not benchmarked here either.
 Full LPCE benchmarking against epistasis-discovery baselines is
 the subject of a companion manuscript in preparation, and the
@@ -1007,7 +1007,8 @@ multiplicative reweighting (Methods, Supplementary Table~S7\,c). The IRRI row's 
 \emph{et al.}\ 2023 \cite{ren2023rice} (gene-level recovery within
 $\pm$250\,kb of any fine-mapped lead's top-PIP variant). Per-method,
 per-tier recovery for the grain pass is in Supplementary Table~S7,
-and per-locus 5-method credible-set comparison in Supplementary Table~S8.
+and the full nine-method per-locus credible-set comparison in
+Supplementary Table~S8.
 The grain pass spans 41 fine-mapped loci: top 5 GW-significant + top 2
 suggestive per trait (28 discovery leads) plus 13 additional leads
 matched within $\pm$100\,kb of a Niu 2021 QTN to ensure literature-anchored

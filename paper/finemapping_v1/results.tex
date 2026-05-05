@@ -66,7 +66,7 @@ acid metabolism). The credible-set output is itself a graph object:
 each reported variant is co-queryable with its gene, tissue and
 pathway neighbours in one traversal. The HBP / GAFM algorithm that
 computes posterior inclusion probabilities by message passing
-across this graph is detailed in Figure~\ref{fig:hbp}; this
+across this graph is detailed in Figure~\ref{fig:hbp_gafm}; this
 panel shows the underlying data model, not the inference
 procedure. Multi-omics graph state on 1000 Genomes Phase~3 (inline
 lower-right box; full counts in Supplementary Table~S1): 70.7~M
@@ -79,7 +79,7 @@ ENCODE cCRE regulatory elements.}
 \subsection*{Hierarchical belief propagation matches Bayesian baselines at 5--40$\times$ speed}
 
 HBP converts the graph into iterated message passing across
-variant, gene and pathway layers (Figure~\ref{fig:hbp}). Each
+variant, gene and pathway layers (Figure~\ref{fig:hbp_gafm}). Each
 iteration runs an upward pass---variant beliefs aggregate to gene
 scores weighted by eQTL strength, then diffuse across the gene layer
 along STRING PPI edges at a 0.3 coupling, then aggregate to
@@ -99,13 +99,13 @@ same data.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.85\textwidth]{fig2_hbp_schematic.pdf}
-\caption{\textbf{Hierarchical belief propagation passes messages on
-a variant--gene--pathway factor graph.}
-HBP performs message passing on a typed factor graph with variant
-nodes (bottom), gene nodes (middle), and pathway nodes (top). The
-upward pass aggregates variant beliefs into gene scores weighted by
-eQTL strength, diffuses them once along the STRING
+\includegraphics[width=0.95\textwidth]{fig2_hbp_gafm_schematic.pdf}
+\caption{\textbf{HBP and GAFM, the two graph-native fine-mapping methods
+benchmarked in this paper.}
+(\textbf{a}) HBP performs message passing on a typed factor graph
+with variant nodes (bottom), gene nodes (middle), and pathway nodes
+(top). The upward pass aggregates variant beliefs into gene scores
+weighted by eQTL strength, diffuses them once along the STRING
 protein--protein interaction graph at a fixed 0.3 coupling, and
 aggregates to the pathway layer. The downward pass reverses the
 direction and produces a variant prior $\pi^{(t)}$. Each iteration
@@ -115,9 +115,20 @@ and damps by $\lambda$ before renormalisation. Defaults are
 $\alpha = 0.6$, $\lambda = 0.5$, $T = 5$ rounds. Under positive
 damping the update is a strict $\ell_1$ contraction on the
 probability simplex (Theorem~2, Supplementary Note~S1), guaranteeing
-geometric convergence to a unique fixed point. See
-Methods (``\nameref{methods:hbp}'') for the full algorithm.}
-\label{fig:hbp}
+geometric convergence to a unique fixed point.
+(\textbf{b}) GAFM combines LD-deconvolved unique-statistics
+$u_i = z_i - |N_i|^{-1} \sum_{j \in N_i} R_{ij}^2 z_j$ with a
+graph-derived functional score $z^{\mathrm{func}}_i$ (eQTL,
+PPI-coupled gene activity, regulatory-element flag) via an
+empirical-Bayes-tuned blend coefficient $\alpha$. The combined
+score $s_i = \alpha u_i + (1-\alpha) z^{\mathrm{func}}_i$ is
+softmaxed to per-variant PIPs, and (optionally) reweighted by a
+4-component Wakefield mixture posterior to produce GAFM-MX,
+HBP-MX and ENS. Under mild LD-decay assumptions the LD-deconvolved
+unique-statistic $u_i$ is provably maximised at the causal variant
+(Theorem~3). See Methods (``\nameref{methods:hbp}'',
+``\nameref{methods:gafm}'') for the full algorithms.}
+\label{fig:hbp_gafm}
 \end{figure}
 
 \subsection*{Graph-augmented fine-mapping (GAFM) wins weak signal 27--2 against SuSiE}

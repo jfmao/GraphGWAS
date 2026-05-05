@@ -111,7 +111,7 @@ walkthrough in [`vignettes/fine-mapping-quickstart.md`](vignettes/fine-mapping-q
 | **GAFM-MX / HBP-MX** (v0.1.5: + λ_GC deflation + LD-deconvolved 4-component mixture BF) | O(n²) | 0.03 s | 10/21 (47.6%) top-1-PIP exact on rice 21-QTN panel |
 | **ENS** (v0.1.5: mean-of-PIPs of GAFM-MX and HBP-MX) | O(n²) | 0.05 s | matches GAFM-MX/HBP-MX |
 | **CLGF** (cross-locus EM) | O(L × T) | locus-dependent | multi-locus shared-pathway evidence |
-| **L4** (MDS embedding) | O(n² + n d) | 0.1 s | multi-signal detection |
+| **GLEM** (graph-latent-embedding fine-mapping) | O(n² + n d) | 0.1 s | multi-signal detection |
 
 ## Documentation
 

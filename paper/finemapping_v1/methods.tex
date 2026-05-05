@@ -11,7 +11,7 @@ AssociationResult---and ten edge types. \texttt{Variant} nodes carry
 gt\_packed is a 2-bit encoded dosage array over all samples
 (00~=~hom-ref, 01~=~het, 10~=~hom-alt, 11~=~missing); for
 biobank-scale deployments gt\_packed is omitted and genotypes are
-served from BGEN. \texttt{Gene} nodes use GENCODE~v47 identifiers;
+served from BGEN\cite{band2018bgen}. \texttt{Gene} nodes use GENCODE~v47 identifiers;
 \texttt{Pathway} and \texttt{GOTerm} nodes carry name and source;
 \texttt{RegulatoryElement} nodes follow ENCODE cCRE~v4;
 \texttt{AssociationResult} nodes carry (run\_id, phenotype\_key,
@@ -144,7 +144,7 @@ lifted from GRCh37 to GRCh38 with
 \texttt{pyliftover} as described in
 ``\nameref{methods:panukb}''.
 
-\subsection*{Graph-augmented fine-mapping (GAFM)}\label{methods:l1}
+\subsection*{Graph-augmented fine-mapping (GAFM)}\label{methods:gafm}
 
 For each locus window ($\pm$25~kb around the lead by default; capped
 at 500~kb) GAFM computes z-scores and the LD matrix $R$ from Pearson
@@ -333,9 +333,11 @@ in-sample 3kRG LD matrix, and the same 95\% credible-set
 coverage; GAFM and HBP additionally use the rice multi-omics graph
 prior (RAP-DB variant--gene + Ren 2023 gene--pathway +
 RicePPINet PPI). SBayesRC \cite{zheng2024leveraging} is included as the 6th method.
-The public SBayesRC LD reference is
-human HM3-EUR (wrong species), so a 3kRG-specific LD reference
-was constructed from scratch using gctb 2.05beta and the R
+The public SBayesRC LD reference is built from human HapMap3
+European samples and is therefore incompatible with the rice
+3kRG cohort (different species, different LD structure). We
+constructed a 3kRG-specific LD reference from scratch using
+gctb 2.05beta and the R
 SBayesRC \texttt{LDstep1}--\texttt{LDstep4} pipeline. We define
 23 non-overlapping blocks covering all 41 fine-mapped leads
 (merging $\pm$250\,kb intervals around each lead; mean block
@@ -384,11 +386,10 @@ methods are written GAFM-MX and HBP-MX.
 \emph{(iii)} \textbf{Ensemble (ENS)}: the mean of GAFM-MX and HBP-MX
 PIPs per variant, with credible sets re-derived from the averaged PIPs
 at 95\% coverage. The combined panel is therefore nine methods:
-GAFM, HBP, GAFM-MX, HBP-MX, ENS, SuSiE, SuSiE-inf, FINEMAP-inf,
-SBayesRC; the curated five-method best-of-class subset
-(GAFM-MX, HBP-MX, ENS, SuSiE, SBayesRC) is shown in
-Supplementary Table~S8 and the full nine-method comparison is in
-\texttt{data/rice\_3k/results/grain\_finemap/grain\_finemap\_summary.tsv}. Validation used 250~kb-window overlap
+GAFM, HBP, GAFM-MX, HBP-MX, ENS, SuSiE, SuSiE-inf, FINEMAP-inf
+and SBayesRC. The full nine-method per-locus credible-set
+comparison is given in Supplementary Table~S8.
+Validation used 250~kb-window overlap
 against literature catalogues: Bloom 2015\cite{bloom2015genetic} +
 Peter 2018\cite{peter2018genome} for yeast,
 AraGWAS\cite{togninalli2018aragwas} Bonferroni hits + canonical
@@ -479,7 +480,7 @@ figure and table is regeneratable by a single command documented in
 \texttt{docs/REPRODUCIBILITY.md}.
 
 The fine-mapping methods rigorously benchmarked in this paper are
-HBP and GAFM; CLGF (cross-locus EM) and L4 (graph-neural-network
+HBP and GAFM; CLGF (cross-locus EM) and GLEM (graph-latent-embedding
 fine-mapping) are implemented in the codebase but not benchmarked
 here. Together they are one method class within the broader
 GraphGWAS platform.

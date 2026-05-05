@@ -40,7 +40,7 @@ DOMAINS = [
         "tier": "benchmarked",
         "functions": [
             ("Per-locus", [
-                ("finemap", "GAFM / HBP / CLGF / L4 fine-mapping on a locus"),
+                ("finemap", "GAFM / HBP / CLGF / GLEM fine-mapping on a locus"),
                 ("finemap --source panukb", "stream Pan-UKB sumstats directly"),
             ]),
             ("Gene-level", [

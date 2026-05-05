@@ -112,7 +112,7 @@ reproduction commands.
 ## See also
 
 - [`graphgwas finemap`](finemap.md) — Neo4j / BGEN / Pan-UKB fine-mapping
-  with v0.1.4 GAFM/HBP/CLGF/L4 methods
+  with the GAFM, HBP, CLGF, and GLEM method classes
 - [`vignettes/fine-mapping-quickstart.md`](../../../vignettes/fine-mapping-quickstart.md)
 - [`docs/MATHEMATICAL_PROOFS.md`](../../MATHEMATICAL_PROOFS.md) — theorems for
   HBP, GAFM, and CLGF

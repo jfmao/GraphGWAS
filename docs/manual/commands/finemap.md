@@ -16,7 +16,9 @@ inclusion probability (PIP). Four methods are available:
   with tissue-specific eQTL priors (Theorem 3).
 - **`clgf`** — Cross-Locus Graph Fine-mapping; EM over multiple loci
   that share pathway evidence.
-- **`l4`** — MDS-embedding-based multi-signal fine-mapping.
+- **`glem`** — Graph-Latent-Embedding Fine-Mapping; multi-signal
+  fine-mapping via low-dimensional embedding of the variant–gene
+  factor graph.
 
 Three input sources are supported, auto-detected from the `--source`
 argument:
@@ -43,7 +45,7 @@ graphgwas finemap --chr CHR --pos POS --window WINDOW \
 | `--pos` | int | yes | — | Lead variant position (bp) |
 | `--window` | int | no | 100000 | Half-window around `--pos` (bp) |
 | `--phenotype` | string | yes | — | Phenotype key (Neo4j mode) or Pan-UKB phenocode |
-| `--method` | choice | no | `l1` | `l1`, `hbp`, `clgf`, `l4` |
+| `--method` | choice | no | `l1` | `l1`, `hbp`, `clgf`, `glem` |
 | `--source` | choice | no | `neo4j` | `neo4j`, `bgen`, `panukb` |
 
 ## Options
