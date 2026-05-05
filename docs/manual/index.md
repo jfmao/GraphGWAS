@@ -28,7 +28,8 @@ environment variables:
 ## Table of contents
 
 ### Core fine-mapping (covered in the Nature Genetics manuscript)
-- [`graphgwas finemap`](commands/finemap.md) — run GAFM, HBP, CLGF or L4 fine-mapping on a locus
+- [`graphgwas finemap`](commands/finemap.md) — run GAFM, HBP, CLGF or L4 fine-mapping on a locus (Neo4j, BGEN, or Pan-UKB)
+- [`graphgwas finemap-sumstats`](commands/finemap-sumstats.md) — sumstats-only fine-mapping with v0.1.5 methods (GAFM, HBP, GAFM-MX, HBP-MX, ENS)
 - [`graphgwas assoc mpat`](commands/assoc-mpat.md) — gene-level MPAT test
 - [`graphgwas assoc top-hits`](commands/assoc-top-hits.md) — top signals from a GWAS run
 

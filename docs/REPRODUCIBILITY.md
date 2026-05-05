@@ -287,6 +287,72 @@ of the canonical fine-mapping methods (GAFM/HBP/SuSiE) plus the two
 state-of-the-art infinitesimal-effects methods (SuSiE-inf/FINEMAP-inf from
 the FinucaneLab `cui2024improving` reference implementations).
 
+## 6.3 v0.1.5 — λ_GC deflation + SBayesRC mixture-prior posterior + ensemble
+
+The v0.1.5 release adds three corrections to GAFM/HBP, all applied by default
+on the rice 3kRG inflated panels (λ_GC = 1.41–1.78 from XI/GJ structure under
+PC1–PC10 correction):
+
+  - **`graphgwas.finemapping_v2.deflate_z_for_lambda_gc(z, lambda_gc)`** —
+    standard z → z/√λ_GC genomic-control deflation.
+  - **`graphgwas.finemapping_v2.apply_mixture_posterior(pips, z, n_samples)`** —
+    SBayesRC-style 4-component Wakefield mixture-BF posterior reweighting
+    (default π=(0.005, 0.003, 0.001, 0.001), γ=(0.001, 0.01, 0.1, 1.0)).
+    Sum-of-PIPs preserved.
+  - **`gafm_mx_from_sumstats`, `hbp_mx_from_sumstats`, `ensemble_from_sumstats`** —
+    GAFM-MX, HBP-MX, ENS wrappers. The mixture BF is applied to LD-deconvolved
+    z (output of `_ld_deconvolve`), not raw marginal z, to preserve GAFM/HBP's
+    LD-aware ranking during reweighting.
+
+```bash
+# v0.1.5 chr22 head-to-head (single-causal F1 sims, h² ∈ {0.02, 0.05, 0.10};
+# 30 reps × 8 methods; ~30 min total)
+N_REPS=30 H2=0.02 python tests/benchmark_v15_chr22.py
+N_REPS=30 H2=0.05 python tests/benchmark_v15_chr22.py
+N_REPS=30 H2=0.10 python tests/benchmark_v15_chr22.py
+
+# v0.1.5 PIP calibration + null FPR (50 reps × 3 h² + 100 H0; ~10 min)
+python tests/benchmark_v15_calibration_null.py
+
+# v0.1.5 hyperparameter sensitivity (5 perturbations × 30 reps × 2 h²; ~5 min)
+python tests/benchmark_v15_hyperparam_sensitivity.py
+
+# Cross-species v0.1.5 reruns (post-fix library wrappers):
+python tests/yeast_finemap_all.py --workers 4         # 245 leads; ~5 min
+CACHE_VERSION=v2 python tests/arabidopsis_finemap.py  # 54 leads;  ~5 min
+python tests/rice3k_irri_finemap.py                   # 72 leads;  ~30 min
+python tests/rice3k_grain_shape_finemap.py            # 41 leads (incl. SuSiE);  ~30 min
+
+# Re-collect SBayesRC into the per-locus JSONs and rebuild Tables S7/S8
+python tests/rice3k_grain_shape_sbayesrc_collect.py
+python tests/rice3k_grain_shape_recovery.py
+python tests/rice3k_grain_shape_paper_tables.py
+
+# v0.1.5 unit tests (9 tests for deflation + mixture + credible-set helpers)
+pytest tests/test_finemap_v15_mixture.py
+```
+
+Outputs land in:
+
+- `results/benchmark_v2/v15_chr22/v15_chr22_h{02,05,10}.{json,tsv}`
+- `results/benchmark_v2/v15_calibration_null/{calibration,null}.{json,tsv}`
+- `results/benchmark_v2/v15_hyperparam_sensitivity/sensitivity.{json,tsv}`
+- `results/yeast_finemap/yeast_finemap_summary.tsv`
+- `results/arabidopsis_finemap/arabi_finemap_summary.tsv`
+- `data/rice_3k/results/irri_finemap/{<trait>_<chr>_<pos>.json, irri_finemap_summary.tsv}`
+- `data/rice_3k/results/grain_finemap/{*.json, grain_recovery_scorecard.tsv}`
+- `paper/finemapping_v1/tables/grain_table_s{5_addendum,7_recovery,8_per_locus}.tex`
+
+**Note on calibration:** the mixture-prior methods (GAFM-MX, HBP-MX, ENS) sharpen
+top PIPs by 2–3× at the same rank parity as base GAFM/HBP, but are
+*anti-conservative* at high PIP bins (empirical TDR ≈ 0.62 in the [0.9, 1.0]
+PIP bin vs the diagonal-target ≈ 0.95). For applications requiring calibrated
+PIPs, prefer base GAFM/HBP or SuSiE; the mixture-prior PIPs are best
+interpreted as an operational ranking score (sharper credible sets, higher
+rank-1 rate) rather than as posterior probabilities. Null FPR at PIP ≥ 0.5 is
+0/100 (GAFM, HBP), 1/100 (SuSiE/SuSiE-inf/FINEMAP-inf), 6/100 (GAFM-MX, ENS),
+10/100 (HBP-MX); at PIP ≥ 0.9 all methods are ≤ 1/100.
+
 ## 7. Unit tests
 
 ```bash

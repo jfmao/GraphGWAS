@@ -19,7 +19,10 @@ import pandas as pd
 
 sys.path.insert(0, "/mnt/data/GraphGWAS/src/python")
 from graphgwas.finemapping_v2 import (
+    ensemble_from_sumstats,
+    gafm_mx_from_sumstats,
     hbp_finemap_from_sumstats,
+    hbp_mx_from_sumstats,
     l1_finemap_from_sumstats,
 )
 
@@ -124,7 +127,8 @@ def run_finemap_for_lead(trait, lead_chrom, lead_pos, gw_path, chr_cache):
     window_cache = {k: chr_cache[k] for k in var_df["variant_id"].values
                     if k in chr_cache} if chr_cache else {}
 
-    # Run L1 + HBP
+    # Run L1 (GAFM) + HBP + v0.1.5 GAFM-MX / HBP-MX / ENS
+    n_samples = int(gw_sub["OBS_CT"].median()) if "OBS_CT" in gw_sub.columns else 2453
     l1 = l1_finemap_from_sumstats(
         variants, z, R_sq, z_func=None, alpha=0.7,
         r2_smooth=0.3, credible_set_coverage=0.95, chr_name=lead_chrom,
@@ -134,17 +138,44 @@ def run_finemap_for_lead(trait, lead_chrom, lead_pos, gw_path, chr_cache):
         variants, z, R_sq, graph_cache=window_cache,
         r2_smooth=0.3, credible_set_coverage=0.95, chr_name=lead_chrom,
     )
+    gafm_mx = gafm_mx_from_sumstats(
+        variants, z, R_sq, n_samples=n_samples, alpha=0.7,
+        r2_smooth=0.3, credible_set_coverage=0.95, chr_name=lead_chrom,
+        graph_cache=window_cache,
+    )
+    hbp_mx = hbp_mx_from_sumstats(
+        variants, z, R_sq, n_samples=n_samples, graph_cache=window_cache,
+        r2_smooth=0.3, credible_set_coverage=0.95, chr_name=lead_chrom,
+    )
+    ens = ensemble_from_sumstats(
+        variants, z, R_sq, n_samples=n_samples, alpha=0.7,
+        r2_smooth=0.3, credible_set_coverage=0.95, chr_name=lead_chrom,
+        graph_cache=window_cache,
+    )
     l1_cs = [c for c in l1 if c.in_credible_set]
     hbp_cs = [c for c in hbp if c.in_credible_set]
+    gafm_mx_cs = [c for c in gafm_mx if c.in_credible_set]
+    hbp_mx_cs = [c for c in hbp_mx if c.in_credible_set]
+    ens_cs = [c for c in ens if c.in_credible_set]
     l1_top = sorted(l1, key=lambda c: -c.pip)[:3]
     hbp_top = sorted(hbp, key=lambda c: -c.pip)[:3]
+    gafm_mx_top = sorted(gafm_mx, key=lambda c: -c.pip)[:3]
+    hbp_mx_top = sorted(hbp_mx, key=lambda c: -c.pip)[:3]
+    ens_top = sorted(ens, key=lambda c: -c.pip)[:3]
     return {
         "trait": trait, "lead_chr": lead_chrom, "lead_pos": lead_pos,
         "n_variants": len(variants),
         "cache_coverage": len(window_cache),
+        "n_samples": n_samples,
         "l1_cs_size": len(l1_cs), "hbp_cs_size": len(hbp_cs),
+        "gafm_mx_cs_size": len(gafm_mx_cs),
+        "hbp_mx_cs_size": len(hbp_mx_cs),
+        "ens_cs_size": len(ens_cs),
         "l1_top_variants": [(c.variant_id, c.pip) for c in l1_top],
         "hbp_top_variants": [(c.variant_id, c.pip) for c in hbp_top],
+        "gafm_mx_top_variants": [(c.variant_id, c.pip) for c in gafm_mx_top],
+        "hbp_mx_top_variants": [(c.variant_id, c.pip) for c in hbp_mx_top],
+        "ens_top_variants": [(c.variant_id, c.pip) for c in ens_top],
     }
 
 
@@ -188,6 +219,15 @@ def main():
         if not gwf:
             print(f"  no GWAS output for {trait}"); continue
         gw_path = gwf[0]
+        per_locus_path = FM_OUT / f"{trait}_{chrom}_{pos}.json"
+        if per_locus_path.exists() and per_locus_path.stat().st_size > 200:
+            try:
+                r = json.load(open(per_locus_path))
+                all_results.append(r)
+                print(f"  (cached)")
+                continue
+            except Exception:
+                per_locus_path.unlink()
         cc = get_chr_cache(chrom)
         try:
             r = run_finemap_for_lead(trait, chrom, pos, gw_path, cc)
@@ -199,24 +239,41 @@ def main():
             continue
         r["sig_level"] = sig
         r["lead_p"] = float(lead["p"])
+        with open(per_locus_path, "w") as f:
+            json.dump(r, f, indent=2, default=str)
         all_results.append(r)
         print(f"  n_var={r['n_variants']}  cache={r['cache_coverage']}  "
-              f"L1 CS={r['l1_cs_size']}  HBP CS={r['hbp_cs_size']}")
+              f"L1 CS={r['l1_cs_size']}  HBP CS={r['hbp_cs_size']}  "
+              f"GAFM-MX CS={r['gafm_mx_cs_size']}  HBP-MX CS={r['hbp_mx_cs_size']}  "
+              f"ENS CS={r['ens_cs_size']}")
         print(f"    L1 top: {r['l1_top_variants']}")
         print(f"    HBP top: {r['hbp_top_variants']}")
+        print(f"    GAFM-MX top: {r['gafm_mx_top_variants']}")
+        print(f"    HBP-MX top: {r['hbp_mx_top_variants']}")
+        print(f"    ENS top: {r['ens_top_variants']}")
 
     # Compile summary
     rows = []
     for r in all_results:
         l1_top = r["l1_top_variants"][0] if r["l1_top_variants"] else (None, None)
         hbp_top = r["hbp_top_variants"][0] if r["hbp_top_variants"] else (None, None)
+        gx_top = r["gafm_mx_top_variants"][0] if r.get("gafm_mx_top_variants") else (None, None)
+        hx_top = r["hbp_mx_top_variants"][0] if r.get("hbp_mx_top_variants") else (None, None)
+        en_top = r["ens_top_variants"][0] if r.get("ens_top_variants") else (None, None)
         rows.append({
             "trait": r["trait"], "lead_chr": r["lead_chr"], "lead_pos": r["lead_pos"],
             "sig_level": r["sig_level"], "lead_p": r["lead_p"],
             "n_variants": r["n_variants"], "cache_coverage": r["cache_coverage"],
+            "n_samples": r.get("n_samples"),
             "l1_cs_size": r["l1_cs_size"], "hbp_cs_size": r["hbp_cs_size"],
+            "gafm_mx_cs_size": r.get("gafm_mx_cs_size"),
+            "hbp_mx_cs_size": r.get("hbp_mx_cs_size"),
+            "ens_cs_size": r.get("ens_cs_size"),
             "l1_top_variant": l1_top[0], "l1_top_pip": l1_top[1],
             "hbp_top_variant": hbp_top[0], "hbp_top_pip": hbp_top[1],
+            "gafm_mx_top_variant": gx_top[0], "gafm_mx_top_pip": gx_top[1],
+            "hbp_mx_top_variant": hx_top[0], "hbp_mx_top_pip": hx_top[1],
+            "ens_top_variant": en_top[0], "ens_top_pip": en_top[1],
         })
     df = pd.DataFrame(rows)
     out = FM_OUT / "irri_finemap_summary.tsv"

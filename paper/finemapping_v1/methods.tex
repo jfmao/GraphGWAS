@@ -317,10 +317,10 @@ trait-LD-appropriate windows (15~kb yeast; 100~kb \emph{Arabidopsis};
 fine-mapped within $\pm$15--500~kb LD windows using the
 species-specific 1KG-equivalent reference panel for LD computation
 (yeast 1011G; \emph{Arabidopsis} 1001G; rice 3kRG;
-1KG NYGC GRCh38 for human). For the rice grain weight + shape pass
-(this work, v0.1.4), a 5-method panel was applied at the top 5
-genome-wide-significant + top 2 suggestive leads per trait
-(28 loci total) within $\pm$100\,kb LD windows after filtering to
+1KG NYGC GRCh38 for human). For the rice grain weight + shape pass, a 5-method panel was
+applied at the top 5 genome-wide-significant + top 2 suggestive
+leads per trait (28 loci total) within $\pm$100\,kb LD windows
+after filtering to
 common variants (MAF $\geq 0.05$, matching Niu \emph{et al.}\ 2021's
 fine-mapping convention): GAFM and HBP from this work; SuSiE
 \cite{wang2020simple} via \texttt{susieR::susie\_rss} on signed
@@ -332,8 +332,8 @@ methods used the same per-locus z-statistics (BETA/SE), the same
 in-sample 3kRG LD matrix, and the same 95\% credible-set
 coverage; GAFM and HBP additionally use the rice multi-omics graph
 prior (RAP-DB variant--gene + Ren 2023 gene--pathway +
-RicePPINet PPI). SBayesRC \cite{zheng2024leveraging} is included as the 6th method
-in the v0.1.4 release. The public SBayesRC LD reference is
+RicePPINet PPI). SBayesRC \cite{zheng2024leveraging} is included as the 6th method.
+The public SBayesRC LD reference is
 human HM3-EUR (wrong species), so a 3kRG-specific LD reference
 was constructed from scratch using gctb 2.05beta and the R
 SBayesRC \texttt{LDstep1}--\texttt{LDstep4} pipeline. We define
@@ -351,31 +351,39 @@ prior (\texttt{startPi=(0.99, 0.005, 0.003, 0.001, 0.001)},
 PIPs are extracted at the 41 fine-map windows and merged into
 the per-locus 6-method scorecard.
 
-\textbf{v0.1.5 GAFM/HBP enhancements.} The v0.1.4 5-method panel above
-revealed that GAFM and HBP, while 200--700$\times$ faster than SuSiE on
-this rice grain pass, gave large credible sets (median CS $\approx$ 1{,}500)
-on secondary loci under the strong inflation regime
-($\lambda_{GC}{=}1.41$--$1.78$ from XI/GJ structure under PC1--PC10).
-SBayesRC's continuous-shrinkage mixture prior dominated those secondary
-loci, suggesting that the same effect-size-distribution correction would
-help GAFM/HBP. v0.1.5 adds three corrections, all applied by default:
+\textbf{Mixture-prior posterior reweighting and ensemble (GAFM-MX, HBP-MX, ENS).}
+The 5-method panel above revealed that GAFM and HBP, while
+200--700$\times$ faster than SuSiE on this rice grain pass, gave large
+credible sets (median CS $\approx$ 1{,}500) on secondary loci under the
+strong inflation regime ($\lambda_{GC}{=}1.41$--$1.78$ from XI/GJ
+structure under PC1--PC10). SBayesRC's continuous-shrinkage mixture
+prior dominated those secondary loci, suggesting that the same
+effect-size-distribution correction would help GAFM/HBP. We therefore
+add three corrections, all applied by default to GAFM-MX, HBP-MX and
+ENS:
 \emph{(i)} \textbf{$\lambda_{GC}$ deflation} of z-scores at the trait
 level ($z \to z / \sqrt{\lambda_{GC}}$, with the matching SE inflation in
 the SBayesRC \texttt{.ma} files); this is the standard genomic-control
-correction and is now the default for all six original methods plus
-the three new ones below.
+correction and is also applied to all six original methods.
 \emph{(ii)} \textbf{Mixture-prior posterior reweighting (MX)}: the
-per-variant PIPs from GAFM and HBP are multiplied by a SBayesRC-style
-4-component Wakefield mixture-BF on the deflated z-scores
+per-variant PIPs from GAFM and HBP are multiplied by a 4-component
+Wakefield mixture-BF on the
+\emph{LD-deconvolved}, $\lambda_{GC}$-deflated z-scores
 ($\pi=(0.005, 0.003, 0.001, 0.001)$ renormalised within the non-zero
 components; $\gamma=(0.001, 0.01, 0.1, 1.0)$; $V_k = N\gamma_k$;
-ABF$_k(z) = (1+V_k)^{-1/2} \exp(z^2 V_k / (2(1+V_k)))$). The reweighted
-distribution preserves $\sum_i \mathrm{PIP}_i$ (expected number of causals
-unchanged) but redistributes mass toward large-$|z|$ variants. The two
-new methods are written GAFM-MX and HBP-MX.
+ABF$_k(z) = (1+V_k)^{-1/2} \exp(z^2 V_k / (2(1+V_k)))$). LD
+deconvolution (the same step GAFM and HBP use to build their base
+PIPs; Methods \S\,``LD-aware unique-statistics deconvolution'')
+removes neighbour-driven inflation in $z$ before the mixture so
+that LD-correlated noise variants with marginally larger marginal
+$|z|$ do not outcompete the causal during multiplicative
+reweighting. The reweighted distribution preserves
+$\sum_i \mathrm{PIP}_i$ (expected number of causals unchanged) but
+redistributes mass toward large-$|z|$ variants. The two new
+methods are written GAFM-MX and HBP-MX.
 \emph{(iii)} \textbf{Ensemble (ENS)}: the mean of GAFM-MX and HBP-MX
 PIPs per variant, with credible sets re-derived from the averaged PIPs
-at 95\% coverage. The combined v0.1.5 panel is therefore nine methods:
+at 95\% coverage. The combined panel is therefore nine methods:
 GAFM, HBP, GAFM-MX, HBP-MX, ENS, SuSiE, SuSiE-inf, FINEMAP-inf,
 SBayesRC; the curated five-method best-of-class subset
 (GAFM-MX, HBP-MX, ENS, SuSiE, SBayesRC) is shown in

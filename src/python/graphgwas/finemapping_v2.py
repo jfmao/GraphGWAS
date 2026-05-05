@@ -1196,7 +1196,7 @@ def hbp_finemap_from_sumstats(
     variants: list[dict],
     z_stats: np.ndarray,
     R_sq: np.ndarray,
-    graph_cache: dict,
+    graph_cache: dict | None = None,
     n_rounds: int = 5,
     alpha: float = 0.6,
     damping: float = 0.5,
@@ -1232,6 +1232,9 @@ def hbp_finemap_from_sumstats(
     R_sq = np.asarray(R_sq, dtype=np.float64)
     assert z_stats.shape == (n_var,), "z_stats length must match variants"
     assert R_sq.shape == (n_var, n_var), "R_sq must be n × n"
+
+    if graph_cache is None:
+        graph_cache = {}
 
     unique_stats, n_nb = _ld_deconvolve(z_stats, R_sq, r2_smooth)
 
@@ -1563,6 +1566,12 @@ def gafm_mx_from_sumstats(
     `apply_mixture_posterior` on its output PIPs, with `lambda_gc`
     optionally deflating the z-scores first. Re-derives the 95%
     credible set from the reweighted PIPs.
+
+    The mixture BF is applied to LD-deconvolved z (not raw z) so that
+    GAFM's LD-aware ranking is preserved during reweighting; otherwise
+    LD-correlated noise variants with marginally larger |z| outcompete
+    the causal after multiplication and rank-1 collapses. See chr22
+    benchmark in tests/benchmark_v15_chr22.py.
     """
     z_in = (deflate_z_for_lambda_gc(z_stats, lambda_gc)
             if lambda_gc is not None else np.asarray(z_stats, dtype=float))
@@ -1572,18 +1581,20 @@ def gafm_mx_from_sumstats(
         chr_name=chr_name, annotations_map=annotations_map,
         graph_cache=graph_cache,
     )
-    base_pips = np.array([c.pip for c in base])
+    base_pips_by_id = {c.variant_id: c.pip for c in base}
+    base_pips = np.array([base_pips_by_id[v["variantId"]] for v in variants])
+    z_unique, _ = _ld_deconvolve(z_in, R_sq, r2_smooth)
     new_pips = apply_mixture_posterior(
-        base_pips, z_in, n_samples, pi=mixture_pi, gamma=mixture_gamma,
+        base_pips, z_unique, n_samples, pi=mixture_pi, gamma=mixture_gamma,
     )
     cs_indices = set(credible_set_from_pips(new_pips, credible_set_coverage))
-    out = []
-    for i, c in enumerate(base):
-        c.pip = float(new_pips[i])
-        c.in_credible_set = (i in cs_indices)
-        out.append(c)
-    out.sort(key=lambda x: -x.pip)
-    return out
+    vid_to_pip = {v["variantId"]: float(new_pips[i]) for i, v in enumerate(variants)}
+    vid_to_cs = {v["variantId"]: (i in cs_indices) for i, v in enumerate(variants)}
+    for c in base:
+        c.pip = vid_to_pip[c.variant_id]
+        c.in_credible_set = vid_to_cs[c.variant_id]
+    base.sort(key=lambda x: -x.pip)
+    return base
 
 
 def hbp_mx_from_sumstats(
@@ -1599,7 +1610,11 @@ def hbp_mx_from_sumstats(
     mixture_pi: tuple[float, ...] = DEFAULT_MIXTURE_PI,
     mixture_gamma: tuple[float, ...] = DEFAULT_MIXTURE_GAMMA,
 ) -> list["FinemapCandidate"]:
-    """HBP-MX (v0.1.5): HBP + λ_GC deflation + SBayesRC mixture-prior posterior."""
+    """HBP-MX (v0.1.5): HBP + λ_GC deflation + SBayesRC mixture-prior posterior.
+
+    The mixture BF is applied to LD-deconvolved z (not raw z) so HBP's
+    LD-aware ranking is preserved during reweighting.
+    """
     z_in = (deflate_z_for_lambda_gc(z_stats, lambda_gc)
             if lambda_gc is not None else np.asarray(z_stats, dtype=float))
     base = hbp_finemap_from_sumstats(
@@ -1607,18 +1622,20 @@ def hbp_mx_from_sumstats(
         r2_smooth=r2_smooth, credible_set_coverage=credible_set_coverage,
         chr_name=chr_name,
     )
-    base_pips = np.array([c.pip for c in base])
+    base_pips_by_id = {c.variant_id: c.pip for c in base}
+    base_pips = np.array([base_pips_by_id[v["variantId"]] for v in variants])
+    z_unique, _ = _ld_deconvolve(z_in, R_sq, r2_smooth)
     new_pips = apply_mixture_posterior(
-        base_pips, z_in, n_samples, pi=mixture_pi, gamma=mixture_gamma,
+        base_pips, z_unique, n_samples, pi=mixture_pi, gamma=mixture_gamma,
     )
     cs_indices = set(credible_set_from_pips(new_pips, credible_set_coverage))
-    out = []
-    for i, c in enumerate(base):
-        c.pip = float(new_pips[i])
-        c.in_credible_set = (i in cs_indices)
-        out.append(c)
-    out.sort(key=lambda x: -x.pip)
-    return out
+    vid_to_pip = {v["variantId"]: float(new_pips[i]) for i, v in enumerate(variants)}
+    vid_to_cs = {v["variantId"]: (i in cs_indices) for i, v in enumerate(variants)}
+    for c in base:
+        c.pip = vid_to_pip[c.variant_id]
+        c.in_credible_set = vid_to_cs[c.variant_id]
+    base.sort(key=lambda x: -x.pip)
+    return base
 
 
 def ensemble_from_sumstats(

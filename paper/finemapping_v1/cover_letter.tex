@@ -125,15 +125,16 @@ traits, 72 leads + 4 continuous grain weight/shape traits, 41 fine-mapped leads)
 24 of 72 IRRI-trait leads fall within 250\,kb of a Ren \emph{et al.}\ (2023) catalogued
 causal gene; on the panel-matched grain weight/shape pass, \textbf{20 of 21 stable QTNs
 reported by Niu \emph{et al.}\ 2021 \emph{BMC Genomics} are recovered at GWAS lead
-resolution}, and at the variant-level metric the v0.1.5 augmented GAFM-MX, HBP-MX and
-GAFM+HBP-ENS reach 62--67\% recovery with a top-1-PIP exact-position rate of \textbf{47.6\%
+resolution}, and at the variant-level metric the mixture-prior posterior reweightings
+of GAFM and HBP (GAFM-MX, HBP-MX) and their ensemble (ENS) each reach 57\% recovery
+with a top-1-PIP exact-position rate of \textbf{47.6\%
 (10 of 21) --- the highest of any method tested, beating SuSiE (29\%) and SBayesRC (14\%)
 on this metric while remaining 200--700$\times$ faster per locus than SuSiE}. SBayesRC
 itself, run on a custom 3kRG eigen-decomposed LD reference we built from scratch
 (gctb 2.05beta + R LDstep1--4, 23 targeted $\pm$250\,kb blocks, ${\sim}$10\,min compute),
-achieves 95\% Tier-1 recovery; v0.1.5 demonstrates that this gap can be substantially
-closed by importing SBayesRC's 4-component mixture prior into GAFM/HBP as a posterior
-reweighting step.
+achieves 95\% Tier-1 recovery; the mixture-prior reweighting demonstrates that this
+gap can be substantially closed by importing the same effect-size mixture prior into
+GAFM/HBP as a posterior reweighting step.
 \end{itemize}
 
 A direct-intervention experiment establishes the central methodological claim. Adding a coarse

@@ -182,3 +182,39 @@ entries and loads in ~9s.
 categories. It produces no per-variant PIPs.
 **Rule:** Match tools by output type. Fine-mapping → PIPs/ranks (SuSiE, FINEMAP, L1).
 Heritability partitioning → variance components (FAME, LDSC, S-LDSC).
+
+### LESSON 022: Verify array order when composing sorted-output functions
+**Pattern:** v0.1.5 GAFM-MX/HBP-MX produced 0/30 rank-1 on chr22 single-causal F1
+sims when first benchmarked, vs 16/30 for base GAFM/HBP. Looked like a method failure;
+turned out to be two compounding bugs: (a) `_build_candidates` returns the
+FinemapCandidate list sorted by combined_score, not in input variants order, but the
+wrappers were calling `apply_mixture_posterior(base_pips, z_in, ...)` where base_pips
+was in sorted order while z_in was in variants order — element-wise multiplication
+misaligned the arrays. (b) Even with correct alignment, multiplying GAFM's
+LD-deconvolved PIPs by ABF(raw z) re-introduces LD spread because LD-correlated
+noise variants have similar |z| as the causal.
+**Cause:** Neither bug surfaced on the rice 3kRG inflated panels where v0.1.5 was
+originally validated, because (a) the inflation regime has different LD structure
+and (b) the per-locus PIP gain was assumed to come from the mixture prior. The
+chr22 head-to-head (clean weak-signal regime) exposed both bugs.
+**Rule:** When composing functions that return sorted output, never assume the array
+order matches the input — explicitly map by id (`{c.variant_id: c.pip for c in out}`)
+and re-index back to input order before any element-wise operation. When applying
+a Bayes-factor reweighting to LD-aware PIPs, use LD-deconvolved z (unique_stats
+from `_ld_deconvolve`) so LD-aware ranking is preserved during reweighting.
+Always run a head-to-head benchmark at clean weak signal AND inflation regime
+before claiming a v0.x.y enhancement.
+
+### LESSON 023: Run cross-species benchmarks BEFORE celebrating a methodological gain
+**Pattern:** v0.1.5 was first validated on rice 3kRG inflated grain-weight panels,
+showed Tier-1 recovery 38-48% → 62-67%, was committed as a paper-ready release.
+Later cross-species reruns under the corrected library showed: yeast 0% → 24.5%
+CS=1, Arabidopsis 3.7% → 64.8% CS=1, dramatic and consistent gains. The single-
+species result was directionally correct but arguably insufficient for a Nature
+Genetics methods paper.
+**Cause:** A v0.x.y release motivated by one species' headline number can hide
+both bugs and regime-specific failures. Cross-species replication is the cheapest
+way to falsify or confirm.
+**Rule:** Before marking a paper-ready release, run the core benchmark on AT LEAST
+3 species + 1 clean simulation (chr22 single-causal F1 here). If the gain holds
+in 4 of 4 settings, ship; otherwise hold and diagnose.

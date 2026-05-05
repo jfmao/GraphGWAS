@@ -193,7 +193,7 @@ def table_s8_per_locus():
     tex.append(r"\centering\footnotesize")
     tex.append(r"\setlength{\tabcolsep}{4pt}")
     tex.append(r"\caption{\textbf{Per-locus credible-set comparison on the 3kRG grain "
-               r"weight + shape rerun (v0.1.5).} Cells report 95\% credible-set size / "
+               r"weight + shape rerun.} Cells report 95\% credible-set size / "
                r"top-variant PIP. We display the curated 5-method best-of-class subset; "
                r"the full 9-method comparison (GAFM, HBP, GAFM-MX, HBP-MX, ENS, SuSiE, "
                r"SuSiE-inf, FINEMAP-inf, SBayesRC) is in "

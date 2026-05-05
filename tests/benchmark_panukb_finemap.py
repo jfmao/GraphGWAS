@@ -30,7 +30,10 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src" / "python"
 
 from graphgwas.bgen_reader import BgenReader  # noqa: E402
 from graphgwas.finemapping_v2 import (  # noqa: E402
+    ensemble_from_sumstats,
+    gafm_mx_from_sumstats,
     hbp_finemap_from_sumstats,
+    hbp_mx_from_sumstats,
     l1_finemap_from_sumstats,
 )
 from graphgwas.panukb import (  # noqa: E402
@@ -296,8 +299,8 @@ def run_locus(
                 print(f"  {anc}: only {n_int} intersecting variants, skipping")
             continue
 
-        # 4) Sumstats-only fine-mapping (HBP and L1, no graph cache here;
-        # this runs the algorithms with z + R only, no functional prior)
+        # 4) Sumstats-only fine-mapping (HBP, L1, and v0.1.5 GAFM-MX/HBP-MX/ENS)
+        n_samples_panukb = int(sumstats[anc].n_samples)
         t2 = time.time()
         hbp_out = hbp_finemap_from_sumstats(
             variants, z, R_aligned, graph_cache={}, chr_name=f"chr{locus['chr']}",
@@ -309,11 +312,35 @@ def run_locus(
             chr_name=f"chr{locus['chr']}",
         )
         t_l1 = time.time() - t3
+        t4 = time.time()
+        gafm_mx_out = gafm_mx_from_sumstats(
+            variants, z, R_aligned, n_samples=n_samples_panukb, alpha=1.0,
+            chr_name=f"chr{locus['chr']}",
+        )
+        t_gafm_mx = time.time() - t4
+        t5 = time.time()
+        hbp_mx_out = hbp_mx_from_sumstats(
+            variants, z, R_aligned, n_samples=n_samples_panukb, graph_cache={},
+            chr_name=f"chr{locus['chr']}",
+        )
+        t_hbp_mx = time.time() - t5
+        t6 = time.time()
+        ens_out = ensemble_from_sumstats(
+            variants, z, R_aligned, n_samples=n_samples_panukb, alpha=1.0,
+            chr_name=f"chr{locus['chr']}",
+        )
+        t_ens = time.time() - t6
 
         top_hbp = hbp_out[0] if hbp_out else None
         top_l1 = l1_out[0] if l1_out else None
+        top_gx = gafm_mx_out[0] if gafm_mx_out else None
+        top_hx = hbp_mx_out[0] if hbp_mx_out else None
+        top_en = ens_out[0] if ens_out else None
         n_cs_hbp = sum(1 for c in hbp_out if c.in_credible_set)
         n_cs_l1 = sum(1 for c in l1_out if c.in_credible_set)
+        n_cs_gx = sum(1 for c in gafm_mx_out if c.in_credible_set)
+        n_cs_hx = sum(1 for c in hbp_mx_out if c.in_credible_set)
+        n_cs_en = sum(1 for c in ens_out if c.in_credible_set)
         lead_sumstats_vid = sumstats[anc].variants.loc[
             sumstats[anc].variants["log10p"].idxmax(), "variant_id"
         ]
@@ -330,9 +357,21 @@ def run_locus(
             "top_l1_variant": top_l1.variant_id if top_l1 else None,
             "top_l1_pip": float(top_l1.pip) if top_l1 else None,
             "n_cs_l1": int(n_cs_l1),
+            "top_gafm_mx_variant": top_gx.variant_id if top_gx else None,
+            "top_gafm_mx_pip": float(top_gx.pip) if top_gx else None,
+            "n_cs_gafm_mx": int(n_cs_gx),
+            "top_hbp_mx_variant": top_hx.variant_id if top_hx else None,
+            "top_hbp_mx_pip": float(top_hx.pip) if top_hx else None,
+            "n_cs_hbp_mx": int(n_cs_hx),
+            "top_ens_variant": top_en.variant_id if top_en else None,
+            "top_ens_pip": float(top_en.pip) if top_en else None,
+            "n_cs_ens": int(n_cs_en),
             "t_ld_s": t_ld,
             "t_hbp_s": t_hbp,
             "t_l1_s": t_l1,
+            "t_gafm_mx_s": t_gafm_mx,
+            "t_hbp_mx_s": t_hbp_mx,
+            "t_ens_s": t_ens,
         }
         if verbose:
             r = results[anc]

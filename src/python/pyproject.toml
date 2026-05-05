@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "graphgwas"
-version = "0.1.3"
+version = "0.1.5"
 description = "Relational fine-mapping of causal GWAS variants on a multi-omics knowledge graph"
 readme = {file = "README.md", content-type = "text/markdown"}
 license = "MIT"

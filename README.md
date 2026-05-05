@@ -24,9 +24,19 @@ tissue-specific eQTL priors**.
   - **GAFM** (Graph-Augmented Fine-Mapping) — LD-deconvolved evidence combined
     with a graph functional score via adaptive α; proved causal-variant ranking
     under mild LD-decay assumptions (Theorem 3)
+- **v0.1.5 mixture-prior variants** — **GAFM-MX**, **HBP-MX** and their
+  ensemble **ENS** add a SBayesRC-style 4-component Wakefield mixture-BF
+  posterior reweighting on the LD-deconvolved z-scores, plus standard
+  λ_GC deflation. On the 3kRG grain weight + shape panel they each reach
+  10/21 (47.6%) top-1-PIP exact-position recovery against the Niu 2021
+  21-QTN catalogue — the highest of any method tested, beating SuSiE
+  (28.6%) and SBayesRC (14.3%) — while remaining 200–700× faster than
+  SuSiE per locus
 - **Six head-to-head baselines** integrated into a common interface — SuSiE,
   FINEMAP, SuSiE-inf, FINEMAP-inf, PolyFun-proxy, SBayesRC
-- **Calibrated PIPs** with 0% null false-positive rate across 100 simulations
+- **Calibrated PIPs** for base GAFM/HBP with 0% null false-positive rate
+  across 100 simulations (mixture-prior variants are operational ranking
+  scores; null FPR ≤1% at PIP ≥ 0.9, ≤10% at PIP ≥ 0.5)
 - **Multi-omics graph** — 70.7 M variants, 20,092 GENCODE genes, 43.2 M
   GTEx v8 tissue eQTLs, 230,850 STRING interactions (combined score ≥ 700),
   370,000 ENCODE cCREs
@@ -98,6 +108,8 @@ walkthrough in [`vignettes/fine-mapping-quickstart.md`](vignettes/fine-mapping-q
 |---|---|---|---|
 | **HBP** (three-layer factor graph + Banach contraction) | O(E × T) | 0.02–0.08 s | accuracy parity; 6–60× faster |
 | **GAFM** (LD-deconvolved + adaptive α + graph prior) | O(n²) | 0.07 s | 27–2 at weak signal + tissue-specific eQTL priors |
+| **GAFM-MX / HBP-MX** (v0.1.5: + λ_GC deflation + LD-deconvolved 4-component mixture BF) | O(n²) | 0.03 s | 10/21 (47.6%) top-1-PIP exact on rice 21-QTN panel |
+| **ENS** (v0.1.5: mean-of-PIPs of GAFM-MX and HBP-MX) | O(n²) | 0.05 s | matches GAFM-MX/HBP-MX |
 | **CLGF** (cross-locus EM) | O(L × T) | locus-dependent | multi-locus shared-pathway evidence |
 | **L4** (MDS embedding) | O(n² + n d) | 0.1 s | multi-signal detection |
 

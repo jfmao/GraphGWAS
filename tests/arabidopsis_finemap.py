@@ -19,7 +19,10 @@ import pandas as pd
 
 sys.path.insert(0, "/mnt/data/GraphGWAS/src/python")
 from graphgwas.finemapping_v2 import (
+    ensemble_from_sumstats,
+    gafm_mx_from_sumstats,
     hbp_finemap_from_sumstats,
+    hbp_mx_from_sumstats,
     l1_finemap_from_sumstats,
 )
 
@@ -129,6 +132,7 @@ def fm_lead(trait, lead, sumstats, full_cache):
     window_cache = {k: full_cache[k] for k in var_df["variant_id"].values
                     if k in full_cache}
 
+    n_samples = 1135  # 1001 Genomes + extensions; typical Arabi GWAS panel
     l1 = l1_finemap_from_sumstats(
         variants, z, R_sq, z_func=None, alpha=0.7,
         r2_smooth=0.3, credible_set_coverage=0.95, chr_name=chrom,
@@ -138,18 +142,48 @@ def fm_lead(trait, lead, sumstats, full_cache):
         variants, z, R_sq, graph_cache=window_cache,
         r2_smooth=0.3, credible_set_coverage=0.95, chr_name=chrom,
     )
+    gafm_mx = gafm_mx_from_sumstats(
+        variants, z, R_sq, n_samples=n_samples, alpha=0.7,
+        r2_smooth=0.3, credible_set_coverage=0.95, chr_name=chrom,
+        graph_cache=window_cache,
+    )
+    hbp_mx = hbp_mx_from_sumstats(
+        variants, z, R_sq, n_samples=n_samples, graph_cache=window_cache,
+        r2_smooth=0.3, credible_set_coverage=0.95, chr_name=chrom,
+    )
+    ens = ensemble_from_sumstats(
+        variants, z, R_sq, n_samples=n_samples, alpha=0.7,
+        r2_smooth=0.3, credible_set_coverage=0.95, chr_name=chrom,
+        graph_cache=window_cache,
+    )
     l1_cs = [c for c in l1 if c.in_credible_set]
     hbp_cs = [c for c in hbp if c.in_credible_set]
+    gafm_mx_cs = [c for c in gafm_mx if c.in_credible_set]
+    hbp_mx_cs = [c for c in hbp_mx if c.in_credible_set]
+    ens_cs = [c for c in ens if c.in_credible_set]
     l1_top = sorted(l1, key=lambda c: -c.pip)[0] if l1 else None
     hbp_top = sorted(hbp, key=lambda c: -c.pip)[0] if hbp else None
+    gx_top = sorted(gafm_mx, key=lambda c: -c.pip)[0] if gafm_mx else None
+    hx_top = sorted(hbp_mx, key=lambda c: -c.pip)[0] if hbp_mx else None
+    en_top = sorted(ens, key=lambda c: -c.pip)[0] if ens else None
     return {
         "trait": trait, "lead_chr": chrom, "lead_pos": pos, "lead_p": lead["p"],
         "n_variants": len(variants), "cache_coverage": len(window_cache),
+        "n_samples": n_samples,
         "l1_cs_size": len(l1_cs), "hbp_cs_size": len(hbp_cs),
+        "gafm_mx_cs_size": len(gafm_mx_cs),
+        "hbp_mx_cs_size": len(hbp_mx_cs),
+        "ens_cs_size": len(ens_cs),
         "l1_top_variant": l1_top.variant_id if l1_top else None,
         "l1_top_pip": l1_top.pip if l1_top else None,
         "hbp_top_variant": hbp_top.variant_id if hbp_top else None,
         "hbp_top_pip": hbp_top.pip if hbp_top else None,
+        "gafm_mx_top_variant": gx_top.variant_id if gx_top else None,
+        "gafm_mx_top_pip": gx_top.pip if gx_top else None,
+        "hbp_mx_top_variant": hx_top.variant_id if hx_top else None,
+        "hbp_mx_top_pip": hx_top.pip if hx_top else None,
+        "ens_top_variant": en_top.variant_id if en_top else None,
+        "ens_top_pip": en_top.pip if en_top else None,
     }
 
 

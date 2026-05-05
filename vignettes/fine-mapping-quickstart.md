@@ -178,6 +178,16 @@ loaded. To add relational priors, load the pre-built Neo4j dump
   prefix `l1_` is the historical name; paper-facing name is GAFM) —
   especially interesting when your causal variant is a tissue-specific
   eQTL, where GAFM beats SuSiE 27–2 (see paper §2.3)
+- **v0.1.5 mixture-prior variants** — `gafm_mx_from_sumstats`,
+  `hbp_mx_from_sumstats`, `ensemble_from_sumstats`. These add a
+  SBayesRC-style 4-component Wakefield mixture-BF posterior reweighting
+  on the LD-deconvolved z-scores plus optional λ_GC deflation
+  (`lambda_gc=` argument). They sharpen top PIPs by 2–3× at the same
+  rank parity as base GAFM/HBP. CLI: `graphgwas finemap-sumstats
+  --method gafm-mx|hbp-mx|ens --n-samples N`. **Calibration caveat:**
+  the mixture step is anti-conservative at high PIP bins; use base
+  GAFM/HBP or SuSiE if you need calibrated PIPs (see Sup Fig S4 in
+  the paper)
 - **Load the full Neo4j multi-omics graph** (17 GB Zenodo dump) and
   use the Cypher query layer for interpretability ("which genes in
   this credible set are drug targets?")

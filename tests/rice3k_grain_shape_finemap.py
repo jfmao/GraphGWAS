@@ -39,7 +39,10 @@ import pandas as pd
 
 sys.path.insert(0, "/mnt/data/GraphGWAS/src/python")
 from graphgwas.finemapping_v2 import (  # noqa: E402
+    ensemble_from_sumstats,
+    gafm_mx_from_sumstats,
     hbp_finemap_from_sumstats,
+    hbp_mx_from_sumstats,
     l1_finemap_from_sumstats,
 )
 
@@ -85,43 +88,6 @@ def _load_lambda_gc() -> dict:
             _LAMBDA_GC = dict(zip(df["trait"], df["lambda_gc"]))
             print(f"  λ_GC deflation factors loaded: {_LAMBDA_GC}", flush=True)
     return _LAMBDA_GC
-
-
-def apply_mixture_posterior(orig_pips, z, n_samples,
-                             pi=MIX_PI, gamma=MIX_GAMMA):
-    """Reweight existing per-variant PIPs by a SBayesRC-style 4-component
-    Wakefield mixture-BF on the z-statistics.
-
-    For each variant i:
-        BF_k(z_i) = (1 + N γ_k)^(-1/2) * exp(z_i² · N γ_k / (2(1 + N γ_k)))
-        BF_mix(z_i) = Σ_k (π_k / Σπ) · BF_k(z_i)
-        new_PIP_i ∝ orig_PIP_i · BF_mix(z_i)
-
-    Sum-of-PIP is preserved (expected number of causals unchanged), so the
-    method only redistributes mass — it sharpens at large-|z| variants and
-    shrinks at noise variants. This is the same effect-size-distribution
-    correction SBayesRC bakes into its MCMC, applied here as a post-hoc step
-    on existing GAFM/HBP outputs.
-    """
-    pips = np.asarray(orig_pips, dtype=float)
-    z = np.asarray(z, dtype=float)
-    pi_arr = np.asarray(pi, dtype=float) / np.sum(pi)
-    V = np.asarray(gamma, dtype=float) * n_samples  # (K,)
-    log_pi = np.log(pi_arr + 1e-300)
-
-    # log ABF_k(z_i) = -0.5 log(1+V_k) + 0.5 z_i² V_k/(1+V_k)
-    log_abf_k = (
-        -0.5 * np.log1p(V)[:, None]
-        + 0.5 * (z[None, :] ** 2) * (V[:, None] / (1.0 + V[:, None]))
-    )  # (K, N)
-    log_mix_abf = scipy_special.logsumexp(log_pi[:, None] + log_abf_k, axis=0)  # (N,)
-
-    log_new = np.log(np.maximum(pips, 1e-300)) + log_mix_abf
-    log_new -= log_new.max()  # numerical stability
-    new_pip = np.exp(log_new)
-    if new_pip.sum() > 0 and pips.sum() > 0:
-        new_pip = new_pip * (pips.sum() / new_pip.sum())
-    return np.clip(new_pip, 0.0, 1.0)
 
 
 def _credible_set_from_pips(pips, coverage=COVERAGE):
@@ -516,63 +482,70 @@ def run_locus(trait, lead_chrom, lead_pos, lead_p, sig_level, chr_cache):
                                   "time_s": round(time.time() - t0, 3)}
     _log("HBP", method_results["HBP"])
 
-    # GAFM-MX (v0.1.5): mixture-prior posterior on GAFM PIPs
+    # GAFM-MX (v0.1.5): library wrapper applies LD-deconvolved mixture posterior
+    # with id-aligned PIPs (fix 2026-05-04). Production calls go via
+    # gafm_mx_from_sumstats / hbp_mx_from_sumstats / ensemble_from_sumstats.
     t0 = time.time()
-    if gafm_pips is not None:
-        try:
-            mx_pips = apply_mixture_posterior(gafm_pips, z, n_samples)
-            cs = [_credible_set_from_pips(mx_pips, COVERAGE)]
-            method_results["GAFM-MX"] = _summarize_method(
-                "GAFM-MX", variants, mx_pips, cs, time.time() - t0
-            )
-        except Exception as e:
-            method_results["GAFM-MX"] = {"method": "GAFM-MX", "error": True,
-                                          "error_msg": str(e),
-                                          "time_s": round(time.time() - t0, 3)}
-    else:
+    try:
+        gafm_mx_cands = gafm_mx_from_sumstats(
+            variants, z, R_sq, n_samples=n_samples,
+            alpha=0.7, r2_smooth=0.3, credible_set_coverage=COVERAGE,
+            chr_name=lead_chrom, graph_cache=window_cache,
+        )
+        mx_pips_by_id = {c.variant_id: c.pip for c in gafm_mx_cands}
+        mx_pips = np.array([mx_pips_by_id[v["variantId"]] for v in variants])
+        cs_idx = [i for i, c in enumerate(
+            [next(c for c in gafm_mx_cands if c.variant_id == v["variantId"])
+             for v in variants]
+        ) if c.in_credible_set]
+        method_results["GAFM-MX"] = _summarize_method(
+            "GAFM-MX", variants, mx_pips, [cs_idx], time.time() - t0
+        )
+    except Exception as e:
         method_results["GAFM-MX"] = {"method": "GAFM-MX", "error": True,
-                                      "error_msg": "GAFM upstream failed",
-                                      "time_s": 0.0}
+                                      "error_msg": str(e),
+                                      "time_s": round(time.time() - t0, 3)}
     _log("GAFM-MX", method_results["GAFM-MX"])
 
-    # HBP-MX (v0.1.5): mixture-prior posterior on HBP PIPs
+    # HBP-MX (v0.1.5): library wrapper
     t0 = time.time()
-    if hbp_pips is not None:
-        try:
-            mx_pips = apply_mixture_posterior(hbp_pips, z, n_samples)
-            cs = [_credible_set_from_pips(mx_pips, COVERAGE)]
-            method_results["HBP-MX"] = _summarize_method(
-                "HBP-MX", variants, mx_pips, cs, time.time() - t0
-            )
-        except Exception as e:
-            method_results["HBP-MX"] = {"method": "HBP-MX", "error": True,
-                                         "error_msg": str(e),
-                                         "time_s": round(time.time() - t0, 3)}
-    else:
+    try:
+        hbp_mx_cands = hbp_mx_from_sumstats(
+            variants, z, R_sq, n_samples=n_samples, graph_cache=window_cache,
+            r2_smooth=0.3, credible_set_coverage=COVERAGE, chr_name=lead_chrom,
+        )
+        mx_pips_by_id = {c.variant_id: c.pip for c in hbp_mx_cands}
+        mx_pips = np.array([mx_pips_by_id[v["variantId"]] for v in variants])
+        cs_by_id = {c.variant_id: c.in_credible_set for c in hbp_mx_cands}
+        cs_idx = [i for i, v in enumerate(variants) if cs_by_id[v["variantId"]]]
+        method_results["HBP-MX"] = _summarize_method(
+            "HBP-MX", variants, mx_pips, [cs_idx], time.time() - t0
+        )
+    except Exception as e:
         method_results["HBP-MX"] = {"method": "HBP-MX", "error": True,
-                                     "error_msg": "HBP upstream failed",
-                                     "time_s": 0.0}
+                                     "error_msg": str(e),
+                                     "time_s": round(time.time() - t0, 3)}
     _log("HBP-MX", method_results["HBP-MX"])
 
-    # ENS (v0.1.5): mean of GAFM-MX and HBP-MX PIPs per variant
+    # ENS (v0.1.5): library wrapper (mean of GAFM-MX and HBP-MX)
     t0 = time.time()
-    if gafm_pips is not None and hbp_pips is not None:
-        try:
-            gafm_mx = apply_mixture_posterior(gafm_pips, z, n_samples)
-            hbp_mx = apply_mixture_posterior(hbp_pips, z, n_samples)
-            ens_pips = 0.5 * (gafm_mx + hbp_mx)
-            cs = [_credible_set_from_pips(ens_pips, COVERAGE)]
-            method_results["ENS"] = _summarize_method(
-                "ENS", variants, ens_pips, cs, time.time() - t0
-            )
-        except Exception as e:
-            method_results["ENS"] = {"method": "ENS", "error": True,
-                                       "error_msg": str(e),
-                                       "time_s": round(time.time() - t0, 3)}
-    else:
+    try:
+        ens_cands = ensemble_from_sumstats(
+            variants, z, R_sq, n_samples=n_samples,
+            alpha=0.7, r2_smooth=0.3, credible_set_coverage=COVERAGE,
+            chr_name=lead_chrom, graph_cache=window_cache,
+        )
+        ens_by_id = {c.variant_id: c.pip for c in ens_cands}
+        ens_pips = np.array([ens_by_id[v["variantId"]] for v in variants])
+        cs_by_id = {c.variant_id: c.in_credible_set for c in ens_cands}
+        cs_idx = [i for i, v in enumerate(variants) if cs_by_id[v["variantId"]]]
+        method_results["ENS"] = _summarize_method(
+            "ENS", variants, ens_pips, [cs_idx], time.time() - t0
+        )
+    except Exception as e:
         method_results["ENS"] = {"method": "ENS", "error": True,
-                                  "error_msg": "GAFM/HBP upstream failed",
-                                  "time_s": 0.0}
+                                  "error_msg": str(e),
+                                  "time_s": round(time.time() - t0, 3)}
     _log("ENS", method_results["ENS"])
 
     # SuSiE-RSS

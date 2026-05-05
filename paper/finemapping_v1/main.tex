@@ -177,7 +177,7 @@ head-to-head benchmarking feasible.
 \item[Figure S1] LPCE LD-pruned epistasis --- under-development preview only (full benchmark in a companion manuscript in preparation).
 \item[Figure S2] Pan-UKB cross-ancestry fine-mapping (4 loci $\times$ 4 ancestries, real biobank data; extended panels).
 \item[Figure S3] GraphGWAS CLI command hierarchy (44 commands across 10 domains, tier-coloured by benchmark status).
-\item[Figure S4] PIP calibration and null false-positive rate across $h^2 \in \{0.02, 0.05, 0.10, 0.20\}$.
+\item[Figure S4] PIP calibration and null false-positive rate across $h^2 \in \{0.02, 0.05, 0.10, 0.20\}$ (panels a--d, base methods); chr22 calibration (panel e), null FPR (f), and mixture-prior $\pi/\gamma$ hyperparameter sensitivity (g) for the mixture-prior reweightings GAFM-MX, HBP-MX and ENS.
 \item[Figure S5] HBP fine-mapping quality scales monotonically with sample size on 1000 Genomes chromosome~22.
 \item[Figure S6] Decision tree mapping fine-mapping scenarios to the recommended GraphGWAS method (relocated from main text; lives inside Supplementary Note~S2).
 \item[Figure S7] 3kRG grain weight + shape pass --- 4-trait Manhattan, Q--Q, and 5-method recovery scorecard against Niu \emph{et al.}\ 2021 + Ren \emph{et al.}\ 2023 ground truth.
@@ -193,8 +193,10 @@ head-to-head benchmarking feasible.
 \item[Table S5] IRRI 18-trait 3kRG whole-genome scan summary ($\lambda_{GC}$, GW-sig leads, single-variant CS counts).
 \item[Table S5b] 3kRG 4-trait grain weight + shape whole-genome scan (Niu 2021 phenotype panel; 20-of-21-QTN recovery).
 \item[Table S6] Cross-species fine-mapping summary (rice IRRI + rice grain / yeast / Arabidopsis / human).
-\item[Table S7] Three-tier ground-truth recovery scorecard for 5 fine-mapping methods on the rice grain pass.
-\item[Table S8] Per-locus 5-method credible-set comparison (rice grain pass; 28 leads, GAFM/HBP/SuSiE/SuSiE-inf/FINEMAP-inf).
+\item[Table S7] Three-tier ground-truth recovery scorecard for nine fine-mapping methods (incl.\ GAFM-MX, HBP-MX, ENS) on the rice grain pass.
+\item[Table S8] Per-locus credible-set comparison (rice grain pass; 41 leads; GAFM-MX, HBP-MX, ENS, SuSiE, SBayesRC).
+\item[Table S9] Cross-species CS$=$1 sharpening on real GWAS leads under GAFM-MX, HBP-MX and ENS (yeast 245 + Arabidopsis 54 + IRRI rice 72).
+\item[Table S10] Chr22 single-causal F1 head-to-head across $h^2 \in \{0.02, 0.05, 0.10\}$ (eight-method panel; 30 reps each).
 \end{description}
 
 \subsection*{Supplementary Notes}
