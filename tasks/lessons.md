@@ -810,3 +810,165 @@ Either way, the cover letter should briefly justify the chosen
 configuration: a one-sentence-per-figure rationale ("Fig 1 = graph
 schema, Fig 2 = HBP+GAFM algorithm schematic, Fig 3 = GAFM 27-2
 weak signal, ...") makes the editor's job easier.
+
+### LESSON 052: Supplementary Notes with their own reference list need self-contained refs, not `\cite{}`
+
+**Symptom:** A reader on page 44 noticed that "Sup Note S1 cites
+Banach 1922 as **[59]** and Dempster 1977 as **[60]**", but the
+*References (Supplementary Note S1)* list at the bottom of that
+Note shows two items numbered **[1]** and **[2]**. The Note looked
+internally inconsistent. The same problem appeared in Sup Note S4
+(citing rice/yeast catalogue papers).
+
+**Why it happens:** `\cite{key}` always resolves to the *global*
+bibliography numbering produced by `bibtex` over the whole document.
+When a Sup Note also wants to print a small *self-contained*
+reference list at the end (so a reader can read the Note as a
+stand-alone proof or methods document), an inline `\cite{key}` will
+emit the global bib number, not the local list number — guaranteed
+mismatch.
+
+**Fix:**
+- Use `[\hyperref[snote_S1_ref1]{1}]` for the inline citation
+  (numeric, points to the local list).
+- Add `\label{snote_S1_ref1}` on the matching `\item` in the local
+  references list at the end of the Note.
+- This makes the marker locally clickable and locally consistent
+  while leaving the global bib untouched.
+
+**Rule:** Whenever a Supplementary Note has its own
+*References (Supplementary Note S\#)* paragraph, never use
+`\cite{}` inside that Note for refs that belong to the local list —
+use a `\hyperref`+`\label` pair. `\cite{}` is fine for refs that
+should resolve to the global bib (e.g. background citations the
+reader can find in the main reference list); just be intentional
+about which list each citation belongs to.
+
+**Diagnostic:** for every Sup Note with a local reference list,
+grep `\cite{` between the Note's `\subsection*` and its
+`References (Supplementary Note ...)` paragraph. Any hit there is
+suspect.
+
+### LESSON 053: Software-name capitalisation needs a deliberate cross-file pass
+
+**Symptom:** "GCTB" was rendered as both `gctb` (lowercase, casual)
+and `GCTB` (canonical) in the same paper across methods, results,
+supplementary, and cover letter — because each file was edited at a
+different time and the casual lowercase survived several
+revisions. Same risk for PLINK2, SuSiE, FINEMAP, REGENIE, SBayesRC,
+htslib, bcftools, tabix, Hail.
+
+**Why it happens:** Tool names live in the long tail of every paper.
+Authors who use them daily think of them lowercase ("run gctb"); the
+canonical name is title-case. Each file is edited in isolation, and
+no one global pass enforces consistency. First-use `\cite{}` is even
+easier to forget — once one section cites a tool, later sections
+inherit the assumption that "the citation already happened".
+
+**Rule:** Pre-submission, run a single grep across **all** paper
+files for every tool name (case-insensitive), then:
+1. Normalise capitalisation to the canonical form per the tool's
+   own documentation.
+2. Confirm `\cite{key}` accompanies the **first occurrence in each
+   major file** (methods, results, supplementary, cover letter
+   independently — readers may read each in isolation).
+
+**Diagnostic command:**
+```
+for tool in gctb plink susie finemap regenie sbayesrc tabix bcftools hail htslib; do
+  grep -niE "\\b$tool\\b" paper/finemapping_v1/*.tex \
+    | grep -v "\\\\cite{" \
+    | head -3
+done
+```
+Anything returned in a context that *should* carry a citation is a
+bug.
+
+### LESSON 054: Practitioner vignettes may already exist in `docs/` — check before writing new ones
+
+**Symptom:** Reader asked "do you prepare a vignette on how to
+prepare input and how to extract and examine output?" The answer
+was *yes* — `docs/INPUT_OUTPUT_GUIDE.md` (15.9 kB) had been written
+during an earlier sprint and was simply *not referenced from the
+paper*. Risk: the agent could have written a *second* vignette,
+duplicating content and creating a maintenance hazard.
+
+**Rule:** When the user asks "do you have an X for the paper?",
+**always `ls docs/` first**. Vignettes, manuals, install guides,
+quickstarts, and FAQs accumulate in `docs/` over a project's
+lifetime; many are written before the paper is drafted. Surface the
+existing artefact and add a one-line `\texttt{docs/...}` reference
+in the paper instead of authoring a parallel one.
+
+**Pre-submission check:** every doc in `docs/` (manual, INSTALL,
+INPUT_OUTPUT_GUIDE, vignettes/) should either be (a) referenced
+from the paper, (b) referenced from the README, or (c) deliberately
+private. Orphan docs are a sign the paper hasn't fully indexed the
+shipped artefacts.
+
+### LESSON 055: A regex rename across the codebase can damage gene-name substrings
+
+**Symptom:** A bulk `L1 → GAFM` regex rewrite (executed when the
+paper-facing method names were standardised from `L1_*`/`m1_*` to
+`GAFM`/`HBP`) was applied to *all* `.tex` files. The regex caught
+unintended substrings inside gene names: **OsSPL16** became
+`OsSPGAFM6`, **GAL10** became `GAGAFM-10`, **HAL3** became
+`HAGAFM-3`, **BCL2L13** became `BCL2GAFM3`, **APOL1** became
+`APOGAFM`. These corrupted gene names then appeared in figure
+captions and table cells.
+
+**Why it happens:** Many rice/yeast/Arabidopsis/human gene symbols
+are short, uppercase, alphanumeric tokens (e.g. `L13`, `L16`,
+`L10`, `L1`). A method-name rename built on the substring
+`L1` or `L10` will silently corrupt them. Word-boundary regexes
+(`\bL1\b`) help but don't catch every case (e.g. `OsSPL16` has no
+word boundary before `L1`).
+
+**Rule:** Any cross-codebase rename involving short uppercase
+tokens MUST be followed by:
+1. A grep for the *new* token next to common gene-name prefixes:
+   `grep -nE "[A-Z]GAFM[0-9]|[A-Z]+GAFM-[0-9]" paper/**/*.tex`
+2. Cross-validation against the project's ground-truth gene
+   catalogues (`data/*/ground_truth/*genes*.tsv`,
+   `niu2021_qtns.tsv`, etc.). Every mentioned gene should match a
+   real entry there.
+3. A diff-readback pass on figure captions and table cells, where
+   the corruption usually hides (Methods/Results prose names genes
+   less often).
+
+**Pre-submission diagnostic:**
+```
+grep -ohE "[A-Z][a-zA-Z]*[0-9]+" paper/finemapping_v1/*.tex \
+  | sort -u | comm -23 - <(cut -f1 data/*/ground_truth/*.tsv | sort -u)
+```
+returns mentioned-but-unverified tokens; investigate any that look
+like they should be a known gene.
+
+### LESSON 056: A two-format column needs a leading-token rule, not a regex on the parens
+
+**Symptom:** When extending Table S9 with a "Gene" column, the
+annotation function emitted two formats in the same column: Niu
+QTN matches like `qTGW3.2 (GS3)` (italicise the gene symbol) and
+nearest-LOC_Os fallbacks like `LOC_Os03g29864 ($\Delta$=4\,kb)`
+(do NOT italicise the distance). A naive `re.match(r"^([^()]+?)
+\s*\(([^()]+)\)$", g)` then italicised whatever was in the parens —
+producing `\textit{$\Delta$=4\,kb}` for the fallback rows.
+
+**Why it happens:** Two semantic formats sharing a single
+syntactic shape `head (paren)` is a code-smell that pure regex
+will not disambiguate. The fix needs *which-format-is-this*
+information from the head token, not the parenthetical.
+
+**Rule:** When a column intentionally carries two semantic formats:
+1. Decide the format from the **leading token's class**, not from
+   regex against the whole string. Here: `head.startswith("q")` /
+   `head.startswith("rc")` → Niu QTN match; `head.startswith
+   ("LOC_Os")` → nearest-LOC_Os fallback.
+2. Italicise *gene symbols* but never *non-name parenthetical
+   metadata* (distances, p-values, sample counts).
+3. Document the two formats explicitly in the table caption so the
+   reader knows what each row means without needing the code.
+
+**Pre-submission check:** view the rendered PDF for the table and
+spot-check at least two rows of each format. The italicisation rule
+fails silently in TeX source; you have to read the PDF.
