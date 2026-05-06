@@ -116,14 +116,13 @@ FINEMAP, SuSiE-inf and FINEMAP-inf within three percentage points at 5--40$\time
 \item \textbf{Pan-UK Biobank sumstats-streaming entry path} --- per-locus tabix-over-HTTPS
 fetching and on-the-fly GRCh37$\to$GRCh38 lifting, applied unchanged to BMI, LDL,
 triglycerides and height across four Pan-UKB ancestries (EUR $N{=}420{,}531$;
-CSA, AFR, EAS), recovering \emph{LDLR}, \emph{APOE}, \emph{LPL}, \emph{GCKR} and \emph{ANGPTL3}
-at single-variant resolution.
+CSA, AFR, EAS) at single-variant resolution.
 \item \textbf{Cross-species portability without algorithmic change} --- the same code
 fine-maps the 1011 Yeast Genomes panel (35 traits, 245 leads), the 1001 \emph{Arabidopsis}
 Genomes panel (14 traits, 54 leads) and the 3{,}000 Rice Genomes panel (18 IRRI ordinal
 traits, 72 leads + 4 continuous grain weight/shape traits, 41 fine-mapped leads). On rice,
 24 of 72 IRRI-trait leads fall within 250\,kb of a Ren \emph{et al.}\ (2023) catalogued
-causal gene; on the panel-matched grain weight/shape pass, \textbf{20 of 21 stable QTNs
+causal gene; on the panel-matched grain weight + shape pass, \textbf{20 of 21 stable QTNs
 reported by Niu \emph{et al.}\ 2021 \emph{BMC Genomics} are recovered at GWAS lead
 resolution}, and at the variant-level metric the mixture-prior posterior reweightings
 of GAFM and HBP (GAFM-MX, HBP-MX) and their ensemble (ENS) each reach 57\% recovery
@@ -137,14 +136,14 @@ gap can be substantially closed by importing the same effect-size mixture prior 
 GAFM/HBP as a posterior reweighting step.
 \end{itemize}
 
-A direct-intervention experiment establishes the central methodological claim. Adding a coarse
-nine-class ENCODE regulatory-element flag to an otherwise uniform human cache flips the rate at
-which HBP narrows the credible set tighter than GAFM from \textbf{0\% to 88\%} on the same 321
-human Pan-UKB leads, with no other change to GWAS sumstats, LD references, or the fine-mapping
-algorithm. Across all 692 leads in the four-species replication, the same intervention raises
-the HBP-tighter-than-GAFM rate from 41\% to 92\%. Density alone is therefore insufficient even
-at $10^7$-variant scale; the operative quantity is per-variant discriminative information,
-which the typed-graph representation exposes directly to inference.
+A direct-intervention experiment establishes the central methodological claim that the
+typed-graph representation, not annotation count, is what lets the graph break LD ties.
+Replacing a uniform GTEx + STRING human cache with the same cache plus a single coarse
+nine-class ENCODE regulatory-element flag --- no other change to GWAS sumstats, LD references,
+or the fine-mapping algorithm --- raises the HBP-tighter-than-GAFM rate from 41\% to 92\%
+across all 692 leads in the four-species replication. Density alone is therefore
+insufficient even at $10^7$-variant scale; the operative quantity is per-variant
+discriminative information, which the typed-graph representation exposes directly to inference.
 
 Graph-native fine-mapping has practical implications beyond benchmarks: it removes the
 annotation-curation bottleneck that has prevented systematic fine-mapping in non-model

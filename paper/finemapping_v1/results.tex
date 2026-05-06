@@ -95,7 +95,10 @@ self-consistent belief (Theorem~2, Supplementary Note~S1). At
 default hyperparameters the algorithm reaches four-decimal
 convergence in $\approx$0.08~s per locus on 1000 Genomes chromosome~22,
 approximately 20--30$\times$ faster than SuSiE and FINEMAP on the
-same data.
+same data. HBP's strength is speed under strong signal; the regime
+where statistical evidence alone is insufficient --- weak signal,
+dense LD, informative annotations --- is where the graph prior
+must do the discriminative work, which we test next with GAFM.
 
 \begin{figure}[htbp]
 \centering
@@ -382,8 +385,9 @@ the substrate for fine-mapping the top three genome-wide-significant
 plus one suggestive independent lead per trait (72 total) within
 $\pm$250~kb windows against a rice multi-omics graph (RAP-DB
 variant--gene + Ren 2023 gene--pathway curation\cite{ren2023rice}
-+ RicePPINet gene--gene\cite{liu2017riceppinet}). The depth pass
-is a 4-trait GWAS on continuous grain weight (TGW) and grain shape
++ RicePPINet gene--gene\cite{liu2017riceppinet}). The grain
+weight + shape pass is a 4-trait GWAS on continuous grain weight
+(TGW) and grain shape
 (GL, GW, RLW = GL/GW) phenotypes from Niu \emph{et al.}\ 2021
 \cite{niu2021grain} on the same panel ($N{=}1{,}847$ for TGW;
 $N{=}2{,}453$ for GL/GW/RLW; $h^2$ 0.88--0.93 in Niu's
@@ -437,11 +441,11 @@ genome-wide scan summary in Supplementary Table~S6).
 \textbf{Twenty of 21 stable QTNs identified by Niu \emph{et al.}\
 2021 are recovered within $\pm$100\,kb of an independent lead at
 $p \leq 5\times10^{-8}$} (95\% catalogue
-recovery at GWAS lead-call resolution; the only miss is qGL10 at
-Chr10:13.62\,Mb, originally reported by Niu at
-$p{=}1.19\times10^{-7}$ in compressed-MLM, which falls below our
-$p{<}10^{-5}$ suggestive cutoff under the linear-model + 10-PC
-pipeline). Eleven of the recovered QTNs match the lead position
+recovery at GWAS lead-call resolution; the unrecovered QTN, qGL10
+on Chr10, was reported by Niu at $p{=}1.19\times10^{-7}$ from
+compressed-MLM and is below our $p{<}10^{-5}$ suggestive cutoff
+under the linear-model $+$ 10-PC pipeline).
+Eleven of the recovered QTNs match the lead position
 to within $\leq$10\,kb, including the \emph{GS3}
 (Chr3:16{,}733{,}441) and \emph{qSW5/GW5} (Chr5:5{,}371{,}529)
 hubs that drive grain length, width and ratio simultaneously.
@@ -547,24 +551,23 @@ Supplementary Figure~S4 e--h).}
 \label{fig:mixture_headline}
 \end{figure}
 
-The depth pass thus extends the cross-species claim from
-``IRRI-ordinal traits with $\lambda_{GC} \in [0.85, 1.20]$''
-to ``four continuous grain weight/shape traits whose
-literature-curated 21-QTN catalogue we recover at 95\% rate at
-GWAS-lead resolution and at $\sim$48\% rate at variant-level
-resolution against a panel-matched ground truth without re-tuning
-the pipeline'' --- the strongest crop-genomics benchmark in the
-manuscript. The unusually inflated $\lambda_{GC}$ values for this
-pass (1.41--1.78) are consistent with the well-documented XI/GJ
+The grain weight + shape pass extends the rice cross-species
+claim from `IRRI-ordinal traits at $\lambda_{GC} \in [0.85, 1.20]$'
+to four continuous traits with a panel-matched ground truth.
+Against the Niu 21-QTN catalogue we recover 95\% at GWAS-lead
+resolution and 48\% at variant-level resolution, without
+re-tuning the pipeline --- the strongest crop-genomics benchmark
+in this manuscript. The pass's elevated
+$\lambda_{GC}$ (1.41--1.78) reflects the well-documented XI/GJ
 subpopulation structure of the 3kRG panel under PC1--PC10
-correction; SuSiE and SuSiE-inf give CS$=$1 on every locus
-(40--41 / 41), which is consistent with the inflation-induced
-single-strongest-variant collapse and is the same caveat raised
-for the IRRI 18-trait pass at $\lambda_{GC} \in [1.6, 2.1]$
-(\S\ref{sec:multispecies} above). GAFM/HBP are more conservative
-under inflation (median CS$=$1{,}823 and 814 respectively at the
-secondary leads); the variant-level recovery rate is therefore
-the most defensible cross-method comparison metric here.
+correction. Inflation collapses SuSiE and SuSiE-inf to CS$=$1 on
+40--41 of 41 loci (the single-strongest-variant collapse also
+seen on the IRRI 18-trait pass at $\lambda_{GC} \in [1.6, 2.1]$,
+\S\ref{sec:multispecies} above), whereas GAFM/HBP remain more
+conservative under inflation (median CS$=$1{,}823 and 814 at the
+secondary leads); variant-level recovery against the Niu QTN
+catalogue is therefore the most defensible cross-method
+comparison metric here.
 
 \paragraph{Yeast (1011 Genome panel, 35 growth traits).}
 Across 35 grammar-corrected growth-trait sumstats\cite{peter2018genome,
@@ -750,32 +753,28 @@ Yeast       & 245 & 244 / 245 (100\%) & 245 / 245 (100\%) & saturated \\
 \end{tabular}
 \end{table}
 
-A pre-registered placebo-prior control on chr~22 (Sup Note~S2)
-shows that on randomly-placed simulated causal variants, an
-informative cCRE prior and a permuted-marginal placebo prior
-produce \emph{identical} HBP-tighter rates (both 13\,\%, vs 10\,\%
-baseline). The +3\,pp gain in simulation is therefore fully
-captured by heterogeneity per se; the genome-wide
-0\,\%\,$\to$\,88\,\% flip on 321 Pan-UKB lead loci (Table~1) must
-depend on enrichment of real disease-associated leads in
-regulatory regions rather than on the graph prior providing
-variant-specific biological information beyond what any
-non-uniform prior would produce. With this caveat, the
-intervention results bound the claim to a
-\emph{necessary-condition} statement:
-a uniform high-coverage cache breaks no LD ties, while introducing
-a per-variant non-uniform signal of biological structure (here, the
-ENCODE 9-class regulatory-element flag) flips HBP from inert to
-informative on 88\% of human leads. The current experiment
-contrasts a uniform cache against an informative non-uniform
-prior; a placebo-prior arm in which \texttt{prior\_score} is
-permuted across variants (preserving the marginal distribution but
-randomising which variants receive which class) is the immediate
-next test, and is required before the claim that the gain
-specifically reflects \emph{biological} discriminative information
-rather than any heterogeneous prior is fully established.
-Continuous-score replacements --- combined-annotation PHRED scores,
-allele-specific transcription-factor-binding $\Delta$-PWM,
-deep-learning chromatin-effect predictions, and species-specific
-cistromes --- are a natural further direction.
+We next asked whether the 0\,\%\,$\to$\,88\,\% flip on Pan-UKB
+leads depends on biological-structure information specific to
+cCRE classes or on heterogeneity \emph{per se}. On 30 simulated
+chr~22 loci with random causal placement, the informative cCRE
+prior raised the HBP-tighter rate from 10\,\% (baseline) to
+13\,\%; a permuted-marginal placebo prior recovered the same gain
+(13\,\%, 5 permutations, zero variance; Sup Note~S2).
+In this simulation regime the +3\,pp gain is therefore fully
+captured by heterogeneity \emph{per se}, so the genome-wide
+0\,\%\,$\to$\,88\,\% flip on the 321 Pan-UKB leads (Table~1)
+reflects enrichment of real disease-associated leads in
+regulatory regions rather than biological-structure information
+beyond what any non-uniform prior would produce. The intervention
+result is therefore a \emph{necessary-condition} claim: a uniform
+high-coverage cache breaks no LD ties, while a non-uniform
+per-variant signal carried as typed graph edges (here the ENCODE
+9-class regulatory-element flag) flips HBP from inert to
+informative on 88\,\% of human leads. Whether informative-cCRE
+priors empirically outperform a permuted-marginal placebo on real
+biobank leads is open; continuous-score replacements ---
+combined-annotation PHRED scores, allele-specific
+transcription-factor-binding $\Delta$-PWM, deep-learning
+chromatin-effect predictions, and species-specific cistromes ---
+are the natural arms of that follow-up.
 

@@ -13,19 +13,19 @@ Biobank across four ancestries without algorithmic modification.
 
 \textbf{Graph-native fine-mapping is structurally distinct from
 flat-prior fine-mapping, not merely faster.} The head-to-head
-benchmarks quantify this distinction on the
-\emph{representational} axis. When the prior information supplied
-to SuSiE matches what HBP/GAFM use (Polyfun-proxy with eQTL-derived
-\texttt{prior\_weights}), SuSiE and GAFM converge on rank-\#1
-accuracy; GAFM wins only on the $26 \times$ speed margin.  But when
-the graph captures relational structure that a per-variant weight
-vector cannot---tissue-specific eQTL enrichment, PPI coupling on
-the gene layer, pathway co-occurrence---the graph prior wins not
+benchmarks quantify the distinction on the \emph{representational}
+axis. When the prior supplied to SuSiE matches what HBP/GAFM use
+(Polyfun-proxy with eQTL-derived \texttt{prior\_weights}), SuSiE
+and GAFM converge on rank-\#1 accuracy and GAFM wins only on the
+$26 \times$ speed margin. But the graph captures relational
+structure that no per-variant weight vector can ---
+tissue-specific eQTL enrichment, PPI coupling on the gene layer,
+pathway co-occurrence. In that regime the graph prior wins not
 only on speed but on rank-\#1 rate (27--2), mean rank (1.65 vs
 2.84) and calibrated PIP. The implication is categorical: as
-multi-omics resources continue to densify with tissue-resolved
-and context-specific annotations, the advantage of relational
-priors will widen, not narrow. This is the regime into which the
+multi-omics resources densify with tissue-resolved, context-specific
+annotations, the advantage of relational priors will widen, not
+narrow. This is the regime into which the
 next decade of annotation coverage is entering. The
 intervention experiment in
 \S``\nameref{sec:heterogeneity}'' sharpens this further: density alone is
@@ -149,43 +149,38 @@ increasingly assembled by FarmGTEx-style consortia --- and we
 expect the graph-native pipeline to transfer there with similar
 gains as species-specific PPI and tissue-eQTL resources mature.
 
-\textbf{Limitations.} Several limitations bound the present
-claims, with three pre-registered placebo / null-permutation /
-sensitivity experiments now reported in Sup Note~S2. (i)~A
-placebo-prior control on a chr~22 strong-signal simulation
-(30 replicates, $\beta{=}0.5$, $h^2{=}0.10$) shows that the gain
-from adding a non-uniform prior (10\,\%\,$\to$\,13\,\%
-HBP-tighter rate over baseline) is \emph{fully captured} by a
-permuted prior with the same marginal distribution: informative
-cCRE prior 13\,\%, placebo permuted prior 13\,\% (5 permutations,
-zero variance). In this simulation regime, with randomly-placed
-causal variants, biological structure adds nothing on top of
-heterogeneity per se. The original 0\,\%\,$\to$\,88\,\% flip on
-321 Pan-UK Biobank lead loci (Table~1) therefore depends on
-enrichment of real disease-associated leads in cCRE-class regions
-(a known phenomenon) rather than on the graph prior providing
-variant-specific biological information beyond what any
-non-uniform prior would produce. The typed factor graph is therefore
-the necessary substrate for incorporating non-uniform priors into
-HBP/GAFM; whether informative-cCRE priors empirically beat a
-permuted-marginal placebo on real biobank leads is an open
-question, to be addressed by repeating the placebo control
-directly on the Pan-UK Biobank lead set. (ii)~The 250\,kb-window cross-species
-validation rate is reported without a species-matched
-random-position null; without that null, the per-species rates
-quoted in §``\nameref{sec:multispecies}'' should be read as
-\emph{lower bounds} on overlap, not as fine-mapping accuracy. (iii)~The
-unified six-method head-to-head benchmark in Figure~\ref{fig:baselines}
-uses 30 replicates per scenario; pairwise rank-\#1 differences of
-three percentage points are within Wilson 95\% CIs and should be
-read as ``no significant difference at $\alpha=0.05$'' rather than
-as equivalence. (iv)~HBP and GAFM are reported with default
-hyperparameters ($\alpha$, $\lambda$, $T$ for HBP; $\alpha$,
-$\tau_L$ for GAFM); a one-at-a-time sensitivity analysis is
-forthcoming. (v)~Pan-UKB sample size is heavily dominant in EUR
-($N=420{,}531$ vs $\leq 8{,}876$ in the three other ancestries),
-so cross-ancestry rank-\#1 comparisons confound ancestry effects
-with statistical power.
+\textbf{Limitations.} Five limitations bound the present claims;
+three are quantified by pre-registered controls in Sup Note~S2.
+(i)~\textbf{The 0\,\%\,$\to$\,88\,\% intervention is a
+necessary-condition claim, not a sufficient-condition one.}
+A permuted-marginal placebo on chr~22 simulations recovered the
+same +3\,pp gain as the informative cCRE prior (both 13\,\% vs
+10\,\% baseline; 30 replicates, 5 permutations, zero variance),
+so on randomly placed causal variants heterogeneity \emph{per se}
+explains the simulation gain. The biobank-scale flip therefore
+reflects enrichment of real disease-associated leads in
+cCRE-class regions; whether informative-cCRE priors outperform a
+permuted-marginal placebo on real biobank leads is open, to be
+tested by repeating the control directly on the Pan-UKB lead set.
+(ii)~\textbf{Cross-species 250\,kb-window rates are lower bounds
+on overlap, not fine-mapping accuracy.} A species-matched
+random-position null would let us interpret the per-species rates
+absolutely; rice already passes that null at $p<0.001$
+(\nameref{snote:controls} in Sup Note~S2), and the same control on
+yeast, \emph{Arabidopsis} and human is queued for the next round.
+(iii)~\textbf{Three-percentage-point rank-\#1 differences in
+Figure~\ref{fig:baselines} are not statistically resolved at the
+30-replicate sample size.} Wilson 95\% CIs cover the gap; we read
+adjacent methods as `no significant difference at $\alpha = 0.05$'
+rather than as equivalent.
+(iv)~\textbf{Default hyperparameters carry the headlines.}
+HBP ($\alpha$, $\lambda$, $T$) and GAFM ($\alpha$, $\tau_L$) are
+reported at their default values; a one-at-a-time sensitivity sweep
+is forthcoming.
+(v)~\textbf{Pan-UKB cross-ancestry rank-\#1 comparisons confound
+ancestry with sample size.} EUR has $N=420{,}531$ vs $\leq 8{,}876$
+in the three other ancestries; rank-by-ancestry differences
+are interpretable only relative to power.
 
 Beyond these immediate gaps, pathway annotations remain sparse on
 chromosome~22 in our current graph (5 pathways with variants in
