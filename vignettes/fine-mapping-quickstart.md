@@ -174,11 +174,13 @@ loaded. To add relational priors, load the pre-built Neo4j dump
 
 - **Try other loci**: `--locus FTO | APOA5 | LDLR | HMGA2` (see
   `LOCI` in `tests/benchmark_panukb_finemap.py`)
-- **Try GAFM instead of HBP** with `l1_finemap_from_sumstats` (Python
-  prefix `l1_` is the historical name; paper-facing name is GAFM) —
+- **Try GAFM instead of HBP** with `l1_finemap_from_sumstats` —
   especially interesting when your causal variant is a tissue-specific
-  eQTL, where GAFM beats SuSiE 27–2 (see paper §2.3)
-- **v0.1.5 mixture-prior variants** — `gafm_mx_from_sumstats`,
+  eQTL, where GAFM beats SuSiE 27–2 (see paper §2.3). Paper-facing
+  names map to Python module names as documented in
+  [`README.md`](../README.md#fine-mapping-methods-at-a-glance) and
+  the paper's Code Availability section.
+- **Mixture-prior variants** — `gafm_mx_from_sumstats`,
   `hbp_mx_from_sumstats`, `ensemble_from_sumstats`. These add a
   SBayesRC-style 4-component Wakefield mixture-BF posterior reweighting
   on the LD-deconvolved z-scores plus optional λ_GC deflation

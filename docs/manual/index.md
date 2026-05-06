@@ -1,6 +1,6 @@
 # GraphGWAS CLI — User Manual
 
-**Version 0.1.0** · 40+ commands across 15 functional groups
+**Version 0.1.5** · 53 commands across 15 functional groups
 
 The `graphgwas` command-line interface is the primary entry point for
 interactive analysis and scripted pipelines. All commands share a common

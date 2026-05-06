@@ -165,17 +165,26 @@ at 3.0, 2.0$\times$~eqtl\_score, 1.5$\times$~max(conservation~$-$~0.5, 0))
 are summed and passed through \texttt{log1p} to yield $z_{\text{func}}$,
 rescaled to match $z$'s dynamic range. The combined score is
 $s_i = \alpha \cdot u_i + (1-\alpha) \cdot z_{\text{func},i}$.
-The default $\alpha$ is regime-specific: $\alpha{=}0.9$ for the
-strong-signal six-method head-to-head benchmark
-(Sup Table~S2) and the null calibration / PIP calibration
-experiments; $\alpha{=}0.5$ for the weak-signal tissue-specific
-eQTL regime (the 27\,--\,2 GAFM-vs-SuSiE result); and
-$\alpha{=}1.0$ for the sumstats-only Pan-UK Biobank fine-mapping
-path, where no eQTL functional prior is available at runtime.
-A hyperparameter sensitivity sweep on the strong-signal scenario
-confirms that GAFM rank-\#1 rate degrades sharply for $\alpha < 0.6$
-($\alpha=0.5$: 10\%; $\alpha=0.9$: 70\%; sweep reported in Sup
-Note~S2). PIPs are the softmax:
+The default $\alpha$ is benchmark-specific and is chosen once per
+benchmark from the v0.1.5 driver scripts in \texttt{tests/}:
+$\alpha{=}0.7$ for the strong-signal six-method head-to-head
+benchmark (\texttt{benchmark\_v15\_chr22.py}; Sup Table~S2), the
+v0.1.5 PIP calibration and null FPR experiments
+(\texttt{benchmark\_v15\_calibration\_null.py}), the cross-species
+replication on yeast / \emph{Arabidopsis} / IRRI 3kRG, and the
+3kRG grain weight + shape pass
+(\texttt{rice3k\_grain\_shape\_finemap.py}); $\alpha{=}0.5$ for
+the weak-signal tissue-specific eQTL regime
+(\texttt{benchmark\_weak\_signal.py}; the 27\,--\,2 GAFM-vs-SuSiE
+result and its 100-rep replication); and $\alpha{=}1.0$ for the
+sumstats-only Pan-UK Biobank fine-mapping path
+(\texttt{benchmark\_panukb\_finemap.py}), where no eQTL
+functional prior is available at runtime. A hyperparameter
+sensitivity sweep across $\alpha \in \{0.3, 0.5, 0.7, 0.9\}$
+confirms that GAFM rank-\#1 rate degrades sharply for
+$\alpha < 0.6$ and saturates from $\alpha{=}0.7$ upward, motivating
+the chosen 0.7 default whenever graph priors carry the headline
+(sweep reported in Sup Note~S2). PIPs are the softmax:
 $\pi_i = \exp(s_i - \max_j s_j) / \sum_j \exp(s_j - \max_j s_j)$.
 The 95\% credible set is the minimal variant set whose PIPs sum to
 0.95. For the weak-signal regime, $\alpha$ is chosen by empirical
@@ -483,14 +492,27 @@ The fine-mapping methods rigorously benchmarked in this paper are
 HBP and GAFM; CLGF (cross-locus EM) and GLEM (graph-latent-embedding
 fine-mapping) are implemented in the codebase but not benchmarked
 here. Together they are one method class within the broader
-GraphGWAS platform.
+GraphGWAS platform. Paper-facing names map to Python module
+identifiers as follows: \textbf{GAFM} $\rightarrow$
+\texttt{l1\_finemap\_from\_sumstats} (and CLI
+\texttt{graphgwas finemap-sumstats --method gafm});
+\textbf{HBP} $\rightarrow$ \texttt{hbp\_finemap\_from\_sumstats};
+\textbf{GAFM-MX} / \textbf{HBP-MX} $\rightarrow$
+\texttt{gafm\_mx\_from\_sumstats} / \texttt{hbp\_mx\_from\_sumstats};
+\textbf{ENS} $\rightarrow$ \texttt{ensemble\_from\_sumstats};
+\textbf{CLGF} $\rightarrow$ \texttt{cross\_locus\_graph\_finemap};
+\textbf{LPCE} (epistasis preview) $\rightarrow$ \texttt{lpce\_*}
+in \texttt{graphgwas.epistasis\_v2}. The \texttt{l1\_*} and
+\texttt{m1\_*} prefixes are historical from the platform's
+internal layer-numbering and are retained in module names for
+back-compatibility; the paper-facing names are canonical.
 A full description of the platform---including methods implemented
 for heritability estimation, multivariate and cross-trait analysis,
 polygenic risk scoring, Mendelian randomisation and
 gene--environment interaction, none of which are benchmarked in
 the present paper---together with an honest benchmark-status table
 for each method class, is provided in Supplementary Note~S2. The
-44-command CLI hierarchy is visualised as Supplementary
+53-command CLI hierarchy is visualised as Supplementary
 Figure~S3; a per-command reference manual is shipped at
 \texttt{docs/manual/index.md}, an end-to-end vignette
 reproducing the FTO/BMI headline result from Pan-UKB summary

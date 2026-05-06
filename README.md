@@ -24,7 +24,7 @@ tissue-specific eQTL priors**.
   - **GAFM** (Graph-Augmented Fine-Mapping) — LD-deconvolved evidence combined
     with a graph functional score via adaptive α; proved causal-variant ranking
     under mild LD-decay assumptions (Theorem 3)
-- **v0.1.5 mixture-prior variants** — **GAFM-MX**, **HBP-MX** and their
+- **Mixture-prior variants** — **GAFM-MX**, **HBP-MX** and their
   ensemble **ENS** add a SBayesRC-style 4-component Wakefield mixture-BF
   posterior reweighting on the LD-deconvolved z-scores, plus standard
   λ_GC deflation. On the 3kRG grain weight + shape panel they each reach
@@ -44,7 +44,7 @@ tissue-specific eQTL priors**.
   statistics directly via tabix over HTTPS; demonstrated on 4 ancestries
   (EUR N = 420,531; CSA, AFR, EAS)
 - **Cross-species** — same codebase applies to yeast, human, *Arabidopsis*
-- **Unified package** with 52-command CLI, 37-endpoint FastAPI server, and
+- **Unified package** with 53-command CLI, 37-endpoint FastAPI server, and
   16-tool MCP server for AI-agent access
 
 ## Quick start
@@ -95,7 +95,7 @@ require.
 
 | Interface | Use case | Entry point |
 |---|---|---|
-| **CLI** (52 commands, 15 groups) | interactive analysis, scripted pipelines | `graphgwas ...` |
+| **CLI** (53 commands, 15 groups) | interactive analysis, scripted pipelines | `graphgwas ...` |
 | **REST API** (FastAPI, 37 endpoints) | web integration, programmatic access | `graphgwas api serve` |
 | **MCP server** (FastMCP, 16 tools) | AI-agent access via any MCP-compatible client | `graphgwas mcp` |
 
@@ -108,8 +108,8 @@ walkthrough in [`vignettes/fine-mapping-quickstart.md`](vignettes/fine-mapping-q
 |---|---|---|---|
 | **HBP** (three-layer factor graph + Banach contraction) | O(E × T) | 0.02–0.08 s | accuracy parity; 6–60× faster |
 | **GAFM** (LD-deconvolved + adaptive α + graph prior) | O(n²) | 0.07 s | 27–2 at weak signal + tissue-specific eQTL priors |
-| **GAFM-MX / HBP-MX** (v0.1.5: + λ_GC deflation + LD-deconvolved 4-component mixture BF) | O(n²) | 0.03 s | 10/21 (47.6%) top-1-PIP exact on rice 21-QTN panel |
-| **ENS** (v0.1.5: mean-of-PIPs of GAFM-MX and HBP-MX) | O(n²) | 0.05 s | matches GAFM-MX/HBP-MX |
+| **GAFM-MX / HBP-MX** (+ λ_GC deflation + LD-deconvolved 4-component mixture BF) | O(n²) | 0.03 s | 10/21 (47.6%) top-1-PIP exact on rice 21-QTN panel |
+| **ENS** (mean-of-PIPs of GAFM-MX and HBP-MX) | O(n²) | 0.05 s | matches GAFM-MX/HBP-MX |
 | **CLGF** (cross-locus EM) | O(L × T) | locus-dependent | multi-locus shared-pathway evidence |
 | **GLEM** (graph-latent-embedding fine-mapping) | O(n² + n d) | 0.1 s | multi-signal detection |
 
@@ -121,7 +121,7 @@ walkthrough in [`vignettes/fine-mapping-quickstart.md`](vignettes/fine-mapping-q
   how-to for end users: prepare inputs, run fine-mapping, check outputs,
   interpret PIPs and credible sets, and diagnose problems
 - [`docs/manual/index.md`](docs/manual/index.md) — full CLI reference
-  (52 commands across 15 groups)
+  (53 commands across 15 groups)
 - [`vignettes/fine-mapping-quickstart.md`](vignettes/fine-mapping-quickstart.md) — 15-min Pan-UKB sumstats → credible set
 - [`vignettes/full-1kg-pipeline.md`](vignettes/full-1kg-pipeline.md) — 4–6 h end-to-end: raw 1000 Genomes VCF → GWAS → fine-mapping → graph-queryable credible set
 - [`docs/MATHEMATICAL_PROOFS.md`](docs/MATHEMATICAL_PROOFS.md) — theorems 1–5

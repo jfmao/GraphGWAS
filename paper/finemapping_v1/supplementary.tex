@@ -202,8 +202,10 @@ indel 11:116767975:A:AAAT).}
 \centering
 \includegraphics[width=0.95\textwidth]{figS3_cli_tree.pdf}
 \caption{\textbf{GraphGWAS CLI command hierarchy.} The
-\texttt{graphgwas} command-line interface organises 44~commands
-across 19~functional groups and 10~domains. Colour coding indicates
+\texttt{graphgwas} command-line interface organises 53~commands
+across 15~functional groups; for legibility the visualisation shows
+44 representative commands curated into 10 thematic domains and
+19 function categories. Colour coding indicates
 benchmark tier: red = rigorously benchmarked in this paper
 (fine-mapping); orange = previewed here, full benchmark in
 companion paper (epistasis); purple = platform methods implemented
@@ -446,7 +448,7 @@ The package ships with three levels of documentation. (i)~A
 top-level \texttt{README.md} with quick-start, key features,
 three-interface table (CLI / REST / MCP), and pointers to detailed
 guides. (ii)~A per-command reference at \texttt{docs/manual/index.md}
-listing all 44 commands organised by 10 functional domains; each
+listing all 53 commands organised by 15 functional groups; each
 command has its own page under \texttt{docs/manual/commands/}
 following a standard template (description, usage, arguments,
 options, output schema, examples). The CLI hierarchy is visualised
@@ -461,9 +463,9 @@ deployment, and Hail setup for the optional Pan-UKB in-sample LD
 path.
 
 \paragraph{Three programmatic interfaces.}
-The same 40+ procedures are exposed through three interfaces sharing
+The same 53 procedures are exposed through three interfaces sharing
 a common implementation: (i)~the \texttt{graphgwas} CLI (Click-based,
-44~commands, Supplementary Figure~S3); (ii)~a FastAPI REST server
+53~commands, Supplementary Figure~S3); (ii)~a FastAPI REST server
 with 37 endpoints for web or pipeline integration
 (\texttt{graphgwas serve}); and (iii)~a Model Context Protocol (MCP)
 server with 16 tools for AI-agent access from any MCP-compatible
@@ -1103,7 +1105,7 @@ variant-level (chr:pos in the 95\% credible set within $\pm$10\,kb),
 the 9-method panel gives:
 \textbf{SBayesRC 20/21 (95\%, 16 exact-position matches);
 GAFM-MX = HBP-MX = ENS = SuSiE 12/21 (57\%);
-HBP 10/21 (48\%);
+HBP 10/21 (47.6\%);
 GAFM, SuSiE-inf, FINEMAP-inf 8/21 (38\%) each}.
 At the strictest top-1-PIP exact-position metric, GAFM-MX, HBP-MX,
 and ENS each achieve \textbf{10/21 (47.6\%)} --- the highest of any
