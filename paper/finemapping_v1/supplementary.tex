@@ -5,6 +5,16 @@
 \setcounter{table}{0}
 \renewcommand{\thetable}{S\arabic{table}}
 
+\noindent\textit{Note on file references.}\hspace{1ex}%
+Throughout this Supplementary Information, paths in
+\texttt{typewriter} font (e.g.\ \texttt{tests/...}, \texttt{docs/...},
+\texttt{vignettes/...}, \texttt{src/...}) refer to files in the
+GraphGWAS source repository at
+\url{https://github.com/jfmao/GraphGWAS}; the same paths are
+preserved in the Zenodo software-release archive cited under Code
+Availability. Per-experiment regenerator commands quoted in
+captions and notes assume the reader has cloned that repository.
+
 % ===================================================================
 % SUPPLEMENTARY TABLES (moved from main text to stay under NG's 8-item cap)
 % ===================================================================
@@ -246,7 +256,7 @@ $\|T(b_1) - T(b_2)\|_1 \leq L \|b_1 - b_2\|_1$ with
 $L = \lambda + (1-\lambda)(1-\alpha) \rho(M) < 1$ for $\lambda > 0$,
 where $\rho(M)$ is the spectral radius of
 $B_{vg} B_{gp} B_{gp}^\top B_{vg}^\top$. By the Banach fixed-point
-theorem\cite{banach1922operations}, $T$ has a unique fixed point
+theorem [\hyperref[snote_S1_ref1]{1}], $T$ has a unique fixed point
 $b^*$ and $\{b^{(t)}\}$ converges geometrically at rate $L$. At defaults
 ($\lambda{=}0.5$, $\alpha{=}0.6$, $\rho \approx 0.5$),
 $L \approx 0.6$, giving residual $\leq 0.6^5 \approx 0.078$ in 5
@@ -272,7 +282,7 @@ The CLGF cross-locus graph fine-mapping iteration is an instance of
 expectation-maximisation (EM) on a hierarchical Bayesian model with
 pathway membership informing the variant prior. Monotone increase
 of the expected complete-data log-likelihood follows from
-Dempster, Laird \& Rubin\cite{dempster1977maximum}; convergence to a
+Dempster, Laird \& Rubin [\hyperref[snote_S1_ref2]{2}]; convergence to a
 local optimum in
 $O(\log 1/\epsilon)$ iterations follows from the compactness of the
 parameter space (PIPs on the probability simplex, $\sigma$ bounded
@@ -282,13 +292,14 @@ is essential to prevent pathological self-reinforcement.
 
 \paragraph{References (Supplementary Note S1).}
 \begin{enumerate}[leftmargin=2.2em,itemsep=0.2em,topsep=0.2em,label={[\arabic*]}]
-\item Banach, S. Sur les op\'erations dans les ensembles abstraits
-et leur application aux \'equations int\'egrales.
-\textit{Fundamenta Mathematicae} \textbf{3}, 133--181 (1922).
-\item Dempster, A.~P., Laird, N.~M. \& Rubin, D.~B. Maximum
-likelihood from incomplete data via the EM algorithm.
-\textit{Journal of the Royal Statistical Society: Series~B
-(Methodological)} \textbf{39}, 1--22 (1977).
+\item\label{snote_S1_ref1} Banach, S. Sur les op\'erations dans les
+ensembles abstraits et leur application aux \'equations
+int\'egrales. \textit{Fundamenta Mathematicae} \textbf{3},
+133--181 (1922).
+\item\label{snote_S1_ref2} Dempster, A.~P., Laird, N.~M. \&
+Rubin, D.~B. Maximum likelihood from incomplete data via the EM
+algorithm. \textit{Journal of the Royal Statistical Society:
+Series~B (Methodological)} \textbf{39}, 1--22 (1977).
 \end{enumerate}
 
 \clearpage
@@ -460,21 +471,6 @@ client (\texttt{graphgwas mcp}). All three interfaces call the
 same underlying Python module functions; there is no duplication of
 logic between interfaces.
 
-\paragraph{Roadmap.}
-The GraphGWAS platform is developed with a three-paper roadmap:
-(1) this paper---fine-mapping, the first rigorously benchmarked
-method class; (2) a companion manuscript on graph-native
-epistasis (LPCE and higher-order extensions) in preparation; and
-(3) a prospective application note fully describing the platform
-and benchmarking the quantitative-genetics methods
-(heritability estimation, polygenic risk scoring, Mendelian
-randomisation, multi-environment / G$\times$E trials, multivariate
-analyses) that are implemented
-but not formally validated in the present paper. Releasing the
-full package alongside this first paper invites third-party
-benchmarks and extensions on methods that the GraphGWAS group
-itself will address in follow-up.
-
 \paragraph{Pre-registered control experiments (placebo prior, null-overlap permutation, hyperparameter sensitivity).}\label{snote:controls}%
 Three pre-registered control experiments were run on the GraphGWAS
 chr~22 testbed to bound the claims made in the main text.
@@ -600,7 +596,7 @@ numbering of Figures~S4 and~S5).
 This note expands on the ablation result in Results \S``\nameref{sec:heterogeneity}''.
 
 \paragraph{Protocol.} On each of 5 simulated grain-quality causal loci in
-the 3{,}000 Rice Genomes panel (GW2, BG1, GS5, TGW6, GW8/OsSPGAFM6; each at
+the 3{,}000 Rice Genomes panel (GW2, BG1, GS5, TGW6, GW8/OsSPL16; each at
 $\pm$250~kb around the Ren-2023 causal variant position), we took the
 per-chromosome rice multi-omics graph cache (RAP-DB variant$\to$gene via
 snpEff~ANN, Ren 2023 gene$\to$pathway curated catalogue of 269 grain genes,
@@ -618,7 +614,7 @@ seeds were used per non-unit fraction ($f = 1$ is deterministic).
 \textbf{Locus} & \textbf{Baseline PIP} & \textbf{10\%} & \textbf{25\%} &
 \textbf{50\%} & \textbf{75\%} & \textbf{100\%} \\
 \midrule
-GW8/OsSPGAFM6  & 0.040   &  2.2 &  2.1 &  2.0 &  2.0 &  2.0 \\
+GW8/OsSPL16  & 0.040   &  2.2 &  2.1 &  2.0 &  2.0 &  2.0 \\
 BG1          & 1.3$\times$10$^{-3}$ & 154.3 & 58.6 & 7.5 &  4.5 &  4.0 \\
 TGW6         & 2.7$\times$10$^{-3}$ &  64.7 & 34.7 & 15.2 &  6.7 &  3.0 \\
 GS5          & 2.1$\times$10$^{-4}$ & 514.3 & 764.0 & 1025.6 & 1156.0 & 1139.0 \\
@@ -634,7 +630,7 @@ GW2          & 6.1$\times$10$^{-7}$ &10791 &10899 &11033 &11130 &11197 \\
 \toprule
 \textbf{Locus} & \textbf{10\%} & \textbf{25\%} & \textbf{50\%} & \textbf{75\%} & \textbf{100\%} \\
 \midrule
-GW8/OsSPGAFM6  &  184 &  354 &  558 &  700 &  783 \\
+GW8/OsSPL16  &  184 &  354 &  558 &  700 &  783 \\
 BG1          & 7164 & 7164 & 7164 & 7164 & 7164 \\
 TGW6         & 4017 & 4047 & 4086 & 4115 & 4157 \\
 GS5          & 8577 & 8577 & 8577 & 8577 & 8577 \\
@@ -675,19 +671,19 @@ ground-truth validation of cross-species fine-mapping (Results
 
 \paragraph{Rice (Ren \emph{et al.} 2023).}
 269 grain-quality genes from the comprehensive Science Bulletin
-review\cite{ren2023rice}, with chromosome and position from snpEff
+review [\hyperref[snote_S4_ref3]{3}], with chromosome and position from snpEff
 ANN of the 3kRG pseudo-canonical VCF
 (\texttt{data/rice\_3k/ground\_truth/grain\_quality\_causal\_genes.tsv}
 + \texttt{gene\_position\_index.tsv}).
 
 \paragraph{Yeast (Bloom 2015 + Peter 2018 + curation).}
-35 trait-to-gene mappings drawn from\cite{peter2018genome,bloom2015genetic}
+35 trait-to-gene mappings drawn from [\hyperref[snote_S4_ref2]{2},\hyperref[snote_S4_ref1]{1}]
 plus standard yeast genetics canon. Examples:
 TUP1/SPT7/ADH1-3 (ethanol tolerance), CUP1/CUP2/CTR1/ACE1 (copper),
-HSP82/HSP104/HSP12/TPS1/TPS2 (heat), GAGAFM-10/GAL80
+HSP82/HSP104/HSP12/TPS1/TPS2 (heat), GAL10/GAL80
 (galactose utilisation), TOR1/PDR1/PDR3/YRR1 (caffeine, multidrug
 resistance), ERG3/ERG6/ERG11/PDR5/CDR1 (fluconazole/sterol),
-HOG1/SLN1/HAGAFM-3/ENA1 (osmotic), TUB1-3/BEN1 (benomyl/microtubule),
+HOG1/SLN1/HAL3/ENA1 (osmotic), TUB1-3/BEN1 (benomyl/microtubule),
 RAD52/RAD53/RNR1-3/MEC1 (HU/DNA-damage), GAL/HXT/GUT/RBK1
 (carbon-source). Positions parsed from
 \texttt{tests/data/yeast/SGD\_features.tab}.
@@ -704,8 +700,8 @@ validation relies on the literature layer.
 
 \paragraph{Human (GWAS Catalog literature canon).}
 8 chr22 loci linked in the GWAS Catalog or major lipid GWAS
-to our 4 traits: APOGAFM/APOL2 (LDL, Klarin et al.\ 2018),
-SREBF2 (LDL/Height, Willer et al.\ 2013), BCL2GAFM3/BID (LDL),
+to our 4 traits: APOL1/APOL2 (LDL, Klarin et al.\ 2018),
+SREBF2 (LDL/Height, Willer et al.\ 2013), BCL2L13/BID (LDL),
 PLA2G6 (TG, GLGC 2013), PPARA (TG, Surakka et al.\ 2015),
 KCNJ4 (Height). Chromosome-22-only because that is
 where our graph cache is built.
@@ -720,15 +716,16 @@ LD) and so likely under-counts true positives.
 
 \paragraph{References (Supplementary Note S4).}
 \begin{enumerate}[leftmargin=2.2em,itemsep=0.2em,topsep=0.2em,label={[\arabic*]}]
-\item Bloom, J.~S. \emph{et~al.} Genetic interactions contribute
-less than additive effects to quantitative trait variation in
-yeast. \textit{Nature Communications} \textbf{6}, 8712 (2015).
-\item Peter, J. \emph{et~al.} Genome evolution across 1{,}011
-\textit{Saccharomyces cerevisiae} isolates. \textit{Nature}
-\textbf{556}, 339--344 (2018).
-\item Ren, D., Ding, C. \& Qian, Q. Molecular bases of rice grain
-size and quality for optimized productivity. \textit{Science
-Bulletin} \textbf{68}, 314--350 (2023).
+\item\label{snote_S4_ref1} Bloom, J.~S. \emph{et~al.} Genetic
+interactions contribute less than additive effects to quantitative
+trait variation in yeast. \textit{Nature Communications}
+\textbf{6}, 8712 (2015).
+\item\label{snote_S4_ref2} Peter, J. \emph{et~al.} Genome evolution
+across 1{,}011 \textit{Saccharomyces cerevisiae} isolates.
+\textit{Nature} \textbf{556}, 339--344 (2018).
+\item\label{snote_S4_ref3} Ren, D., Ding, C. \& Qian, Q. Molecular
+bases of rice grain size and quality for optimized productivity.
+\textit{Science Bulletin} \textbf{68}, 314--350 (2023).
 \end{enumerate}
 
 \clearpage
@@ -1154,7 +1151,7 @@ SuSiE-inf and FINEMAP-inf baselines are the state-of-the-art
 infinitesimal-effects methods from Wu \emph{et al.}\ 2026 (Fig.~4b).
 SBayesRC \cite{zheng2024leveraging} is included as the 6th method.
 We built a 3kRG-specific eigen-decomposed LD reference from scratch
-using gctb 2.05beta + the R \texttt{LDstep1}--\texttt{LDstep4}
+using GCTB\cite{zeng2018gctb}~2.05beta + the R \texttt{LDstep1}--\texttt{LDstep4}
 pipeline over 23 non-overlapping blocks covering all 41 fine-mapped
 leads (188\,K MAF~$\geq$~0.05 variants; ~10 min wall-clock).
 SBayesRC achieves \textbf{20/21 (95\%)} variant-level recovery

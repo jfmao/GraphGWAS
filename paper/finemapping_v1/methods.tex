@@ -337,13 +337,13 @@ The public SBayesRC LD reference is built from human HapMap3
 European samples and is therefore incompatible with the rice
 3kRG cohort (different species, different LD structure). We
 constructed a 3kRG-specific LD reference from scratch using
-gctb\cite{zeng2018gctb}~2.05beta and the R
+GCTB\cite{zeng2018gctb}~2.05beta and the R
 SBayesRC \texttt{LDstep1}--\texttt{LDstep4} pipeline. We define
 23 non-overlapping blocks covering all 41 fine-mapped leads
 (merging $\pm$250\,kb intervals around each lead; mean block
 size $\sim$600\,kb, range 500\,kb--1.1\,Mb). Block construction
 restricts to the 188\,K MAF~$\geq$~0.05 variants in those windows
-extracted from the 3kRG \texttt{.pgen}; gctb computes a per-block
+extracted from the 3kRG \texttt{.pgen}; GCTB computes a per-block
 full LD matrix (\texttt{--make-full-ldm}); SBayesRC's
 \texttt{LDstep3} eigen-decomposes each block at variance
 threshold 0.995. SBayesRC is then run per trait at default
@@ -492,10 +492,16 @@ the present paper---together with an honest benchmark-status table
 for each method class, is provided in Supplementary Note~S2. The
 44-command CLI hierarchy is visualised as Supplementary
 Figure~S3; a per-command reference manual is shipped at
-\texttt{docs/manual/index.md}, and an end-to-end vignette
+\texttt{docs/manual/index.md}, an end-to-end vignette
 reproducing the FTO/BMI headline result from Pan-UKB summary
 statistics in $\sim$15 minutes is provided at
-\texttt{vignettes/fine-mapping-quickstart.md}. The same procedures
+\texttt{vignettes/fine-mapping-quickstart.md}, and a
+practitioner's guide on preparing inputs (z-score $\lambda_{GC}$
+and LD-matrix sanity checks; required column formats), choosing
+the appropriate method, and interpreting the credible-set output
+(including the calibrated-vs-operational distinction between
+base GAFM/HBP and the mixture-prior reweightings) is at
+\texttt{docs/INPUT\_OUTPUT\_GUIDE.md}. The same procedures
 are exposed through a 37-endpoint FastAPI REST server
 (\texttt{graphgwas serve}) and a 16-tool MCP server
 (\texttt{graphgwas mcp}) for programmatic and AI-agent access.
