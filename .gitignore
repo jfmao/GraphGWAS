@@ -16,6 +16,14 @@ build/
 .env
 *.env
 
+# Secrets — NEVER commit these
+*token*.txt
+*token*.json
+*_token*
+*api_key*
+.zenodo_token
+.pypi_token
+
 # Data (large files)
 tests/data/*.vcf
 tests/data/*.vcf.gz

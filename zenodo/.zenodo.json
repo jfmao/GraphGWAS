@@ -1,8 +1,8 @@
 {
   "upload_type": "software",
-  "title": "GraphGWAS v0.1.3: relational fine-mapping of causal GWAS variants on a multi-omics knowledge graph",
-  "version": "0.1.3",
-  "description": "GraphGWAS is a graph-native fine-mapping platform that carries multi-omics biological structure (genes, tissue-specific eQTLs, pathways, protein-protein interactions) through the inference as a typed factor graph rather than as flat per-variant annotation priors. Matches state-of-the-art Bayesian fine-mappers (SuSiE, FINEMAP, SuSiE-inf, FINEMAP-inf, SBayesRC) at 6-60x the speed under strong signal, and wins 27-2 head-to-head against SuSiE at weak signal with tissue-specific eQTL priors. This deposit accompanies the Nature Genetics manuscript 'Relational biological structure improves fine-mapping of causal GWAS variants under weak signal' (Estaji et al., 2026). Contents: pre-built graph-database dumps for 1000 Genomes + multi-omics (17 GB) and yeast 1011 Genomes (0.5 GB); benchmark outputs (JSON + TSV) for every figure and table in the paper; Pan-UK Biobank cross-ancestry fine-mapping outputs; figure source data; simulation seeds and per-replicate logs; and a source-code snapshot at the submission tag.",
+  "title": "GraphGWAS v0.1.5: relational fine-mapping of causal GWAS variants on a multi-omics knowledge graph",
+  "version": "0.1.5",
+  "description": "GraphGWAS is a graph-native fine-mapping platform that carries multi-omics biological structure (genes, tissue-specific eQTLs, pathways, protein-protein interactions) through the inference as a typed factor graph rather than as flat per-variant annotation priors. Matches state-of-the-art Bayesian fine-mappers (SuSiE, FINEMAP, SuSiE-inf, FINEMAP-inf, SBayesRC) at 6-60x the speed under strong signal, and wins 27-2 head-to-head against SuSiE at weak signal with tissue-specific eQTL priors. The v0.1.5 release adds three mixture-prior posterior reweighting methods (GAFM-MX, HBP-MX, ENS) that import a SBayesRC-style 4-component Wakefield Bayes-factor reweighting on the LD-deconvolved z-scores; on the panel-matched 3000 Rice Genomes grain weight + shape pass, GAFM-MX/HBP-MX/ENS each achieve 10/21 (47.6%) top-1-PIP exact-position recovery against the Niu 2021 21-stable-QTN catalogue (highest of any method tested; SuSiE 28.6%, SBayesRC 14.3%). This deposit accompanies the Nature Genetics manuscript 'Relational biological structure improves fine-mapping of causal GWAS variants under weak signal' (Estaji et al., 2026). Contents: pre-built graph-database dumps for 1000 Genomes + multi-omics (17 GB) and yeast 1011 Genomes (0.5 GB); benchmark outputs (JSON + TSV) for every figure and table in the paper, including the 79-replicate weak-signal 27-2 headline run and the v0.1.5 mixture-prior cross-species + 3kRG outputs; Pan-UK Biobank cross-ancestry fine-mapping outputs; the 3kRG IRRI 18-trait whole-genome scan summary statistics and the 4-trait grain weight + shape pass; figure source data; simulation seeds and per-replicate logs; pre-registered control experiments (placebo prior, null-overlap permutation, hyperparameter sensitivity); and a source-code snapshot at the submission tag.",
   "license": "MIT",
   "access_right": "open",
   "creators": [
@@ -55,13 +55,13 @@
     },
     {
       "relation": "isCompiledBy",
-      "identifier": "https://github.com/jfmao/GraphGWAS/releases/tag/v0.1.3",
+      "identifier": "https://github.com/jfmao/GraphGWAS/releases/tag/v0.1.5",
       "resource_type": "software",
       "scheme": "url"
     },
     {
       "relation": "isCompiledBy",
-      "identifier": "https://pypi.org/project/graphgwas/0.1.1/",
+      "identifier": "https://pypi.org/project/graphgwas/0.1.5/",
       "resource_type": "software",
       "scheme": "url"
     },

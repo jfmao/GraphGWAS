@@ -2,8 +2,8 @@ cff-version: 1.2.0
 title: "GraphGWAS: relational fine-mapping of causal GWAS variants on a multi-omics knowledge graph"
 message: "If you use GraphGWAS, please cite the accompanying manuscript and this software record."
 type: software
-version: 0.1.0
-date-released: "2026-04-23"
+version: 0.1.5
+date-released: "2026-05-07"
 license: MIT
 url: "https://github.com/jfmao/GraphGWAS"
 repository-code: "https://github.com/jfmao/GraphGWAS"
