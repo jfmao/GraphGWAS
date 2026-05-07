@@ -28,7 +28,6 @@ authors:
     given-names: Jianfeng
     affiliation: "Umeå University"
     email: jianfeng.mao@umu.se
-    orcid: "https://orcid.org/0000-0000-0000-0000"
 identifiers:
   - type: doi
     value: "10.5281/zenodo.20065705"
