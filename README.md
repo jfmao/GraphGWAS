@@ -147,7 +147,8 @@ Honest benchmark-status table in Supplementary Note S3 of the manuscript.
 
 ## Data
 
-Pre-built Neo4j graph databases on Zenodo (DOIs assigned on acceptance):
+Pre-built Neo4j graph databases on Zenodo
+([10.5281/zenodo.20065705](https://doi.org/10.5281/zenodo.20065705)):
 
 | Dataset | Size | Contents |
 |---|---|---|

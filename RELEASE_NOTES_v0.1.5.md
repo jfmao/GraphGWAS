@@ -3,7 +3,7 @@
 **Released:** 2026-05-07
 **Tag:** `v0.1.5`
 **PyPI:** <https://pypi.org/project/graphgwas/0.1.5/>
-**Zenodo DOI:** _(pending — added after Zenodo publish)_
+**Zenodo DOI:** [10.5281/zenodo.20065705](https://doi.org/10.5281/zenodo.20065705)
 
 This release accompanies the Nature Genetics submission *"Relational biological
 structure improves fine-mapping of causal GWAS variants under weak signal"*
@@ -96,4 +96,6 @@ pip install graphgwas==0.1.5
 ## Citing
 
 Citation metadata is in `CITATION.cff` and the Zenodo deposit metadata
-(`zenodo/.zenodo.json`); the Zenodo DOI will be added here after publish.
+(`zenodo/.zenodo.json`). For software citation use the Zenodo DOI
+[10.5281/zenodo.20065705](https://doi.org/10.5281/zenodo.20065705); for
+the accompanying paper, see the manuscript reference once published.

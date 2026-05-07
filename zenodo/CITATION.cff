@@ -69,5 +69,5 @@ preferred-citation:
       given-names: Jian-Feng
 identifiers:
   - type: doi
-    value: "10.5281/zenodo.PLACEHOLDER-ASSIGN-ON-UPLOAD"
+    value: "10.5281/zenodo.20065705"
     description: "Zenodo deposit (this artifact)"

@@ -31,14 +31,8 @@ authors:
     orcid: "https://orcid.org/0000-0000-0000-0000"
 identifiers:
   - type: doi
-    value: "10.5281/zenodo.PLACEHOLDER"
-    description: "Versioned software release (Zenodo DOI assigned on acceptance)"
-  - type: doi
-    value: "10.5281/zenodo.PLACEHOLDER-HUMAN-DUMP"
-    description: "Human 1KG pre-built Neo4j database with multi-omics annotations (17 GB)"
-  - type: doi
-    value: "10.5281/zenodo.PLACEHOLDER-YEAST-DUMP"
-    description: "Yeast 1011-genomes pre-built Neo4j database (0.5 GB)"
+    value: "10.5281/zenodo.20065705"
+    description: "GraphGWAS v0.1.5 software + data deposit (source-code snapshot, pre-built Neo4j graph dumps for human 1KG with multi-omics annotations and yeast 1011 Genomes, benchmark outputs, multi-species graph caches, Pan-UKB per-locus results, and the 3kRG IRRI 18-trait summary statistics)"
 preferred-citation:
   type: article
   title: "Relational biological structure improves fine-mapping of causal GWAS variants under weak signal"

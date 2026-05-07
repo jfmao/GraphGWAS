@@ -209,7 +209,7 @@ Citing this Zenodo record:
 > Estaji, E., Zhao, S.-W., Chen, Z.-Y., Nie, S. & Mao, J.-F. (2026).
 > *GraphGWAS v0.1.5: relational fine-mapping of causal GWAS variants
 > on a multi-omics knowledge graph.* Zenodo.
-> https://doi.org/10.5281/zenodo.[DOI-ASSIGNED-ON-UPLOAD]
+> https://doi.org/10.5281/zenodo.20065705
 
 Citing the accompanying paper:
 
