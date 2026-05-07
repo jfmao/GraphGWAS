@@ -253,16 +253,19 @@ echo "[6/6] Creating source-code snapshot..."
 cd "$ROOT"
 SHA=$(git rev-parse HEAD 2>/dev/null || echo "unknown")
 echo "$SHA" > "$ZEN/code_snapshot/commit_sha.txt"
-# Prefer the tagged v0.1.1 release if available; fall back to HEAD
-if git rev-parse v0.1.1 >/dev/null 2>&1; then
-    SRC_REF="v0.1.1"
-    SRC_PREFIX="graphgwas-v0.1.1/"
-    SRC_TGZ="graphgwas_v0.1.1.tar.gz"
+# Prefer the latest semantic-version tag; fall back to HEAD
+LATEST_TAG=$(git tag -l 'v[0-9]*' --sort=-v:refname | head -1)
+if [ -n "$LATEST_TAG" ]; then
+    SRC_REF="$LATEST_TAG"
+    SRC_PREFIX="graphgwas-${LATEST_TAG#v}/"
+    SRC_TGZ="graphgwas_${LATEST_TAG}.tar.gz"
 else
     SRC_REF="HEAD"
     SRC_PREFIX="graphgwas-${SHA:0:8}/"
     SRC_TGZ="graphgwas_${SHA:0:8}.tar.gz"
 fi
+# Remove stale code-snapshot tarballs from older releases
+find "$ZEN/code_snapshot" -name "graphgwas_v*.tar.gz" ! -name "$SRC_TGZ" -delete 2>/dev/null || true
 git archive --format=tar.gz --prefix="$SRC_PREFIX" \
     -o "$ZEN/code_snapshot/$SRC_TGZ" "$SRC_REF" 2>/dev/null \
     && echo "  ✓ $SRC_TGZ (from $SRC_REF)" \
@@ -274,7 +277,7 @@ git archive --format=tar.gz --prefix="$SRC_PREFIX" \
 echo ""
 echo "Computing SHA-256 checksums..."
 {
-    echo "# MANIFEST — GraphGWAS Zenodo deposit v0.1.0"
+    echo "# MANIFEST — GraphGWAS Zenodo deposit ${LATEST_TAG:-HEAD}"
     echo ""
     echo "Generated: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
     echo "Project commit: $SHA"

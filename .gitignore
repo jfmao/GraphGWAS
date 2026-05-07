@@ -24,6 +24,10 @@ build/
 .zenodo_token
 .pypi_token
 
+# Zenodo upload bookkeeping (machine-generated per upload)
+zenodo/.last_deposit_id
+zenodo/.last_bucket
+
 # Data (large files)
 tests/data/*.vcf
 tests/data/*.vcf.gz
