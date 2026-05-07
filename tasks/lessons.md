@@ -972,3 +972,227 @@ information from the head token, not the parenthetical.
 **Pre-submission check:** view the rendered PDF for the table and
 spot-check at least two rows of each format. The italicisation rule
 fails silently in TeX source; you have to read the PDF.
+
+### LESSON 057: Same fraction must round identically across the whole paper
+
+**Symptom:** The fraction 10/21 = 0.4762 appeared in the paper as
+both **48\%** (in some `(48\%)` parenthetical contexts that
+followed a `12/21 (57\%)` / `8/21 (38\%)` two-digit-rounded series)
+and as **47.6\%** (in headline contexts where the precision
+mattered). Both are "right" — but a reader who flips between
+`results.tex`, `supplementary.tex` and the cover letter sees a
+discrepancy that triggers a "wait, are these the same number?"
+moment. Cover letter further rounded SuSiE 6/21 = 28.57\% to
+**(29\%)** while the paper text used **(28.6\%)**, and
+SBayesRC 3/21 = 14.29\% to **(14\%)** vs **(14.3\%)**.
+
+**Why it happens:** Different sections of a paper get drafted at
+different stages with different mental "precision norms." Tabular
+contexts gravitate to integer percent for visual rhythm (`57\% /
+48\% / 38\%`), while headline contexts drop to one decimal for
+emphasis (`47.6\%`). The cover letter, drafted last and
+optimised for editorial scannability, often rounds harder. The
+underlying fraction is the same — the rendered string isn't.
+
+**Rule:** For every fraction that appears more than once in the
+paper materials, **pick one canonical rendering** and use it
+**everywhere** (results, supplementary, abstract, cover letter,
+figure captions, table cells). Default precision: one decimal
+when the integer rounding is ambiguous (e.g. `47.6\%` not
+`48\%` for 10/21), integer when the fraction is clean (`95\%`
+for 20/21).
+
+**Pre-submission diagnostic:**
+```
+for frac in "10/21" "6/21" "3/21" "20/21" "12/21" "8/21"; do
+  echo "=== $frac ==="
+  grep -nE "$frac.*\(.*%\)|\(.*%\).*$frac" paper/finemapping_v1/*.tex paper/finemapping_v1/cover_letter.tex
+done
+```
+Eyeball the percent values returned for each fraction; they must
+all match.
+
+### LESSON 058: A quantity that lives in N places needs ONE canonical source
+
+**Symptom:** "Number of CLI commands" appeared as **44** in the
+paper (Sup Fig S3 caption, Sup Note S2, methods.tex), **52** in
+the README, **"40+"** in the docs/manual/index.md, and **53** in
+the actual code (`grep -c "@.*\.command(" src/python/graphgwas/cli.py`).
+Four surfaces, four answers, none matching the code. This is the
+direct reader-trigger version of the lesson 053 capitalisation
+problem: when the *same quantity* lives across paper / README /
+manual / code, it drifts.
+
+**Why it happens:** Each surface evolves on its own cadence —
+README updates when a feature ships, paper updates when results
+come in, manual updates rarely. There is no automated check that
+they agree.
+
+**Rule:** For any quantity that appears in N user-facing surfaces
+(command count, endpoint count, gene count, locus count, sample
+size, percentage), designate **the code** (or a single
+ground-truth artefact) as canonical and reference it from a
+single place. When the canonical value changes, run a single
+grep + sed across all surfaces.
+
+**Pre-submission diagnostic:** maintain a small
+`docs/CANONICAL_NUMBERS.md` (or comments at the top of the
+governing source file) with the form
+`<quantity>: <value> (source: <file:line>)`. At submission time,
+grep each quantity across all paper + docs and verify match.
+
+### LESSON 059: Stale defaults survive code-base version bumps unless explicitly grepped
+
+**Symptom:** The Methods text claimed GAFM defaults "α = 0.9
+(strong-signal H2H), 0.5 (weak-signal), 1.0 (Pan-UKB)". The
+v0.1.5 release changed the actual benchmark drivers to α = 0.7
+for the strong-signal H2H, cross-species, and rice grain pass —
+but Methods still said 0.9 (a pre-v0.1.5 value). The `0.5` and
+`1.0` happened to still be correct. The reader who reproduces
+the headline run gets α = 0.7 from the script and α = 0.9 from
+the Methods — and writes a comment.
+
+**Why it happens:** Defaults are surface details. A version bump
+changes the driver scripts (because that's where the numbers
+come from), but the Methods text was written *describing* the
+defaults at the time and isn't re-derived from the scripts on
+each version. The `0.9` claim quietly ages out.
+
+**Rule:** When a code-level default changes between releases, do
+not rely on the Methods text being right. Pre-submission, for
+every parameter named with a numeric value in Methods:
+1. Find the driver script the headline benchmark uses.
+2. Grep the value of the parameter in that script.
+3. If they disagree, update the Methods text — naming the
+   benchmark and the value used, *not* a global "default".
+
+**Better pattern:** when different benchmarks legitimately use
+different values, do not claim a single "regime-specific
+default" — list the per-benchmark value with the script name
+inline:
+> "α = 0.7 (`benchmark_v15_chr22.py`, strong-signal H2H +
+> cross-species + rice grain pass); α = 0.5
+> (`benchmark_weak_signal.py`, weak-signal 27–2 + 100-rep
+> replication); α = 1.0 (`benchmark_panukb_finemap.py`,
+> sumstats Pan-UKB)."
+
+This is more characters but eliminates the drift class entirely:
+the named script *is* the source of truth, and any future
+version bump only needs to update the inline number.
+
+### LESSON 060: A figure visualisation may legitimately curate; disclose it explicitly
+
+**Symptom:** The CLI hierarchy figure (`figS3_cli_tree.pdf`) was
+drawn from a Python script with hand-curated `DOMAINS` /
+`functions` / `commands` arrays totalling **44 commands across
+10 thematic domains and 19 categories** — chosen for visual
+legibility. The actual CLI has **53 commands across 15
+functional groups**. Initially I treated this as a bug ("figure
+under-counts code"); on inspection it is a legitimate curation
+choice (a fully-enumerated 53-command tree would not fit on the
+page). The bug was that the prose around the figure quoted *the
+visualisation's* counts as if they were the platform totals.
+
+**Rule:** When a figure visualises a thematic curation rather
+than a complete enumeration:
+1. State both numbers in the caption: "53 commands across 15
+   functional groups; the visualisation shows 44 representative
+   commands grouped under 10 thematic domains for legibility."
+2. Direct the reader to the complete reference
+   (`docs/manual/index.md`, README method table, etc.).
+3. Never let prose elsewhere quote the curated count as the
+   platform total.
+
+**Diagnostic:** for every figure that displays a subset of an
+enumerable resource (commands, genes, traits, loci, methods),
+ask: "could a reader count what they see and infer the
+platform-total from that?" If yes, the caption needs to disclose
+the curation explicitly.
+
+### LESSON 061: Run output the paper cites must live in the deposit under the README's promised name
+
+**Symptom:** The zenodo `benchmark_outputs/README.md` listed
+`weak_signal_l1_vs_susie_79rep.json` as the file backing
+"Main Fig 3 / 79 reps / β=0.15 / h²=0.01" — the headline
+27-2 result. The actual file was at
+`results/benchmark_v2/paper_figures/100rep_l1_vs_susie_weak.json`
+(non-canonical name, wrong directory) and **not in the zenodo
+deposit at all**. A reproducer who downloaded the deposit and
+followed the README would get a missing-file error.
+
+**Why it happens:** Run outputs accumulate in `results/...` as
+benchmarks evolve; the zenodo deposit is curated separately and
+stale README entries (or aspirational ones written before the
+file was canonicalised) can persist. The drift only surfaces if
+someone walks the README and verifies each promised file
+exists.
+
+**Rule:** Pre-submission, for every file mentioned in the zenodo
+README / MANIFEST.md:
+```
+for f in $(grep -oE '`[^`]+\.json`' zenodo/benchmark_outputs/README.md | tr -d '`'); do
+  test -f "zenodo/benchmark_outputs/$f" \
+    && echo "OK: $f" \
+    || echo "MISSING: $f"
+done
+```
+Every line should say `OK`. For each MISSING, find the actual
+run output (it is somewhere in `results/`), verify the headline
+numbers come out of it, copy it into
+`zenodo/benchmark_outputs/` under the README's name, and add
+its size + sha256 to MANIFEST.md.
+
+**Search trick when the run output's filename is unknown:**
+encode the headline claim as a binomial-test predicate and
+sweep all JSONs:
+```python
+# Find any (records, key_a, key_b) such that:
+#   records[a-rank] < records[b-rank] in W cases,
+#   records[b-rank] < records[a-rank] in L cases,
+#   W >= 20 and L <= 5  (matches the "27-2" headline shape)
+```
+This located the 27-2 file across 395 JSONs in seconds, even
+though the filename had nothing to do with "27" or "weak signal".
+The headline claim itself is the search key.
+
+### LESSON 062: Parallel external audit finds drift that internal "thoroughness" misses
+
+**Symptom:** After multiple "thorough" pre-submission rounds, a
+single dispatch of four parallel audit agents (paper-internal,
+code-vs-paper, docs-vs-paper, numbers-cross-section) returned
+~12 distinct real mismatches: rounding drift across cover
+letter / paper, CLI count across four surfaces, stale α=0.9
+default, missing 27-2 deposit, gene-name corruption residue,
+internal codenames in vignettes. None of these were caught by
+the linear pre-submission passes.
+
+**Why it happens:** A single agent doing serial review hits the
+same blind spots the author has, because it inherits the
+author's mental model of what to check. Four agents working in
+parallel with deliberately *different* lenses (one for prose,
+one for code, one for docs, one for numbers) cover four
+non-overlapping blind-spot classes.
+
+**Rule:** Before submission, dispatch a parallel audit. Minimum
+viable lens set:
+1. **Paper-internal** — cross-refs, citations, terminology
+   drift, gene-name validation, sup-note self-containment,
+   internal codenames, length budget, Workflow B residue.
+2. **Code-vs-paper** — method name mapping, default parameter
+   values, benchmark headline numbers vs script outputs, CLI
+   command coverage.
+3. **Docs-vs-paper** — README, INSTALL, vignettes, manual
+   alignment with paper claims; URL consistency; orphan docs.
+4. **Numbers consistency** — every headline percentage / count /
+   sample size grepped across abstract, results, discussion,
+   methods, supplementary, cover letter, figure / table
+   captions; flag any drift.
+
+Each agent reports a short punch list. Synthesise into a single
+prioritised fix list. The cost is one parallel dispatch
+(~5 minutes); the benefit is finding mismatches that are
+expensive to discover at peer-review.
+
+**Cadence:** run this audit at least once before *every* major
+submission milestone (initial submission, revision, camera-ready).
+Drift accumulates faster than the author notices.
