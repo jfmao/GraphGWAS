@@ -147,9 +147,9 @@ def table_s7_recovery():
     tex.append(r"\midrule")
     for _, r in sc.iterrows():
         m = r["method"]
-        t1 = f"{int(r['tier1_qtns_in_cs'])}/{int(r['tier1_qtns_total'])} ({r['tier1_recovery_pct']:.0f}\\%)"
+        t1 = f"{int(r['tier1_qtns_in_cs'])}/{int(r['tier1_qtns_total'])} ({r['tier1_recovery_pct']:.1f}\\%)"
         t1top = f"{int(r['tier1_top1_count'])}/{int(r['tier1_qtns_total'])}"
-        t2 = f"{int(r['tier2_novel_recovered'])}/{int(r['tier2_novel_total'])} ({r['tier2_recovery_pct']:.0f}\\%)"
+        t2 = f"{int(r['tier2_novel_recovered'])}/{int(r['tier2_novel_total'])} ({r['tier2_recovery_pct']:.1f}\\%)"
         t3 = f"{int(r['tier3_ren_genes_recovered'])}"
         tex.append(f"{m:<14s} & {t1:>14s} & {t1top:>10s} & {t2:>14s} & {t3:>5s} \\\\")
     tex.append(r"\bottomrule")

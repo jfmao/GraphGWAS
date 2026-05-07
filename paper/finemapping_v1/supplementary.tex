@@ -960,7 +960,7 @@ of the maximum count observed for any method on this panel
 (SBayesRC: 18 of $\sim$118 genes recovered = 100\%).
 The strict variant-level numbers behind this panel are in
 Supplementary Table~S8.
-SBayesRC dominates the strict in-CS metric on Tier~1 (20/21 = 95\%,
+SBayesRC dominates the strict in-CS metric on Tier~1 (20/21 = 95.2\%,
 on the strength of its full eigen-decomposed LD model); GAFM-MX,
 HBP-MX and ENS dominate the strictest top-1-PIP exact-position
 metric (10/21 = 47.6\%, the highest of any method tested,
@@ -1087,7 +1087,7 @@ canon for human).}
                  & \textbf{Validated} \\
 \midrule
 Rice (3kRG, IRRI)      & 18 & 72  & 11 (15\%) & 16 (22\%) & 14 (19\%)  & 8 (11\%) & 24 (33\%) \\
-Rice (3kRG, grain)$^\dagger$ &  4 & 41  & --        & --        & --         & --       & 20/21 (95\%) \\
+Rice (3kRG, grain)$^\dagger$ &  4 & 41  & --        & --        & --         & --       & 20/21 (95.2\%) \\
 Yeast (1011)           & 35 & 245 & 0 (0\%)   & 5 (2\%)   & 244 (100\%) & 0 (0\%) & 44 (18\%) \\
 Arabidopsis (1001G)    & 14 & 54  & 3 (6\%)   & 7 (13\%)  & 29 (54\%)   & 2 (4\%)  & 3 (6\%)  \\
 Human (Pan-UKB, GW)    & 3  & 321 & 8 (2\%)   & 47 (15\%) & 0 (0\%)     & 8 (2\%) & 21 (7\%) \\
@@ -1099,14 +1099,14 @@ Human (Pan-UKB, GW)    & 3  & 321 & 8 (2\%)   & 47 (15\%) & 0 (0\%)     & 8 (2\%
 \vspace{2pt}
 \footnotesize{$^\dagger$ Validation count for the grain-shape pass uses the
 panel-matched Niu \emph{et al.}\ 2021 \cite{niu2021grain} 21-stable-QTN
-catalogue. The 20/21 (95\%) figure is panel-level (any GWAS lead at
+catalogue. The 20/21 (95.2\%) figure is panel-level (any GWAS lead at
 $p\leq5\times10^{-8}$ within $\pm$100\,kb of the QTN). At the strict
 variant-level (chr:pos in the 95\% credible set within $\pm$10\,kb),
 the 9-method panel gives:
-\textbf{SBayesRC 20/21 (95\%, 16 exact-position matches);
-GAFM-MX = HBP-MX = ENS = SuSiE 12/21 (57\%);
+\textbf{SBayesRC 20/21 (95.2\%, 16 exact-position matches);
+GAFM-MX = HBP-MX = ENS = SuSiE 12/21 (57.1\%);
 HBP 10/21 (47.6\%);
-GAFM, SuSiE-inf, FINEMAP-inf 8/21 (38\%) each}.
+GAFM, SuSiE-inf, FINEMAP-inf 8/21 (38.1\%) each}.
 At the strictest top-1-PIP exact-position metric, GAFM-MX, HBP-MX,
 and ENS each achieve \textbf{10/21 (47.6\%)} --- the highest of any
 method, exceeding SuSiE (6/21, 28.6\%) and SBayesRC (3/21, 14.3\%). Per-method,
@@ -1156,7 +1156,7 @@ We built a 3kRG-specific eigen-decomposed LD reference from scratch
 using GCTB\cite{zeng2018gctb}~2.05beta + the R \texttt{LDstep1}--\texttt{LDstep4}
 pipeline over 23 non-overlapping blocks covering all 41 fine-mapped
 leads (188\,K MAF~$\geq$~0.05 variants; ~10 min wall-clock).
-SBayesRC achieves \textbf{20/21 (95\%)} variant-level recovery
+SBayesRC achieves \textbf{20/21 (95.2\%)} variant-level recovery
 of the Niu QTNs in 95\% credible sets within $\pm$10\,kb (16 exact
 position matches), the strongest of all six methods on this rice
 grain pass.
